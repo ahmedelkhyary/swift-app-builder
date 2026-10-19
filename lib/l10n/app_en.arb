@@ -71,7 +71,7 @@
     }
   },
   "logoLabel": "Logo",
-  "logoHint": "PNG or SVG, at least 512×512, max 2 MB",
+  "logoHint": "PNG or SVG, transparent background preferred, 1024×1024 (minimum 512)",
   "appIconLabel": "App icon",
   "appIconHint": "PNG, exactly 1024×1024, no transparency",
   "splashTitle": "Splash screen",
@@ -215,7 +215,7 @@
   "editAppId": "Edit app ID",
   "resetAppId": "Generate again from the English name",
   "infoSubtitle": "Core app details and store identifiers. Fields marked * are required.",
-  "brandingSubtitle": "Colors, logo, icon and splash screen of the app.",
+  "brandingSubtitle": "Pick any color you like from the picker, or type the color code directly.",
   "localizationSubtitle": "Choose the default language and the languages the app supports.",
   "templateSubtitle": "Pick the service modules, then the look that suits your brand. You can change it later.",
   "summarySubtitle": "Review everything, then save a new configuration version.",
@@ -269,5 +269,85 @@
     }
   },
   "selectedTemplateLabel": "Selected template:",
-  "previewTemplateSwitcher": "Template"
+  "previewTemplateSwitcher": "Template",
+  "colorsCardTitle": "App colors",
+  "extractColors": "Extract colors from logo",
+  "roleTabsLabel": "Color roles",
+  "rolePrimary": "Primary",
+  "roleSecondary": "Secondary",
+  "roleSplash": "Splash background",
+  "roleDescPrimary": "Buttons, banner, active elements",
+  "roleDescSecondary": "Accents, badges, secondary icons",
+  "roleDescSplash": "Background of the splash screen when the app opens",
+  "pickerAreaLabel": "Saturation and brightness",
+  "pickerAreaValue": "Saturation {s}%, brightness {v}%",
+  "@pickerAreaValue": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      },
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "hueLabel": "Hue",
+  "hueValue": "{deg}°",
+  "@hueValue": {
+    "placeholders": {
+      "deg": {
+        "type": "String"
+      }
+    }
+  },
+  "eyedropperLabel": "Pick a color from the screen",
+  "hexLabel": "HEX",
+  "contrastOkWhite": "White text is clear on this color (contrast {ratio}:1)",
+  "@contrastOkWhite": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "contrastWarnWhite": "Text may not be clear on this color (contrast {ratio}:1)",
+  "@contrastWarnWhite": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "contrastOkBg": "The primary color is clear on this background (contrast {ratio}:1)",
+  "@contrastOkBg": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "contrastWarnBg": "The primary color may not be clear on this background (contrast {ratio}:1)",
+  "@contrastWarnBg": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestedColors": "Suggested colors",
+  "fromLogo": "From logo",
+  "colorSwatchLabel": "Color {hex}",
+  "@colorSwatchLabel": {
+    "placeholders": {
+      "hex": {
+        "type": "String"
+      }
+    }
+  },
+  "changeLogo": "Change logo",
+  "uploadLogo": "Upload logo",
+  "livePreviewSubtitle": "Colors update instantly as you choose",
+  "iconSplashCard": "App icon & splash screen",
+  "colorsExtracted": "Colors extracted from the logo",
+  "noColorsInLogo": "No distinct colors were found in the logo"
 }

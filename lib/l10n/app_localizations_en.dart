@@ -173,7 +173,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoLabel => 'Logo';
 
   @override
-  String get logoHint => 'PNG or SVG, at least 512×512, max 2 MB';
+  String get logoHint =>
+      'PNG or SVG, transparent background preferred, 1024×1024 (minimum 512)';
 
   @override
   String get appIconLabel => 'App icon';
@@ -449,7 +450,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get brandingSubtitle =>
-      'Colors, logo, icon and splash screen of the app.';
+      'Pick any color you like from the picker, or type the color code directly.';
 
   @override
   String get localizationSubtitle =>
@@ -581,4 +582,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get previewTemplateSwitcher => 'Template';
+
+  @override
+  String get colorsCardTitle => 'App colors';
+
+  @override
+  String get extractColors => 'Extract colors from logo';
+
+  @override
+  String get roleTabsLabel => 'Color roles';
+
+  @override
+  String get rolePrimary => 'Primary';
+
+  @override
+  String get roleSecondary => 'Secondary';
+
+  @override
+  String get roleSplash => 'Splash background';
+
+  @override
+  String get roleDescPrimary => 'Buttons, banner, active elements';
+
+  @override
+  String get roleDescSecondary => 'Accents, badges, secondary icons';
+
+  @override
+  String get roleDescSplash =>
+      'Background of the splash screen when the app opens';
+
+  @override
+  String get pickerAreaLabel => 'Saturation and brightness';
+
+  @override
+  String pickerAreaValue(String s, String v) {
+    return 'Saturation $s%, brightness $v%';
+  }
+
+  @override
+  String get hueLabel => 'Hue';
+
+  @override
+  String hueValue(String deg) {
+    return '$deg°';
+  }
+
+  @override
+  String get eyedropperLabel => 'Pick a color from the screen';
+
+  @override
+  String get hexLabel => 'HEX';
+
+  @override
+  String contrastOkWhite(String ratio) {
+    return 'White text is clear on this color (contrast $ratio:1)';
+  }
+
+  @override
+  String contrastWarnWhite(String ratio) {
+    return 'Text may not be clear on this color (contrast $ratio:1)';
+  }
+
+  @override
+  String contrastOkBg(String ratio) {
+    return 'The primary color is clear on this background (contrast $ratio:1)';
+  }
+
+  @override
+  String contrastWarnBg(String ratio) {
+    return 'The primary color may not be clear on this background (contrast $ratio:1)';
+  }
+
+  @override
+  String get suggestedColors => 'Suggested colors';
+
+  @override
+  String get fromLogo => 'From logo';
+
+  @override
+  String colorSwatchLabel(String hex) {
+    return 'Color $hex';
+  }
+
+  @override
+  String get changeLogo => 'Change logo';
+
+  @override
+  String get uploadLogo => 'Upload logo';
+
+  @override
+  String get livePreviewSubtitle => 'Colors update instantly as you choose';
+
+  @override
+  String get iconSplashCard => 'App icon & splash screen';
+
+  @override
+  String get colorsExtracted => 'Colors extracted from the logo';
+
+  @override
+  String get noColorsInLogo => 'No distinct colors were found in the logo';
 }

@@ -173,7 +173,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logoLabel => 'الشعار';
 
   @override
-  String get logoHint => 'PNG أو SVG، لا يقل عن 512×512، بحد أقصى 2 ميجابايت';
+  String get logoHint =>
+      'PNG أو SVG، يفضّل خلفية شفافة و 1024×1024 (الحد الأدنى 512)';
 
   @override
   String get appIconLabel => 'أيقونة التطبيق';
@@ -447,7 +448,8 @@ class AppLocalizationsAr extends AppLocalizations {
       'البيانات الأساسية للتطبيق ومعرّفات المتاجر. الحقول المعلّمة بـ * مطلوبة.';
 
   @override
-  String get brandingSubtitle => 'ألوان التطبيق وشعاره وأيقونته وشاشة البداية.';
+  String get brandingSubtitle =>
+      'اختر أي لون تحبه من المنتقي، أو اكتب كود اللون مباشرة.';
 
   @override
   String get localizationSubtitle =>
@@ -578,4 +580,102 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get previewTemplateSwitcher => 'القالب';
+
+  @override
+  String get colorsCardTitle => 'ألوان التطبيق';
+
+  @override
+  String get extractColors => 'استخراج الألوان من الشعار';
+
+  @override
+  String get roleTabsLabel => 'أدوار الألوان';
+
+  @override
+  String get rolePrimary => 'الأساسي';
+
+  @override
+  String get roleSecondary => 'الثانوي';
+
+  @override
+  String get roleSplash => 'خلفية شاشة البداية';
+
+  @override
+  String get roleDescPrimary => 'الأزرار، البانر، العناصر النشطة';
+
+  @override
+  String get roleDescSecondary => 'التمييز، الشارات، الأيقونات الثانوية';
+
+  @override
+  String get roleDescSplash => 'خلفية شاشة البداية عند فتح التطبيق';
+
+  @override
+  String get pickerAreaLabel => 'التشبع والسطوع';
+
+  @override
+  String pickerAreaValue(String s, String v) {
+    return 'التشبع $s%، السطوع $v%';
+  }
+
+  @override
+  String get hueLabel => 'درجة اللون';
+
+  @override
+  String hueValue(String deg) {
+    return '$deg°';
+  }
+
+  @override
+  String get eyedropperLabel => 'أداة التقاط اللون';
+
+  @override
+  String get hexLabel => 'HEX';
+
+  @override
+  String contrastOkWhite(String ratio) {
+    return 'النص الأبيض واضح على هذا اللون (تباين $ratio:1)';
+  }
+
+  @override
+  String contrastWarnWhite(String ratio) {
+    return 'النص قد لا يكون واضحًا على هذا اللون (تباين $ratio:1)';
+  }
+
+  @override
+  String contrastOkBg(String ratio) {
+    return 'اللون الأساسي واضح على هذه الخلفية (تباين $ratio:1)';
+  }
+
+  @override
+  String contrastWarnBg(String ratio) {
+    return 'اللون الأساسي قد لا يكون واضحًا على هذه الخلفية (تباين $ratio:1)';
+  }
+
+  @override
+  String get suggestedColors => 'ألوان مقترحة';
+
+  @override
+  String get fromLogo => 'من الشعار';
+
+  @override
+  String colorSwatchLabel(String hex) {
+    return 'اللون $hex';
+  }
+
+  @override
+  String get changeLogo => 'تغيير الشعار';
+
+  @override
+  String get uploadLogo => 'رفع الشعار';
+
+  @override
+  String get livePreviewSubtitle => 'الألوان تتحدّث فورًا وأنت تختار';
+
+  @override
+  String get iconSplashCard => 'أيقونة التطبيق وشاشة البداية';
+
+  @override
+  String get colorsExtracted => 'تم استخراج الألوان من الشعار';
+
+  @override
+  String get noColorsInLogo => 'لم يتم العثور على ألوان مميزة في الشعار';
 }

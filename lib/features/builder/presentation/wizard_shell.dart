@@ -34,7 +34,8 @@ class WizardShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final index = _sections.indexOf(section);
-    final wide = section == WizardSection.template;
+    final wide =
+        section == WizardSection.template || section == WizardSection.branding;
     final narrow = MediaQuery.sizeOf(context).width < _narrow;
 
     return Scaffold(

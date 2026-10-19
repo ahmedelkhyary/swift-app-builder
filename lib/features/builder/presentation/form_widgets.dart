@@ -3,7 +3,6 @@ import 'dart:ui' show PathMetric;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:recruitment_ui/recruitment_ui.dart';
 
 import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
@@ -314,126 +313,6 @@ class DashedBorderPainter extends CustomPainter {
       old.color != color || old.radius != radius;
 }
 
-/// Color field: swatch (opens a picker dialog) + hex input.
-class ColorField extends StatelessWidget {
-  const ColorField({
-    super.key,
-    required this.label,
-    required this.hex,
-    required this.onChanged,
-    this.field,
-    this.error,
-  });
-
-  final String label;
-  final String hex;
-  final ValueChanged<String> onChanged;
-  final DraftField? field;
-  final FieldError? error;
-
-  static const _palette = <Color>[
-    Color(0xFF1565C0),
-    Color(0xFF0D47A1),
-    Color(0xFF00897B),
-    Color(0xFF2E7D32),
-    Color(0xFF6A1B9A),
-    Color(0xFFAD1457),
-    Color(0xFFC62828),
-    Color(0xFFEF6C00),
-    Color(0xFFFFB300),
-    Color(0xFF455A64),
-    Color(0xFF212121),
-    Color(0xFFFFFFFF),
-  ];
-
-  Future<void> _pick(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final picked = await showDialog<Color>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.pickColor),
-        content: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            for (final c in _palette)
-              InkWell(
-                onTap: () => Navigator.pop(ctx, c),
-                customBorder: const CircleBorder(),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: c,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black26),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-        ],
-      ),
-    );
-    if (picked != null) onChanged(colorToHex(picked));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final color = parseHexColor(hex);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 26),
-          child: Tooltip(
-            message: AppLocalizations.of(context).pickColor,
-            child: InkWell(
-              onTap: () => _pick(context),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                key: ValueKey('swatch-$label'),
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color ?? Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.inputBorder),
-                ),
-                child: color == null
-                    ? const Icon(Icons.error_outline, color: AppColors.error)
-                    : null,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: DraftTextField(
-            label: label,
-            value: hex,
-            field: field,
-            ltr: true,
-            mono: true,
-            required: true,
-            error: error,
-            onChanged: onChanged,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[#0-9a-fA-F]')),
-              LengthLimitingTextInputFormatter(7),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// White card with an optional icon + description header, used by every
 /// wizard section.
 class SectionCard extends StatelessWidget {
@@ -443,11 +322,15 @@ class SectionCard extends StatelessWidget {
     required this.child,
     this.icon,
     this.description,
+    this.trailing,
   });
 
   final String title;
   final String? description;
   final IconData? icon;
+
+  /// Optional widget at the end of the header (e.g. an action button).
+  final Widget? trailing;
   final Widget child;
 
   @override
@@ -501,6 +384,7 @@ class SectionCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (trailing != null) ...[const SizedBox(width: 12), trailing!],
             ],
           ),
           const SizedBox(height: 24),

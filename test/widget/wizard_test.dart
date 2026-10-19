@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:recruitment_ui/recruitment_ui.dart';
@@ -9,6 +10,8 @@ import 'package:swiftappbuilder/features/builder/application/providers.dart';
 import 'package:swiftappbuilder/features/builder/presentation/phone_frame.dart';
 import 'package:swiftappbuilder/features/builder/presentation/phone_preview.dart';
 
+import 'package:swiftappbuilder/features/builder/domain/asset.dart';
+import 'package:image/image.dart' as img;
 import '../helpers.dart';
 
 class _EnglishLocale extends LocaleController {
@@ -549,4 +552,328 @@ void main() {
       expect(find.textContaining('القالب المختار: كلاسيكي'), findsOneWidget);
     },
   );
+
+  Future<ProviderContainer> openBranding(
+    WidgetTester tester, {
+    bool arabic = false,
+    bool withLogo = true,
+  }) async {
+    final container = await pumpApp(tester, arabic: arabic);
+    final d = validDraft();
+    container
+        .read(draftProvider.notifier)
+        .replace(withLogo ? d : d.copyWith(clearLogo: true));
+    await tester.pumpAndSettle();
+    container.read(routerProvider).go('/builder/branding');
+    await tester.pumpAndSettle();
+    return container;
+  }
+
+  Finder key(String k) => find.byKey(ValueKey(k));
+
+  testWidgets('branding: inline picker, three real roles, no popup', (
+    tester,
+  ) async {
+    await openBranding(tester);
+    expect(find.text('Branding'), findsWidgets);
+    expect(
+      find.text(
+        'Pick any color you like from the picker, or type the color code directly.',
+      ),
+      findsOneWidget,
+    );
+    for (final r in ['primary', 'secondary', 'splash']) {
+      expect(key('role-$r'), findsOneWidget);
+    }
+    // The picker is always visible; selecting a role never opens a dialog.
+    expect(key('sv-area'), findsOneWidget);
+    expect(key('hue-slider'), findsOneWidget);
+    await tapIn(tester, key('role-secondary'));
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(key('sv-area'), findsOneWidget);
+    expect(find.text('Step 2 of 5'), findsOneWidget);
+    expect(find.text('Next: Localization'), findsOneWidget);
+  });
+
+  testWidgets(
+    'branding: HEX input is live, accepts 3 digits, reverts when invalid',
+    (tester) async {
+      final container = await openBranding(tester);
+      String primary() => container.read(draftProvider).primaryHex;
+      expect(primary(), '#1565C0');
+
+      await tester.ensureVisible(key('hex-field'));
+      await tester.enterText(key('hex-field'), '#00aa55');
+      await tester.pumpAndSettle();
+      expect(primary(), '#00AA55');
+
+      await tester.enterText(key('hex-field'), '0f8');
+      await tester.pumpAndSettle();
+      expect(primary(), '#00FF88');
+
+      // Invalid partial value: nothing is applied, and on blur it reverts.
+      await tester.enterText(key('hex-field'), '12');
+      await tester.pumpAndSettle();
+      expect(primary(), '#00FF88');
+      await tapIn(tester, key('rgb-r')); // moves focus away
+      expect(
+        tester.widget<TextField>(key('hex-field')).controller!.text,
+        '#00FF88',
+      );
+      // The role tab reflects the color.
+      expect(
+        find.descendant(
+          of: key('role-primary'),
+          matching: find.text('#00FF88'),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('branding: RGB inputs update the color; out-of-range reverts', (
+    tester,
+  ) async {
+    final container = await openBranding(tester);
+    await tester.ensureVisible(key('rgb-g'));
+    await tester.enterText(key('rgb-g'), '255');
+    await tester.pumpAndSettle();
+    expect(container.read(draftProvider).primaryHex, '#15FFC0');
+    await tester.enterText(key('rgb-b'), '999');
+    await tester.pumpAndSettle();
+    expect(container.read(draftProvider).primaryHex, '#15FFC0');
+    await tapIn(tester, key('hex-field'));
+    expect(tester.widget<TextField>(key('rgb-b')).controller!.text, '192');
+  });
+
+  testWidgets('branding: contrast row warns but never blocks', (tester) async {
+    final container = await openBranding(tester);
+    expect(
+      find.textContaining('White text is clear on this color'),
+      findsOneWidget,
+    );
+    container.read(draftProvider.notifier).setPrimary('#FFB300');
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Text may not be clear on this color'),
+      findsOneWidget,
+    );
+    // Still allowed to continue.
+    await tapIn(tester, key('wizard-next'));
+    expect(currentPath(container), '/builder/localization');
+
+    container.read(routerProvider).go('/builder/branding');
+    await tester.pumpAndSettle();
+    await tapIn(tester, key('role-splash'));
+    // Splash background is checked against the primary color.
+    expect(find.textContaining('primary color'), findsWidgets);
+  });
+
+  testWidgets(
+    'branding: suggested swatches keep the old presets and show a ring',
+    (tester) async {
+      final container = await openBranding(tester);
+      await tapIn(tester, key('preset-#00897B'));
+      expect(container.read(draftProvider).primaryHex, '#00897B');
+      expect(
+        find.bySemanticsLabel('Color #00897B'),
+        findsNothing,
+      ); // semantics off by default
+      expect(key('preset-#00897B'), findsOneWidget);
+      for (final c in ['#1565C0', '#FFB300', '#FFFFFF']) {
+        expect(key('preset-$c'), findsOneWidget);
+      }
+    },
+  );
+
+  testWidgets('branding: area and hue slider work with keyboard and drag', (
+    tester,
+  ) async {
+    final container = await openBranding(tester);
+    HSVColor hsv() =>
+        HSVColor.fromColor(container.read(draftProvider).primaryColor);
+
+    await tester.ensureVisible(key('sv-area'));
+    await tester.pumpAndSettle();
+    final before = hsv();
+    await tester.tap(key('sv-area')); // focuses the area and picks the centre
+    await tester.pumpAndSettle();
+    final centre = hsv();
+    expect(centre.saturation, closeTo(0.5, 0.05));
+    expect(centre.value, closeTo(0.5, 0.05));
+    expect(centre.hue, closeTo(before.hue, 1));
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect(hsv().saturation, greaterThan(centre.saturation));
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.pumpAndSettle();
+    expect(hsv().value, greaterThan(centre.value));
+
+    await tester.ensureVisible(key('hue-slider'));
+    await tester.tap(key('hue-slider'));
+    await tester.pumpAndSettle();
+    final hue0 = hsv().hue;
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect((hsv().hue - hue0).abs(), greaterThan(0.5));
+
+    // Dragging on the area changes the color and notifies at most once a frame.
+    final start = container.read(draftProvider).primaryHex;
+    await tester.ensureVisible(key('sv-area'));
+    await tester.pumpAndSettle();
+    await tester.drag(key('sv-area'), const Offset(40, -30));
+    await tester.pumpAndSettle();
+    expect(container.read(draftProvider).primaryHex, isNot(start));
+  });
+
+  testWidgets('branding: picker controls expose slider semantics', (
+    tester,
+  ) async {
+    await openBranding(tester);
+    final handle = tester.ensureSemantics();
+    await tester.pumpAndSettle();
+    Semantics byLabel(String label) => tester.widget<Semantics>(
+      find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.label == label,
+      ),
+    );
+    final area = byLabel('Saturation and brightness').properties;
+    expect(area.slider, isTrue);
+    expect(
+      area.value,
+      matches(RegExp(r'Saturation [0-9]+%, brightness [0-9]+%')),
+    );
+    final hue = byLabel('Hue').properties;
+    expect(hue.slider, isTrue);
+    expect(hue.value, contains('°'));
+    handle.dispose();
+  });
+
+  testWidgets(
+    'branding: logo colors and extraction only appear with a raster logo',
+    (tester) async {
+      // No logo: neither the button nor the section.
+      var container = await openBranding(tester, withLogo: false);
+      expect(key('extract-colors'), findsNothing);
+      expect(find.text('From logo'), findsNothing);
+      container.read(draftProvider.notifier).replace(validDraft());
+      await tester.pumpAndSettle();
+      expect(key('extract-colors'), findsOneWidget);
+      expect(find.text('From logo'), findsOneWidget);
+
+      // A two-colour logo: extraction fills primary and secondary.
+      final image = img.Image(width: 32, height: 32);
+      for (final p in image) {
+        p.setRgb(p.y < 20 ? 200 : 20, p.y < 20 ? 40 : 160, p.y < 20 ? 40 : 80);
+      }
+      final png = Uint8List.fromList(img.encodePng(image));
+      container
+          .read(draftProvider.notifier)
+          .setAsset(
+            AssetKind.logo,
+            PickedAsset(
+              name: 'logo.png',
+              bytes: png,
+              extension: 'png',
+              width: 32,
+              height: 32,
+            ),
+          );
+      await tester.pumpAndSettle();
+      await tapIn(tester, key('extract-colors'));
+      final d = container.read(draftProvider);
+      expect(d.primaryHex, '#C82828');
+      expect(d.secondaryHex, '#14A050');
+      expect(key('logo-color-#C82828'), findsOneWidget);
+
+      // SVG logos cannot be sampled: the button is hidden.
+      container
+          .read(draftProvider.notifier)
+          .setAsset(
+            AssetKind.logo,
+            PickedAsset(
+              name: 'logo.svg',
+              bytes: Uint8List.fromList(
+                '<svg width="600" height="600"/>'.codeUnits,
+              ),
+              extension: 'svg',
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(key('extract-colors'), findsNothing);
+    },
+  );
+
+  testWidgets('branding: live preview follows every color change', (
+    tester,
+  ) async {
+    final container = await openBranding(tester);
+    Color previewPrimary() => tester
+        .widget<RecruitmentApp>(
+          find.descendant(
+            of: find.byType(PhonePreview),
+            matching: find.byType(RecruitmentApp),
+          ),
+        )
+        .branding
+        .primaryColor;
+    expect(find.text('Live preview'), findsOneWidget);
+    expect(find.text('Colors update instantly as you choose'), findsOneWidget);
+    expect(previewPrimary(), const Color(0xFF1565C0));
+    await tester.ensureVisible(key('hex-field'));
+    await tester.enterText(key('hex-field'), '#00AA55');
+    await tester.pumpAndSettle();
+    expect(previewPrimary(), const Color(0xFF00AA55));
+    container.read(draftProvider.notifier).setPrimary('#AA0000');
+    await tester.pumpAndSettle();
+    expect(previewPrimary(), const Color(0xFFAA0000));
+  });
+
+  testWidgets(
+    'branding: narrow screens use a 2x2 role grid and stack the picker',
+    (tester) async {
+      await openBranding(tester);
+      tester.view.physicalSize = const Size(600, 1600);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final p = tester.getTopLeft(key('role-primary'));
+      final s = tester.getTopLeft(key('role-secondary'));
+      final x = tester.getTopLeft(key('role-splash'));
+      expect(p.dy, s.dy);
+      expect(x.dy, greaterThan(p.dy));
+      // Picker and details are stacked: the HEX field sits below the area.
+      expect(
+        tester.getTopLeft(key('hex-field')).dy,
+        greaterThan(tester.getBottomLeft(key('sv-area')).dy),
+      );
+      // Preview wraps below the settings.
+      expect(
+        tester.getTopLeft(find.text('Live preview')).dy,
+        greaterThan(tester.getTopLeft(key('role-primary')).dy),
+      );
+    },
+  );
+
+  testWidgets('branding: Arabic heading, subtitle and RTL page layout', (
+    tester,
+  ) async {
+    await openBranding(tester, arabic: true);
+    expect(
+      find.text('اختر أي لون تحبه من المنتقي، أو اكتب كود اللون مباشرة.'),
+      findsOneWidget,
+    );
+    expect(find.text('ألوان التطبيق'), findsOneWidget);
+    expect(find.text('معاينة حيّة'), findsOneWidget);
+    expect(find.text('الخطوة 2 من 5'), findsOneWidget);
+    expect(find.text('التالي: اللغات'), findsOneWidget);
+    // Page layout mirrors: the settings sit to the right of the preview.
+    expect(
+      tester.getTopLeft(find.text('ألوان التطبيق')).dx,
+      greaterThan(tester.getTopLeft(find.text('معاينة حيّة')).dx),
+    );
+    // The picker itself never mirrors.
+    final dir = Directionality.of(tester.element(key('sv-area')));
+    expect(dir, TextDirection.ltr);
+  });
 }

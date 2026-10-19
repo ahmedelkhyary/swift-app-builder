@@ -401,7 +401,7 @@ abstract class AppLocalizations {
   /// No description provided for @logoHint.
   ///
   /// In en, this message translates to:
-  /// **'PNG or SVG, at least 512×512, max 2 MB'**
+  /// **'PNG or SVG, transparent background preferred, 1024×1024 (minimum 512)'**
   String get logoHint;
 
   /// No description provided for @appIconLabel.
@@ -911,7 +911,7 @@ abstract class AppLocalizations {
   /// No description provided for @brandingSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Colors, logo, icon and splash screen of the app.'**
+  /// **'Pick any color you like from the picker, or type the color code directly.'**
   String get brandingSubtitle;
 
   /// No description provided for @localizationSubtitle.
@@ -1153,6 +1153,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Template'**
   String get previewTemplateSwitcher;
+
+  /// No description provided for @colorsCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App colors'**
+  String get colorsCardTitle;
+
+  /// No description provided for @extractColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract colors from logo'**
+  String get extractColors;
+
+  /// No description provided for @roleTabsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color roles'**
+  String get roleTabsLabel;
+
+  /// No description provided for @rolePrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary'**
+  String get rolePrimary;
+
+  /// No description provided for @roleSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary'**
+  String get roleSecondary;
+
+  /// No description provided for @roleSplash.
+  ///
+  /// In en, this message translates to:
+  /// **'Splash background'**
+  String get roleSplash;
+
+  /// No description provided for @roleDescPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons, banner, active elements'**
+  String get roleDescPrimary;
+
+  /// No description provided for @roleDescSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Accents, badges, secondary icons'**
+  String get roleDescSecondary;
+
+  /// No description provided for @roleDescSplash.
+  ///
+  /// In en, this message translates to:
+  /// **'Background of the splash screen when the app opens'**
+  String get roleDescSplash;
+
+  /// No description provided for @pickerAreaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation and brightness'**
+  String get pickerAreaLabel;
+
+  /// No description provided for @pickerAreaValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation {s}%, brightness {v}%'**
+  String pickerAreaValue(String s, String v);
+
+  /// No description provided for @hueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get hueLabel;
+
+  /// No description provided for @hueValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{deg}°'**
+  String hueValue(String deg);
+
+  /// No description provided for @eyedropperLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a color from the screen'**
+  String get eyedropperLabel;
+
+  /// No description provided for @hexLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'HEX'**
+  String get hexLabel;
+
+  /// No description provided for @contrastOkWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White text is clear on this color (contrast {ratio}:1)'**
+  String contrastOkWhite(String ratio);
+
+  /// No description provided for @contrastWarnWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Text may not be clear on this color (contrast {ratio}:1)'**
+  String contrastWarnWhite(String ratio);
+
+  /// No description provided for @contrastOkBg.
+  ///
+  /// In en, this message translates to:
+  /// **'The primary color is clear on this background (contrast {ratio}:1)'**
+  String contrastOkBg(String ratio);
+
+  /// No description provided for @contrastWarnBg.
+  ///
+  /// In en, this message translates to:
+  /// **'The primary color may not be clear on this background (contrast {ratio}:1)'**
+  String contrastWarnBg(String ratio);
+
+  /// No description provided for @suggestedColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested colors'**
+  String get suggestedColors;
+
+  /// No description provided for @fromLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'From logo'**
+  String get fromLogo;
+
+  /// No description provided for @colorSwatchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color {hex}'**
+  String colorSwatchLabel(String hex);
+
+  /// No description provided for @changeLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Change logo'**
+  String get changeLogo;
+
+  /// No description provided for @uploadLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload logo'**
+  String get uploadLogo;
+
+  /// No description provided for @livePreviewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors update instantly as you choose'**
+  String get livePreviewSubtitle;
+
+  /// No description provided for @iconSplashCard.
+  ///
+  /// In en, this message translates to:
+  /// **'App icon & splash screen'**
+  String get iconSplashCard;
+
+  /// No description provided for @colorsExtracted.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors extracted from the logo'**
+  String get colorsExtracted;
+
+  /// No description provided for @noColorsInLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'No distinct colors were found in the logo'**
+  String get noColorsInLogo;
 }
 
 class _AppLocalizationsDelegate
