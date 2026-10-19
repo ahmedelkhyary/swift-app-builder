@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://swiftappbuilder.local/config.schema.json",
+  "title": "Generated app configuration",
+  "description": "Versioned configuration consumed by the app factory pipeline. Must never contain secrets (payment keys, signing keys, API tokens). schemaVersion 2 adds templateVersion and modules; version 1 documents remain valid.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "appId",
+    "configVersion",
+    "client",
+    "appName",
+    "android",
+    "ios",
+    "templateId",
+    "branding",
+    "localization",
+    "meta"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "appId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{2,39}$"
+    },
+    "configVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "client": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}$"
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "^\\+?[0-9][0-9 \\-]{6,18}$"
+        }
+      }
+    },
+    "appName": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ar",
+        "en"
+      ],
+      "properties": {
+        "ar": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "android": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packageName"
+      ],
+      "properties": {
+        "packageName": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        }
+      }
+    },
+    "ios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundleId"
+      ],
+      "properties": {
+        "bundleId": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9-]*(\\.[A-Za-z0-9-]+)+$"
+        }
+      }
+    },
+    "templateId": {
+      "enum": [
+        "classic",
+        "modern",
+        "minimal",
+        "premium"
+      ]
+    },
+    "branding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primaryColor",
+        "secondaryColor",
+        "fontFamily",
+        "logo",
+        "appIcon",
+        "splash"
+      ],
+      "properties": {
+        "primaryColor": {
+          "$ref": "#/definitions/hexColor"
+        },
+        "secondaryColor": {
+          "$ref": "#/definitions/hexColor"
+        },
+        "fontFamily": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logo": {
+          "$ref": "#/definitions/storagePath"
+        },
+        "appIcon": {
+          "$ref": "#/definitions/storagePath"
+        },
+        "splash": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "backgroundColor",
+            "logo"
+          ],
+          "properties": {
+            "backgroundColor": {
+              "$ref": "#/definitions/hexColor"
+            },
+            "logo": {
+              "$ref": "#/definitions/storagePath"
+            }
+          }
+        }
+      }
+    },
+    "localization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "defaultLanguage",
+        "supportedLanguages"
+      ],
+      "properties": {
+        "defaultLanguage": {
+          "enum": [
+            "ar",
+            "en"
+          ]
+        },
+        "supportedLanguages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ar",
+              "en"
+            ]
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt",
+        "updatedBy"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "updatedAt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "updatedBy": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "templateVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "individuals",
+          "hourly",
+          "mediation"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "hexColor": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+    },
+    "storagePath": {
+      "type": "string",
+      "pattern": "^apps/[a-z][a-z0-9_]{2,39}/v[0-9]+/[A-Za-z0-9_.-]+$"
+    }
+  },
+  "if": {
+    "properties": {
+      "schemaVersion": {
+        "const": 2
+      }
+    },
+    "required": [
+      "schemaVersion"
+    ]
+  },
+  "then": {
+    "required": [
+      "templateVersion",
+      "modules"
+    ]
+  }
+}

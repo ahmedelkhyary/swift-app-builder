@@ -1,0 +1,273 @@
+{
+  "@@locale": "en",
+  "appTitle": "App Builder",
+  "toggleLanguage": "العربية",
+  "sectionInfo": "App info",
+  "sectionBranding": "Branding",
+  "sectionLocalization": "Localization",
+  "sectionTemplate": "Template",
+  "sectionSummary": "Summary",
+  "next": "Next",
+  "back": "Back",
+  "cancel": "Cancel",
+  "close": "Close",
+  "load": "Load",
+  "upload": "Upload",
+  "remove": "Remove",
+  "loadExisting": "Load existing config",
+  "loadByAppId": "Open by app ID",
+  "importJsonFile": "Import JSON file",
+  "loadDialogTitle": "Load existing configuration",
+  "appNotFound": "No configuration found for this app ID",
+  "importFailed": "Could not import file: {error}",
+  "@importFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "loadedFromJsonNote": "Configuration loaded. Re-upload the logo and icon, which are not part of the JSON.",
+  "fieldNameAr": "App name (Arabic)",
+  "fieldNameEn": "App name (English)",
+  "fieldAndroidPackage": "Android package name",
+  "fieldIosBundleId": "iOS bundle ID",
+  "fieldIosSame": "Same as Android",
+  "fieldAppId": "App ID",
+  "fieldAppIdHelper": "Generated from the English name; you can edit it manually.",
+  "fieldClientName": "Client / office name",
+  "fieldClientEmail": "Contact email",
+  "fieldClientPhone": "Support phone",
+  "appIdChecking": "Checking availability…",
+  "appIdAvailable": "App ID is available",
+  "errRequired": "This field is required",
+  "errInvalidPackage": "Use lowercase letters without spaces, for example com.rose.store",
+  "errInvalidBundleId": "Use reverse-DNS format without spaces, for example com.rose.store",
+  "errInvalidEmail": "Enter a valid email address, for example name@company.com",
+  "errInvalidPhone": "Enter a phone number with 8–15 digits, for example +966500000000",
+  "errInvalidHex": "Use a hex color like #1565C0",
+  "errInvalidAppId": "Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. rose_store",
+  "errAppIdTaken": "This app ID is already used",
+  "errDefaultNotSupported": "The default language must be among the supported languages",
+  "errAssetMissing": "This file is required",
+  "primaryColor": "Primary color",
+  "secondaryColor": "Secondary color",
+  "colorHex": "Hex value",
+  "pickColor": "Pick a color",
+  "contrastWarning": "White text on this color has a contrast ratio of {ratio}:1, below the WCAG AA minimum of 4.5:1.",
+  "@contrastWarning": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "contrastOk": "Text contrast passes WCAG AA ({ratio}:1)",
+  "@contrastOk": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "logoLabel": "Logo",
+  "logoHint": "PNG or SVG, at least 512×512, max 2 MB",
+  "appIconLabel": "App icon",
+  "appIconHint": "PNG, exactly 1024×1024, no transparency",
+  "splashTitle": "Splash screen",
+  "splashBackground": "Splash background color",
+  "splashLogoLabel": "Splash logo (optional)",
+  "splashLogoHint": "Uses the main logo when empty",
+  "fontFamily": "Font family",
+  "noFile": "No file selected",
+  "issueWrongType": "Unsupported file type",
+  "issueTooLarge": "File is larger than 2 MB",
+  "issueUndecodable": "The image could not be read",
+  "issueTooSmall": "Image is smaller than 512×512",
+  "issueWrongSize": "Image must be exactly 1024×1024",
+  "issueHasTransparency": "Image has transparency; the app icon must be opaque",
+  "defaultLanguage": "Default language",
+  "supportedLanguages": "Supported languages",
+  "langArabic": "Arabic",
+  "langEnglish": "English",
+  "defaultAlwaysIncluded": "The default language is always included",
+  "chooseTemplate": "Choose a template",
+  "templateClassic": "Classic",
+  "templateModern": "Modern",
+  "templateMinimal": "Minimal",
+  "templatePremium": "Premium",
+  "previewLanguage": "Preview language",
+  "previewDark": "Dark mode",
+  "screenHome": "Home",
+  "screenService": "Service",
+  "screenAddress": "Address",
+  "screenPackage": "Package",
+  "screenWorker": "Worker",
+  "screenCheckout": "Checkout",
+  "summaryReview": "Review",
+  "summaryJson": "Configuration JSON",
+  "summaryValidation": "Validation report",
+  "validationPassed": "Configuration is valid against the schema",
+  "validationFailed": "Schema validation failed",
+  "fixSectionsFirst": "Complete the earlier sections to see the summary.",
+  "willSaveAsVersion": "Saving will create version {version}",
+  "@willSaveAsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "save": "Save configuration",
+  "saveSuccess": "Saved as version {version}",
+  "@saveSuccess": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "saveFailed": "Save failed: {error}",
+  "@saveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadJson": "Download JSON",
+  "downloadFailed": "Download is only available in the browser",
+  "versionHistory": "Version history",
+  "noVersions": "No saved versions yet",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreAsDraft": "Restore as new draft",
+  "restored": "Version {version} restored as a new draft",
+  "@restored": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "valueNotSet": "—",
+  "labelTemplate": "Template",
+  "labelColors": "Colors",
+  "labelLogo": "Logo",
+  "labelIcon": "App icon",
+  "labelLanguages": "Languages",
+  "labelClient": "Client",
+  "labelAndroid": "Android",
+  "labelIos": "iOS",
+  "modulesTitle": "Service modules",
+  "moduleIndividuals": "Individuals services",
+  "moduleHourly": "Hourly services",
+  "moduleMediation": "Mediation services",
+  "errNoModules": "Enable at least one service module",
+  "previewDemoNote": "Interactive demo: mock data, no real payments, SMS or bookings.",
+  "previewReset": "Reset demo",
+  "previewOpenFull": "Open full preview",
+  "previewBackToGallery": "Back to template gallery",
+  "useThisTemplate": "Use this template",
+  "jumpTo": "Jump to",
+  "jumpLogin": "Login",
+  "jumpHome": "Home",
+  "jumpIndividuals": "Individuals",
+  "jumpHourly": "Hourly",
+  "jumpMediation": "Mediation",
+  "previewPageTitle": "Interactive preview",
+  "previewTemplateSelected": "Template selected: {name}",
+  "@previewTemplateSelected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "labelModules": "Modules",
+  "labelTemplateVersion": "Template version",
+  "wizardStep": "Step {n} of {total}",
+  "@wizardStep": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "nextWithName": "Next: {name}",
+  "@nextWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBadge": "Auto",
+  "editAppId": "Edit app ID",
+  "resetAppId": "Generate again from the English name",
+  "infoSubtitle": "Core app details and store identifiers. Fields marked * are required.",
+  "brandingSubtitle": "Colors, logo, icon and splash screen of the app.",
+  "localizationSubtitle": "Choose the default language and the languages the app supports.",
+  "templateSubtitle": "Pick the service modules, then the look that suits your brand. You can change it later.",
+  "summarySubtitle": "Review everything, then save a new configuration version.",
+  "cardNameIdTitle": "Name & ID",
+  "cardNameIdDesc": "How the app appears to users",
+  "cardStoresTitle": "Android & iOS",
+  "cardStoresDesc": "Store publishing identifiers",
+  "cardClientTitle": "Client",
+  "cardClientDesc": "The organization the app is built for",
+  "phNameAr": "مثال: متجر الورد",
+  "phNameEn": "e.g. Rose Store",
+  "phPackage": "com.company.app",
+  "helperPackage": "Lowercase English letters and dots only. It cannot be changed after publishing.",
+  "iosSameTitle": "Use the same package for iOS",
+  "iosSameDesc": "The Android identifier is copied to iOS automatically",
+  "errNameArRequired": "Enter the Arabic app name, e.g. متجر الورد",
+  "errNameEnRequired": "Enter the English app name, e.g. Rose Store",
+  "errPackageRequired": "Enter the Android package name, e.g. com.rose.store",
+  "errBundleRequired": "Enter the iOS bundle ID, e.g. com.rose.store",
+  "errClientRequired": "Enter the client or office name",
+  "errAppIdRequired": "Enter an app ID, e.g. rose_store",
+  "templateHeading": "Choose the app template",
+  "modulesHint": "Choose one or more",
+  "moduleIndividualsDesc": "Worker recruitment",
+  "moduleHourlyDesc": "Hourly booking",
+  "moduleMediationDesc": "Sponsorship transfer",
+  "templatesTitle": "Templates",
+  "templatesAvailable": "{count} templates available",
+  "@templatesAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "templateClassicDesc": "Balanced layout with clear cards",
+  "templateModernDesc": "Rounded, soft and airy",
+  "templateMinimalDesc": "Clean lines and plain lists",
+  "templatePremiumDesc": "Bold gradients and depth",
+  "selectedPill": "Selected",
+  "livePreview": "Live preview",
+  "previewDemoShort": "Demo data, no real payments or bookings",
+  "deviceIphone": "iPhone",
+  "deviceAndroid": "Android",
+  "enableModuleTooltip": "Enable “{name}” to view it",
+  "@enableModuleTooltip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedTemplateLabel": "Selected template:",
+  "previewTemplateSwitcher": "Template"
+}
