@@ -116,11 +116,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errInvalidPackage =>
-      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.hemaya.recruitment';
+      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.khidma.recruitment';
 
   @override
   String get errInvalidBundleId =>
-      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.hemaya.recruitment';
+      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.khidma.recruitment';
 
   @override
   String get errInvalidEmail =>
@@ -135,7 +135,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errInvalidAppId =>
-      'من 3 إلى 40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة سفلية، ويبدأ بحرف، مثل hemaya_recruitment';
+      'من 3 إلى 40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة سفلية، ويبدأ بحرف، مثل khidma_recruitment';
 
   @override
   String get errAppIdTaken => 'هذا المعرّف مستخدم بالفعل';
@@ -482,13 +482,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cardClientDesc => 'الجهة التي يُبنى لها التطبيق';
 
   @override
-  String get phNameAr => 'مثال: الحماية للاستقدام';
+  String get phNameAr => 'مثال: الخدمة للاستقدام';
 
   @override
-  String get phNameEn => 'e.g. Al Hemaya Recruitment';
+  String get phNameEn => 'e.g. Al Khidma Recruitment';
 
   @override
-  String get phPackage => 'com.hemaya.recruitment';
+  String get phPackage => 'com.khidma.recruitment';
 
   @override
   String get helperPackage =>
@@ -502,25 +502,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errNameArRequired =>
-      'أدخل اسم التطبيق بالعربية، مثل: الحماية للاستقدام';
+      'أدخل اسم التطبيق بالعربية، مثل: الخدمة للاستقدام';
 
   @override
   String get errNameEnRequired =>
-      'أدخل اسم التطبيق بالإنجليزية، مثل: Al Hemaya Recruitment';
+      'أدخل اسم التطبيق بالإنجليزية، مثل: Al Khidma Recruitment';
 
   @override
   String get errPackageRequired =>
-      'أدخل اسم حزمة أندرويد، مثل com.hemaya.recruitment';
+      'أدخل اسم حزمة أندرويد، مثل com.khidma.recruitment';
 
   @override
   String get errBundleRequired =>
-      'أدخل معرّف حزمة iOS، مثل com.hemaya.recruitment';
+      'أدخل معرّف حزمة iOS، مثل com.khidma.recruitment';
 
   @override
   String get errClientRequired => 'أدخل اسم العميل أو المكتب';
 
   @override
-  String get errAppIdRequired => 'أدخل معرّف التطبيق، مثل hemaya_recruitment';
+  String get errAppIdRequired => 'أدخل معرّف التطبيق، مثل khidma_recruitment';
 
   @override
   String get templateHeading => 'اختر قالب التطبيق';

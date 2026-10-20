@@ -91,12 +91,12 @@ A saved configuration looks like this (full reference in
 ```json
 {
   "schemaVersion": 2,
-  "appId": "hemaya_recruitment",
+  "appId": "khidma_recruitment",
   "configVersion": 1,
   "client": { "name": "…", "email": "…", "phone": "…" },
-  "appName": { "ar": "الحماية للاستقدام", "en": "Al Hemaya Recruitment" },
-  "android": { "packageName": "com.hemaya.recruitment" },
-  "ios": { "bundleId": "com.hemaya.recruitment" },
+  "appName": { "ar": "الخدمة للاستقدام", "en": "Al Khidma Recruitment" },
+  "android": { "packageName": "com.khidma.recruitment" },
+  "ios": { "bundleId": "com.khidma.recruitment" },
   "templateId": "classic",
   "templateVersion": 1,
   "modules": ["individuals", "hourly", "mediation"],
@@ -104,9 +104,9 @@ A saved configuration looks like this (full reference in
     "primaryColor": "#1565C0",
     "secondaryColor": "#FFB300",
     "fontFamily": "Cairo",
-    "logo": "apps/hemaya_recruitment/v1/logo.png",
-    "appIcon": "apps/hemaya_recruitment/v1/app_icon.png",
-    "splash": { "backgroundColor": "#FFFFFF", "logo": "apps/hemaya_recruitment/v1/logo.png" }
+    "logo": "apps/khidma_recruitment/v1/logo.png",
+    "appIcon": "apps/khidma_recruitment/v1/app_icon.png",
+    "splash": { "backgroundColor": "#FFFFFF", "logo": "apps/khidma_recruitment/v1/logo.png" }
   },
   "localization": { "defaultLanguage": "ar", "supportedLanguages": ["ar", "en"] },
   "meta": { "createdAt": "…", "updatedAt": "…", "updatedBy": "…" }

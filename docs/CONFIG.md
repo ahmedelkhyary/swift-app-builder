@@ -17,7 +17,7 @@ fields (including anything that looks like a secret) are rejected.
 | `client.name / email / phone` | string | non-empty; email and phone format-checked |
 | `appName.ar / en` | string | non-empty |
 | `android.packageName` | string | `^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$` |
-| `ios.bundleId` | string | reverse-DNS, e.g. `com.hemaya.recruitment` |
+| `ios.bundleId` | string | reverse-DNS, e.g. `com.khidma.recruitment` |
 | `templateId` | enum | `classic`, `modern`, `minimal`, `premium` |
 | `templateVersion` | int ≥ 1 | version of that template implementation (required in v2) |
 | `modules` | string[] | non-empty subset of `individuals`, `hourly`, `mediation` (required in v2) |

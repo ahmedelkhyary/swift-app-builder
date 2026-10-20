@@ -79,11 +79,11 @@ void main() {
       await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
       expect(currentPath(container), '/builder/info', reason: 'blocked');
       expect(
-        find.text('Enter the Arabic app name, e.g. الحماية للاستقدام'),
+        find.text('Enter the Arabic app name, e.g. الخدمة للاستقدام'),
         findsOneWidget,
       );
       expect(
-        find.text('Enter the Android package name, e.g. com.hemaya.recruitment'),
+        find.text('Enter the Android package name, e.g. com.khidma.recruitment'),
         findsOneWidget,
       );
       // Focus moved to the first invalid field.
@@ -108,14 +108,14 @@ void main() {
       await tester.enterText(f('android-package'), 'Not Valid');
       // Still typing in the package field: no error yet.
       await tester.pump();
-      expect(find.textContaining('for example com.hemaya.recruitment'), findsNothing);
+      expect(find.textContaining('for example com.khidma.recruitment'), findsNothing);
 
       // Leaving the field shows a specific message.
       await tester.enterText(f('client-name'), 'مكتب سويفت');
       await tester.pumpAndSettle();
       expect(
         find.text(
-          'Use lowercase letters without spaces, for example com.hemaya.recruitment',
+          'Use lowercase letters without spaces, for example com.khidma.recruitment',
         ),
         findsOneWidget,
       );
@@ -165,7 +165,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.text(
-        'Use reverse-DNS format without spaces, for example com.hemaya.recruitment',
+        'Use reverse-DNS format without spaces, for example com.khidma.recruitment',
       ),
       findsOneWidget,
     );

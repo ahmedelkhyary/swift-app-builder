@@ -305,13 +305,13 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidPackage.
   ///
   /// In en, this message translates to:
-  /// **'Use lowercase letters without spaces, for example com.hemaya.recruitment'**
+  /// **'Use lowercase letters without spaces, for example com.khidma.recruitment'**
   String get errInvalidPackage;
 
   /// No description provided for @errInvalidBundleId.
   ///
   /// In en, this message translates to:
-  /// **'Use reverse-DNS format without spaces, for example com.hemaya.recruitment'**
+  /// **'Use reverse-DNS format without spaces, for example com.khidma.recruitment'**
   String get errInvalidBundleId;
 
   /// No description provided for @errInvalidEmail.
@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidAppId.
   ///
   /// In en, this message translates to:
-  /// **'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. hemaya_recruitment'**
+  /// **'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. khidma_recruitment'**
   String get errInvalidAppId;
 
   /// No description provided for @errAppIdTaken.
@@ -971,19 +971,19 @@ abstract class AppLocalizations {
   /// No description provided for @phNameAr.
   ///
   /// In en, this message translates to:
-  /// **'مثال: الحماية للاستقدام'**
+  /// **'مثال: الخدمة للاستقدام'**
   String get phNameAr;
 
   /// No description provided for @phNameEn.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Al Hemaya Recruitment'**
+  /// **'e.g. Al Khidma Recruitment'**
   String get phNameEn;
 
   /// No description provided for @phPackage.
   ///
   /// In en, this message translates to:
-  /// **'com.hemaya.recruitment'**
+  /// **'com.khidma.recruitment'**
   String get phPackage;
 
   /// No description provided for @helperPackage.
@@ -1007,25 +1007,25 @@ abstract class AppLocalizations {
   /// No description provided for @errNameArRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the Arabic app name, e.g. الحماية للاستقدام'**
+  /// **'Enter the Arabic app name, e.g. الخدمة للاستقدام'**
   String get errNameArRequired;
 
   /// No description provided for @errNameEnRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the English app name, e.g. Al Hemaya Recruitment'**
+  /// **'Enter the English app name, e.g. Al Khidma Recruitment'**
   String get errNameEnRequired;
 
   /// No description provided for @errPackageRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the Android package name, e.g. com.hemaya.recruitment'**
+  /// **'Enter the Android package name, e.g. com.khidma.recruitment'**
   String get errPackageRequired;
 
   /// No description provided for @errBundleRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the iOS bundle ID, e.g. com.hemaya.recruitment'**
+  /// **'Enter the iOS bundle ID, e.g. com.khidma.recruitment'**
   String get errBundleRequired;
 
   /// No description provided for @errClientRequired.
@@ -1037,7 +1037,7 @@ abstract class AppLocalizations {
   /// No description provided for @errAppIdRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter an app ID, e.g. hemaya_recruitment'**
+  /// **'Enter an app ID, e.g. khidma_recruitment'**
   String get errAppIdRequired;
 
   /// No description provided for @templateHeading.
