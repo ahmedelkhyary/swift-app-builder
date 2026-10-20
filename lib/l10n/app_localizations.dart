@@ -305,13 +305,13 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidPackage.
   ///
   /// In en, this message translates to:
-  /// **'Use lowercase letters without spaces, for example com.rose.store'**
+  /// **'Use lowercase letters without spaces, for example com.hemaya.recruitment'**
   String get errInvalidPackage;
 
   /// No description provided for @errInvalidBundleId.
   ///
   /// In en, this message translates to:
-  /// **'Use reverse-DNS format without spaces, for example com.rose.store'**
+  /// **'Use reverse-DNS format without spaces, for example com.hemaya.recruitment'**
   String get errInvalidBundleId;
 
   /// No description provided for @errInvalidEmail.
@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidAppId.
   ///
   /// In en, this message translates to:
-  /// **'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. rose_store'**
+  /// **'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. hemaya_recruitment'**
   String get errInvalidAppId;
 
   /// No description provided for @errAppIdTaken.
@@ -977,13 +977,13 @@ abstract class AppLocalizations {
   /// No description provided for @phNameEn.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Rose Store'**
+  /// **'e.g. Al Hemaya Recruitment'**
   String get phNameEn;
 
   /// No description provided for @phPackage.
   ///
   /// In en, this message translates to:
-  /// **'com.company.app'**
+  /// **'com.hemaya.recruitment'**
   String get phPackage;
 
   /// No description provided for @helperPackage.
@@ -1013,19 +1013,19 @@ abstract class AppLocalizations {
   /// No description provided for @errNameEnRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the English app name, e.g. Rose Store'**
+  /// **'Enter the English app name, e.g. Al Hemaya Recruitment'**
   String get errNameEnRequired;
 
   /// No description provided for @errPackageRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the Android package name, e.g. com.rose.store'**
+  /// **'Enter the Android package name, e.g. com.hemaya.recruitment'**
   String get errPackageRequired;
 
   /// No description provided for @errBundleRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the iOS bundle ID, e.g. com.rose.store'**
+  /// **'Enter the iOS bundle ID, e.g. com.hemaya.recruitment'**
   String get errBundleRequired;
 
   /// No description provided for @errClientRequired.
@@ -1037,7 +1037,7 @@ abstract class AppLocalizations {
   /// No description provided for @errAppIdRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter an app ID, e.g. rose_store'**
+  /// **'Enter an app ID, e.g. hemaya_recruitment'**
   String get errAppIdRequired;
 
   /// No description provided for @templateHeading.

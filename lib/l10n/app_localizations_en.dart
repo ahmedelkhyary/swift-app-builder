@@ -116,11 +116,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errInvalidPackage =>
-      'Use lowercase letters without spaces, for example com.rose.store';
+      'Use lowercase letters without spaces, for example com.hemaya.recruitment';
 
   @override
   String get errInvalidBundleId =>
-      'Use reverse-DNS format without spaces, for example com.rose.store';
+      'Use reverse-DNS format without spaces, for example com.hemaya.recruitment';
 
   @override
   String get errInvalidEmail =>
@@ -135,7 +135,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errInvalidAppId =>
-      'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. rose_store';
+      'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. hemaya_recruitment';
 
   @override
   String get errAppIdTaken => 'This app ID is already used';
@@ -486,10 +486,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phNameAr => 'مثال: الحماية للاستقدام';
 
   @override
-  String get phNameEn => 'e.g. Rose Store';
+  String get phNameEn => 'e.g. Al Hemaya Recruitment';
 
   @override
-  String get phPackage => 'com.company.app';
+  String get phPackage => 'com.hemaya.recruitment';
 
   @override
   String get helperPackage =>
@@ -507,21 +507,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the Arabic app name, e.g. الحماية للاستقدام';
 
   @override
-  String get errNameEnRequired => 'Enter the English app name, e.g. Rose Store';
+  String get errNameEnRequired =>
+      'Enter the English app name, e.g. Al Hemaya Recruitment';
 
   @override
   String get errPackageRequired =>
-      'Enter the Android package name, e.g. com.rose.store';
+      'Enter the Android package name, e.g. com.hemaya.recruitment';
 
   @override
   String get errBundleRequired =>
-      'Enter the iOS bundle ID, e.g. com.rose.store';
+      'Enter the iOS bundle ID, e.g. com.hemaya.recruitment';
 
   @override
   String get errClientRequired => 'Enter the client or office name';
 
   @override
-  String get errAppIdRequired => 'Enter an app ID, e.g. rose_store';
+  String get errAppIdRequired => 'Enter an app ID, e.g. hemaya_recruitment';
 
   @override
   String get templateHeading => 'Choose the app template';

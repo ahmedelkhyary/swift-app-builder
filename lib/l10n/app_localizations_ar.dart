@@ -116,11 +116,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errInvalidPackage =>
-      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.rose.store';
+      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.hemaya.recruitment';
 
   @override
   String get errInvalidBundleId =>
-      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.rose.store';
+      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.hemaya.recruitment';
 
   @override
   String get errInvalidEmail =>
@@ -135,7 +135,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errInvalidAppId =>
-      'من 3 إلى 40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة سفلية، ويبدأ بحرف، مثل rose_store';
+      'من 3 إلى 40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة سفلية، ويبدأ بحرف، مثل hemaya_recruitment';
 
   @override
   String get errAppIdTaken => 'هذا المعرّف مستخدم بالفعل';
@@ -485,10 +485,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get phNameAr => 'مثال: الحماية للاستقدام';
 
   @override
-  String get phNameEn => 'e.g. Rose Store';
+  String get phNameEn => 'e.g. Al Hemaya Recruitment';
 
   @override
-  String get phPackage => 'com.company.app';
+  String get phPackage => 'com.hemaya.recruitment';
 
   @override
   String get helperPackage =>
@@ -506,19 +506,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errNameEnRequired =>
-      'أدخل اسم التطبيق بالإنجليزية، مثل: Rose Store';
+      'أدخل اسم التطبيق بالإنجليزية، مثل: Al Hemaya Recruitment';
 
   @override
-  String get errPackageRequired => 'أدخل اسم حزمة أندرويد، مثل com.rose.store';
+  String get errPackageRequired =>
+      'أدخل اسم حزمة أندرويد، مثل com.hemaya.recruitment';
 
   @override
-  String get errBundleRequired => 'أدخل معرّف حزمة iOS، مثل com.rose.store';
+  String get errBundleRequired =>
+      'أدخل معرّف حزمة iOS، مثل com.hemaya.recruitment';
 
   @override
   String get errClientRequired => 'أدخل اسم العميل أو المكتب';
 
   @override
-  String get errAppIdRequired => 'أدخل معرّف التطبيق، مثل rose_store';
+  String get errAppIdRequired => 'أدخل معرّف التطبيق، مثل hemaya_recruitment';
 
   @override
   String get templateHeading => 'اختر قالب التطبيق';
