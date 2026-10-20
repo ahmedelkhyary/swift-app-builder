@@ -54,7 +54,9 @@ class Validators {
       v.trim().isEmpty ? FieldError.required : null;
 
   static FieldError? androidPackage(String v) {
-    if (v.trim().isEmpty) return FieldError.required;
+    if (v.trim().isEmpty || v.trim() == kPackagePrefix) {
+      return FieldError.required;
+    }
     return androidPackageRegex.hasMatch(v) ? null : FieldError.invalidPackage;
   }
 

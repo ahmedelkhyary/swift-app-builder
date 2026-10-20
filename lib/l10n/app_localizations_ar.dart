@@ -116,11 +116,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errInvalidPackage =>
-      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.khidma.recruitment';
+      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.excp.enaya';
 
   @override
   String get errInvalidBundleId =>
-      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.khidma.recruitment';
+      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.excp.enaya';
 
   @override
   String get errInvalidEmail =>
@@ -488,7 +488,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get phNameEn => 'e.g. Al Khidma Recruitment';
 
   @override
-  String get phPackage => 'com.khidma.recruitment';
+  String get phPackage => 'com.excp.enaya';
 
   @override
   String get helperPackage =>
@@ -509,12 +509,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'أدخل اسم التطبيق بالإنجليزية، مثل: Al Khidma Recruitment';
 
   @override
-  String get errPackageRequired =>
-      'أدخل اسم حزمة أندرويد، مثل com.khidma.recruitment';
+  String get errPackageRequired => 'أدخل اسم حزمة أندرويد، مثل com.excp.enaya';
 
   @override
-  String get errBundleRequired =>
-      'أدخل معرّف حزمة iOS، مثل com.khidma.recruitment';
+  String get errBundleRequired => 'أدخل معرّف حزمة iOS، مثل com.excp.enaya';
 
   @override
   String get errClientRequired => 'أدخل اسم العميل أو المكتب';

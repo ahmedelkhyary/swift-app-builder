@@ -83,7 +83,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text('Enter the Android package name, e.g. com.khidma.recruitment'),
+        find.text('Enter the Android package name, e.g. com.excp.enaya'),
         findsOneWidget,
       );
       // Focus moved to the first invalid field.
@@ -108,14 +108,14 @@ void main() {
       await tester.enterText(f('android-package'), 'Not Valid');
       // Still typing in the package field: no error yet.
       await tester.pump();
-      expect(find.textContaining('for example com.khidma.recruitment'), findsNothing);
+      expect(find.textContaining('for example com.excp.enaya'), findsNothing);
 
       // Leaving the field shows a specific message.
       await tester.enterText(f('client-name'), 'مكتب سويفت');
       await tester.pumpAndSettle();
       expect(
         find.text(
-          'Use lowercase letters without spaces, for example com.khidma.recruitment',
+          'Use lowercase letters without spaces, for example com.excp.enaya',
         ),
         findsOneWidget,
       );
@@ -165,7 +165,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.text(
-        'Use reverse-DNS format without spaces, for example com.khidma.recruitment',
+        'Use reverse-DNS format without spaces, for example com.excp.enaya',
       ),
       findsOneWidget,
     );

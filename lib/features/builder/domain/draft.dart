@@ -6,6 +6,10 @@ import 'config.dart';
 
 const kDefaultPrimaryHex = '#1565C0';
 const kDefaultSecondaryHex = '#FFB300';
+
+/// Default reverse-DNS prefix of generated package names.
+const kPackagePrefix = 'com.excp.';
+
 const kSupportedLanguageCodes = ['ar', 'en'];
 const kModuleIds = ['individuals', 'hourly', 'mediation'];
 const kFontFamilies = ['Cairo', 'Tajawal', 'Almarai', 'IBM Plex Sans Arabic'];
@@ -18,7 +22,8 @@ class AppConfigDraft {
     this.existingApp = false,
     this.nameAr = '',
     this.nameEn = '',
-    this.androidPackage = '',
+    this.androidPackage = kPackagePrefix,
+    this.packageEdited = false,
     this.iosBundleId = '',
     this.iosSameAsAndroid = true,
     this.clientName = '',
@@ -49,6 +54,9 @@ class AppConfigDraft {
   final String nameAr;
   final String nameEn;
   final String androidPackage;
+
+  /// True once the user edited the package by hand (stops auto-generation).
+  final bool packageEdited;
   final String iosBundleId;
   final bool iosSameAsAndroid;
   final String clientName;
@@ -95,6 +103,7 @@ class AppConfigDraft {
     String? nameAr,
     String? nameEn,
     String? androidPackage,
+    bool? packageEdited,
     String? iosBundleId,
     bool? iosSameAsAndroid,
     String? clientName,
@@ -122,6 +131,7 @@ class AppConfigDraft {
       nameAr: nameAr ?? this.nameAr,
       nameEn: nameEn ?? this.nameEn,
       androidPackage: androidPackage ?? this.androidPackage,
+      packageEdited: packageEdited ?? this.packageEdited,
       iosBundleId: iosBundleId ?? this.iosBundleId,
       iosSameAsAndroid: iosSameAsAndroid ?? this.iosSameAsAndroid,
       clientName: clientName ?? this.clientName,
@@ -156,6 +166,7 @@ class AppConfigDraft {
       nameAr: c.appNameAr,
       nameEn: c.appNameEn,
       androidPackage: c.androidPackage,
+      packageEdited: true,
       iosBundleId: c.iosBundleId,
       iosSameAsAndroid: c.iosBundleId == c.androidPackage,
       clientName: c.clientName,
@@ -176,6 +187,11 @@ class AppConfigDraft {
     );
   }
 }
+
+/// `com.excp.` + the English name without separators, e.g. 'Enaya' ->
+/// `com.excp.enaya`. Just the prefix when nothing usable remains.
+String suggestPackage(String nameEn) =>
+    '$kPackagePrefix${slugifyAppId(nameEn).replaceAll('_', '')}';
 
 /// Lower-case slug derived from an English name, e.g. "Swift Maids" ->
 /// `swift_maids`. Returns '' when nothing usable remains.

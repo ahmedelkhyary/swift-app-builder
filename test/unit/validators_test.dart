@@ -9,6 +9,7 @@ import 'package:swiftappbuilder/features/builder/domain/validators.dart';
 import '../helpers.dart';
 
 void main() {
+  packageSuggestionTests();
   group('Validators', () {
     test('android package', () {
       expect(Validators.androidPackage('com.example.app'), isNull);
@@ -164,6 +165,17 @@ void main() {
         ).issue,
         AssetIssue.hasTransparency,
       );
+    });
+  });
+}
+
+void packageSuggestionTests() {
+  group('suggestPackage', () {
+    test('prefix + name without separators', () {
+      expect(suggestPackage('Enaya'), 'com.excp.enaya');
+      expect(suggestPackage('Swift Maids'), 'com.excp.swiftmaids');
+      expect(suggestPackage(''), 'com.excp.');
+      expect(Validators.androidPackage('com.excp.'), FieldError.required);
     });
   });
 }

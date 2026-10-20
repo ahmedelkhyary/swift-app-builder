@@ -45,9 +45,14 @@ class DraftController extends Notifier<AppConfigDraft> {
   void setNameAr(String v) => state = state.copyWith(nameAr: v);
 
   void setNameEn(String v) {
+    final pkg = state.packageEdited || state.existingApp
+        ? null
+        : suggestPackage(v);
     state = state.copyWith(
       nameEn: v,
       appId: state.appIdEdited || state.existingApp ? null : slugifyAppId(v),
+      androidPackage: pkg,
+      iosBundleId: pkg != null && state.iosSameAsAndroid ? pkg : null,
     );
   }
 
@@ -61,6 +66,7 @@ class DraftController extends Notifier<AppConfigDraft> {
 
   void setAndroidPackage(String v) => state = state.copyWith(
     androidPackage: v,
+    packageEdited: true,
     iosBundleId: state.iosSameAsAndroid ? v : null,
   );
 

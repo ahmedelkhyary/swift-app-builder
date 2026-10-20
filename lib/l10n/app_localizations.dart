@@ -305,13 +305,13 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidPackage.
   ///
   /// In en, this message translates to:
-  /// **'Use lowercase letters without spaces, for example com.khidma.recruitment'**
+  /// **'Use lowercase letters without spaces, for example com.excp.enaya'**
   String get errInvalidPackage;
 
   /// No description provided for @errInvalidBundleId.
   ///
   /// In en, this message translates to:
-  /// **'Use reverse-DNS format without spaces, for example com.khidma.recruitment'**
+  /// **'Use reverse-DNS format without spaces, for example com.excp.enaya'**
   String get errInvalidBundleId;
 
   /// No description provided for @errInvalidEmail.
@@ -983,7 +983,7 @@ abstract class AppLocalizations {
   /// No description provided for @phPackage.
   ///
   /// In en, this message translates to:
-  /// **'com.khidma.recruitment'**
+  /// **'com.excp.enaya'**
   String get phPackage;
 
   /// No description provided for @helperPackage.
@@ -1019,13 +1019,13 @@ abstract class AppLocalizations {
   /// No description provided for @errPackageRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the Android package name, e.g. com.khidma.recruitment'**
+  /// **'Enter the Android package name, e.g. com.excp.enaya'**
   String get errPackageRequired;
 
   /// No description provided for @errBundleRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the iOS bundle ID, e.g. com.khidma.recruitment'**
+  /// **'Enter the iOS bundle ID, e.g. com.excp.enaya'**
   String get errBundleRequired;
 
   /// No description provided for @errClientRequired.

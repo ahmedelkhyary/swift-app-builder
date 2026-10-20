@@ -116,11 +116,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errInvalidPackage =>
-      'Use lowercase letters without spaces, for example com.khidma.recruitment';
+      'Use lowercase letters without spaces, for example com.excp.enaya';
 
   @override
   String get errInvalidBundleId =>
-      'Use reverse-DNS format without spaces, for example com.khidma.recruitment';
+      'Use reverse-DNS format without spaces, for example com.excp.enaya';
 
   @override
   String get errInvalidEmail =>
@@ -489,7 +489,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phNameEn => 'e.g. Al Khidma Recruitment';
 
   @override
-  String get phPackage => 'com.khidma.recruitment';
+  String get phPackage => 'com.excp.enaya';
 
   @override
   String get helperPackage =>
@@ -512,11 +512,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errPackageRequired =>
-      'Enter the Android package name, e.g. com.khidma.recruitment';
+      'Enter the Android package name, e.g. com.excp.enaya';
 
   @override
   String get errBundleRequired =>
-      'Enter the iOS bundle ID, e.g. com.khidma.recruitment';
+      'Enter the iOS bundle ID, e.g. com.excp.enaya';
 
   @override
   String get errClientRequired => 'Enter the client or office name';
