@@ -483,7 +483,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardClientDesc => 'The organization the app is built for';
 
   @override
-  String get phNameAr => 'مثال: متجر الورد';
+  String get phNameAr => 'مثال: الحماية للاستقدام';
 
   @override
   String get phNameEn => 'e.g. Rose Store';
@@ -503,7 +503,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Android identifier is copied to iOS automatically';
 
   @override
-  String get errNameArRequired => 'Enter the Arabic app name, e.g. متجر الورد';
+  String get errNameArRequired =>
+      'Enter the Arabic app name, e.g. الحماية للاستقدام';
 
   @override
   String get errNameEnRequired => 'Enter the English app name, e.g. Rose Store';

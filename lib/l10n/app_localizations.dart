@@ -971,7 +971,7 @@ abstract class AppLocalizations {
   /// No description provided for @phNameAr.
   ///
   /// In en, this message translates to:
-  /// **'مثال: متجر الورد'**
+  /// **'مثال: الحماية للاستقدام'**
   String get phNameAr;
 
   /// No description provided for @phNameEn.
@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @errNameArRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the Arabic app name, e.g. متجر الورد'**
+  /// **'Enter the Arabic app name, e.g. الحماية للاستقدام'**
   String get errNameArRequired;
 
   /// No description provided for @errNameEnRequired.

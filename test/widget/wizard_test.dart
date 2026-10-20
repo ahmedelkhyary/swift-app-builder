@@ -79,7 +79,7 @@ void main() {
       await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
       expect(currentPath(container), '/builder/info', reason: 'blocked');
       expect(
-        find.text('Enter the Arabic app name, e.g. متجر الورد'),
+        find.text('Enter the Arabic app name, e.g. الحماية للاستقدام'),
         findsOneWidget,
       );
       expect(

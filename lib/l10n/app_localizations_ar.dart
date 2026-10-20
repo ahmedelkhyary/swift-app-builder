@@ -482,7 +482,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cardClientDesc => 'الجهة التي يُبنى لها التطبيق';
 
   @override
-  String get phNameAr => 'مثال: متجر الورد';
+  String get phNameAr => 'مثال: الحماية للاستقدام';
 
   @override
   String get phNameEn => 'e.g. Rose Store';
@@ -501,7 +501,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get iosSameDesc => 'سيُنسخ معرّف أندرويد تلقائيًا إلى iOS';
 
   @override
-  String get errNameArRequired => 'أدخل اسم التطبيق بالعربية، مثل: متجر الورد';
+  String get errNameArRequired =>
+      'أدخل اسم التطبيق بالعربية، مثل: الحماية للاستقدام';
 
   @override
   String get errNameEnRequired =>
