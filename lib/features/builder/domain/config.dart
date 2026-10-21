@@ -104,10 +104,9 @@ class AppConfig {
     },
     'appName': {'ar': appNameAr, 'en': appNameEn},
     'android': {'packageName': androidPackage},
-    'ios': {
-      'bundleId': iosBundleId,
-      if (iosSameAsAndroid != null) 'sameAsAndroid': iosSameAsAndroid,
-    },
+    // The sync flag is not written here (a stale copy of the schema would
+    // reject it); it is derived on load and stored in the request document.
+    'ios': {'bundleId': iosBundleId},
     'templateId': templateId,
     'templateVersion': templateVersion,
     'modules': modules,

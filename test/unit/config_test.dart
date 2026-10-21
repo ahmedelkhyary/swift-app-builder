@@ -200,7 +200,7 @@ void main() {
         final c1 = (await service.prepare(mirrored, updatedBy: 'x')).config;
         final ios = c1.toJson()['ios'] as Map;
         expect(ios['bundleId'], 'com.excp.my-app');
-        expect(ios['sameAsAndroid'], true);
+        expect(ios.containsKey('sameAsAndroid'), isFalse);
         expect(loadSchema().validate(c1.toJson()), isEmpty);
 
         final own = validDraft().copyWith(

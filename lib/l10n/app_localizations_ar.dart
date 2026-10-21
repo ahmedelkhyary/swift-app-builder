@@ -922,4 +922,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get iosUnderscoreNote =>
-      
+      'تم تحويل «_» إلى «-» لأن iOS لا يدعم الشرطة السفلية.';
+
+  @override
+  String get errBundleTooLong =>
+      'معرف الحزمة طويل جدًا (الحد الأقصى 155 حرفًا)';
+}

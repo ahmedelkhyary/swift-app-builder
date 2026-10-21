@@ -920,3 +920,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String bundlePreview(String value) {
     return 'Bundle ID: $value';
+  }
+
+  @override
+  String get iosUnderscoreNote =>
+      'Underscores \"_\" were converted to hyphens \"-\" because iOS does not allow them.';
+
+  @override
+  String get errBundleTooLong =>
+      'The bundle ID is too long (155 characters at most)';
+}
