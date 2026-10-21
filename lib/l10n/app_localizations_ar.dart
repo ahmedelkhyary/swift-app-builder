@@ -81,10 +81,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fieldNameEn => 'اسم التطبيق (إنجليزي)';
 
   @override
-  String get fieldAndroidPackage => 'اسم حزمة أندرويد';
+  String get fieldAndroidPackage => 'اسم الحزمة لـ Android (Package Name)';
 
   @override
-  String get fieldIosBundleId => 'معرّف حزمة iOS';
+  String get fieldIosBundleId => 'معرف الحزمة لـ iOS (Bundle ID)';
 
   @override
   String get fieldIosSame => 'نفس حزمة أندرويد';
@@ -106,21 +106,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fieldClientPhone => 'هاتف الدعم';
 
   @override
-  String get appIdChecking => 'جارٍ التحقق من التوفر…';
+  String get appIdChecking => 'جارٍ التحقق...';
 
   @override
-  String get appIdAvailable => 'المعرّف متاح';
+  String get appIdAvailable => 'معرف التطبيق متاح';
 
   @override
   String get errRequired => 'هذا الحقل مطلوب';
 
   @override
   String get errInvalidPackage =>
-      'استخدم أحرفًا صغيرة بدون مسافات، مثل com.excp.enaya';
+      'اسم الحزمة يجب أن يحتوي على أحرف إنجليزية صغيرة وأرقام فقط ويبدأ بحرف';
 
   @override
   String get errInvalidBundleId =>
-      'استخدم صيغة النطاق العكسي بدون مسافات، مثل com.excp.enaya';
+      'معرف الحزمة يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطة (-) فقط';
 
   @override
   String get errInvalidEmail =>
@@ -135,10 +135,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errInvalidAppId =>
-      'من 3 إلى 40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة سفلية، ويبدأ بحرف، مثل khidma_recruitment';
+      'من 3 إلى 30 حرفًا: أحرف إنجليزية صغيرة وأرقام وشرطات، ويبدأ بحرف، مثل khidma-recruitment';
 
   @override
-  String get errAppIdTaken => 'هذا المعرّف مستخدم بالفعل';
+  String get errAppIdTaken => 'معرف التطبيق مستخدم من قبل، اختر معرفًا آخر';
 
   @override
   String get errDefaultNotSupported =>
@@ -268,9 +268,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get summaryReview => 'المراجعة';
 
   @override
-  String get summaryJson => 'ملف الإعدادات JSON';
-
-  @override
   String get summaryValidation => 'تقرير التحقق';
 
   @override
@@ -281,49 +278,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fixSectionsFirst => 'أكمل الأقسام السابقة لعرض الملخص.';
-
-  @override
-  String willSaveAsVersion(int version) {
-    return 'سيتم الحفظ كإصدار $version';
-  }
-
-  @override
-  String get save => 'حفظ الإعدادات';
-
-  @override
-  String saveSuccess(int version) {
-    return 'تم الحفظ كإصدار $version';
-  }
-
-  @override
-  String saveFailed(String error) {
-    return 'فشل الحفظ: $error';
-  }
-
-  @override
-  String get downloadJson => 'تنزيل JSON';
-
-  @override
-  String get downloadFailed => 'التنزيل متاح في المتصفح فقط';
-
-  @override
-  String get versionHistory => 'سجل الإصدارات';
-
-  @override
-  String get noVersions => 'لا توجد إصدارات محفوظة بعد';
-
-  @override
-  String versionLabel(int version) {
-    return 'الإصدار $version';
-  }
-
-  @override
-  String get restoreAsDraft => 'استعادة كمسودة جديدة';
-
-  @override
-  String restored(int version) {
-    return 'تمت استعادة الإصدار $version كمسودة جديدة';
-  }
 
   @override
   String get valueNotSet => '—';
@@ -479,17 +433,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get phNameEn => 'e.g. Al Khidma Recruitment';
 
   @override
-  String get phPackage => 'com.excp.enaya';
+  String get phPackage => 'myapp';
 
   @override
   String get helperPackage =>
       'أحرف إنجليزية صغيرة ونقاط فقط، ولا يمكن تغييره بعد النشر.';
 
   @override
-  String get iosSameTitle => 'استخدام نفس الحزمة لـ iOS';
-
-  @override
-  String get iosSameDesc => 'سيُنسخ معرّف أندرويد تلقائيًا إلى iOS';
+  String get iosSameTitle => 'نفس اسم حزمة Android';
 
   @override
   String get errNameArRequired =>
@@ -500,10 +451,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'أدخل اسم التطبيق بالإنجليزية، مثل: Al Khidma Recruitment';
 
   @override
-  String get errPackageRequired => 'أدخل اسم حزمة أندرويد، مثل com.excp.enaya';
+  String get errPackageRequired => 'هذا الحقل مطلوب';
 
   @override
-  String get errBundleRequired => 'أدخل معرّف حزمة iOS، مثل com.excp.enaya';
+  String get errBundleRequired => 'هذا الحقل مطلوب';
 
   @override
   String get errClientRequired => 'أدخل اسم العميل أو المكتب';
@@ -753,4 +704,222 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get templatePreviewAction => 'معاينة';
-}
+
+  @override
+  String get roleAccent => 'اللون المميز';
+
+  @override
+  String get roleBackground => 'الخلفية';
+
+  @override
+  String get roleText => 'لون النص';
+
+  @override
+  String get roleDescAccent =>
+      'الروابط مثل «عرض الكل»، وحالات النجاح، والعناصر المحددة';
+
+  @override
+  String get roleDescBackground =>
+      'خلفية الشاشات (اختياري، وإلا يُستخدم لون القالب)';
+
+  @override
+  String get roleDescText => 'لون النصوص (اختياري، وإلا يُستخدم لون القالب)';
+
+  @override
+  String contrastOkAccent(String ratio) {
+    return 'الرابط واضح على الخلفية (التباين $ratio:1)';
+  }
+
+  @override
+  String contrastWarnAccent(String ratio) {
+    return 'قد لا يكون الرابط واضحًا على الخلفية (التباين $ratio:1)';
+  }
+
+  @override
+  String contrastOkText(String ratio) {
+    return 'النص مقروء على الخلفية (التباين $ratio:1)';
+  }
+
+  @override
+  String contrastWarnText(String ratio) {
+    return 'قد لا يكون النص مقروءًا على الخلفية (التباين $ratio:1)';
+  }
+
+  @override
+  String get palettesTitle => 'ألوان جاهزة';
+
+  @override
+  String get paletteNavy => 'كحلي';
+
+  @override
+  String get paletteTeal => 'أخضر مزرق';
+
+  @override
+  String get paletteBurgundy => 'عنابي';
+
+  @override
+  String get palettePurple => 'بنفسجي';
+
+  @override
+  String get paletteCharcoal => 'فحمي';
+
+  @override
+  String get resetColors => 'إعادة إلى ألوان القالب الافتراضية';
+
+  @override
+  String get useTemplateDefault => 'استخدام لون القالب الافتراضي';
+
+  @override
+  String get assetSourceLabel => 'مصدر الصورة';
+
+  @override
+  String get assetSourceFile => 'رفع ملف';
+
+  @override
+  String get assetSourceUrl => 'رابط صورة';
+
+  @override
+  String get imageUrlPlaceholder => 'https://example.com/logo.png';
+
+  @override
+  String get imageUrlLoad => 'تحميل';
+
+  @override
+  String get imageUrlChange => 'تغيير';
+
+  @override
+  String get imageUrlLoading => 'جارٍ التحقق من الصورة…';
+
+  @override
+  String get imageUrlInvalid => 'الرابط غير صالح';
+
+  @override
+  String get imageUrlLoadFailed =>
+      'تعذّر تحميل الصورة من هذا الرابط. تأكد أن الرابط عام ويشير مباشرة إلى صورة.';
+
+  @override
+  String get imageUrlUnsupported =>
+      'نوع الصورة غير مدعوم. المسموح: PNG وJPG وJPEG وSVG وWEBP.';
+
+  @override
+  String get submitCardTitle => 'إرسال الطلب';
+
+  @override
+  String get submitCardDesc =>
+      'راجع البيانات أعلاه ثم أرسل الطلب. سيتم تسجيله برقم معرّف التطبيق.';
+
+  @override
+  String get submitRequest => 'إرسال الطلب';
+
+  @override
+  String get submitting => 'جاري الإرسال...';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get requestSentTitle => 'تم إرسال طلبك بنجاح';
+
+  @override
+  String get requestSentBody =>
+      'استلمنا طلبك وسيقوم فريقنا بمراجعته، وسنتواصل معك في أقرب وقت لتأكيد التفاصيل.';
+
+  @override
+  String get requestReference => 'رقم الطلب';
+
+  @override
+  String get backToStart => 'العودة للبداية';
+
+  @override
+  String get submitErrNotConfigured =>
+      'لم يتم ربط الإرسال بعد: مفاتيح Firebase غير مضبوطة. تواصل مع مسؤول النظام.';
+
+  @override
+  String get submitErrInvalidAppId =>
+      'معرّف التطبيق غير صحيح. عدّله في الخطوة الأولى ثم أعد المحاولة.';
+
+  @override
+  String get submitErrPermission =>
+      'لا توجد صلاحية لإرسال الطلب. تواصل مع مسؤول النظام.';
+
+  @override
+  String get submitErrNetwork =>
+      'تعذّر الاتصال بالخادم. تحقق من الإنترنت ثم أعد المحاولة. بياناتك محفوظة.';
+
+  @override
+  String get submitErrUnknown =>
+      'حدث خطأ أثناء إرسال الطلب. أعد المحاولة؛ بياناتك محفوظة.';
+
+  @override
+  String get nextStepsTitle => 'الخطوات القادمة';
+
+  @override
+  String get stepReceived => 'تم استلام الطلب';
+
+  @override
+  String get stepReview => 'مراجعة الطلب من فريقنا';
+
+  @override
+  String get stepContact => 'التواصل معك';
+
+  @override
+  String get stepContactVia => 'عبر';
+
+  @override
+  String get stateDone => 'مكتمل';
+
+  @override
+  String get stateInProgress => 'جارٍ الآن';
+
+  @override
+  String get stateUpcoming => 'قادم';
+
+  @override
+  String get appIdCheckFailed => 'تعذّر التحقق من المعرف، حاول مرة أخرى';
+
+  @override
+  String get appIdSuggestions => 'معرفات متاحة مقترحة:';
+
+  @override
+  String appIdJustTaken(String appId) {
+    return 'تم استخدام معرف التطبيق «$appId» للتو من عميل آخر. بياناتك محفوظة، اختر معرفًا آخر ثم أعد الإرسال.';
+  }
+
+  @override
+  String get phBundleId => 'myapp';
+
+  @override
+  String packagePreview(String value) {
+    return 'اسم الحزمة: $value';
+  }
+
+  @override
+  String get errReservedPackage =>
+      'لا يمكن استخدام كلمة محجوزة في Java مثل class أو new أو int أو package';
+
+  @override
+  String get errPackageTooLong => 'اسم الحزمة طويل جدًا (الحد الأقصى 100 حرف)';
+
+  @override
+  String get imageUrlNotCopyable =>
+      'تم تحميل الصورة لكن هذا الموقع لا يسمح بنسخها. ارفع الملف بدلًا من ذلك.';
+
+  @override
+  String imageSizeMismatch(String required, String current) {
+    return 'أبعاد الصورة غير مناسبة: المطلوب $required والحالية $current';
+  }
+
+  @override
+  String get requiredLogoSize => '512×512 على الأقل';
+
+  @override
+  String get requiredIconSize => '1024×1024 بالضبط';
+
+  @override
+  String bundlePreview(String value) {
+    return 'معرف الحزمة: $value';
+  }
+
+  @override
+  String get iosUnderscoreNote =>
+      

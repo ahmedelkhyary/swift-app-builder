@@ -239,13 +239,13 @@ abstract class AppLocalizations {
   /// No description provided for @fieldAndroidPackage.
   ///
   /// In en, this message translates to:
-  /// **'Android package name'**
+  /// **'Package name for Android'**
   String get fieldAndroidPackage;
 
   /// No description provided for @fieldIosBundleId.
   ///
   /// In en, this message translates to:
-  /// **'iOS bundle ID'**
+  /// **'Bundle ID for iOS'**
   String get fieldIosBundleId;
 
   /// No description provided for @fieldIosSame.
@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// No description provided for @appIdChecking.
   ///
   /// In en, this message translates to:
-  /// **'Checking availability…'**
+  /// **'Checking...'**
   String get appIdChecking;
 
   /// No description provided for @appIdAvailable.
@@ -305,13 +305,13 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidPackage.
   ///
   /// In en, this message translates to:
-  /// **'Use lowercase letters without spaces, for example com.excp.enaya'**
+  /// **'Use lowercase English letters and digits only (underscores and dots are allowed); each part starts with a letter'**
   String get errInvalidPackage;
 
   /// No description provided for @errInvalidBundleId.
   ///
   /// In en, this message translates to:
-  /// **'Use reverse-DNS format without spaces, for example com.excp.enaya'**
+  /// **'Use English letters, digits and hyphens (-) only; parts are separated by dots and cannot start or end with a hyphen'**
   String get errInvalidBundleId;
 
   /// No description provided for @errInvalidEmail.
@@ -335,13 +335,13 @@ abstract class AppLocalizations {
   /// No description provided for @errInvalidAppId.
   ///
   /// In en, this message translates to:
-  /// **'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. khidma_recruitment'**
+  /// **'Use 3–30 lowercase letters, digits, hyphens or underscores, starting with a letter, e.g. khidma-recruitment'**
   String get errInvalidAppId;
 
   /// No description provided for @errAppIdTaken.
   ///
   /// In en, this message translates to:
-  /// **'This app ID is already used'**
+  /// **'This App ID is already taken, choose another one'**
   String get errAppIdTaken;
 
   /// No description provided for @errDefaultNotSupported.
@@ -584,12 +584,6 @@ abstract class AppLocalizations {
   /// **'Review'**
   String get summaryReview;
 
-  /// No description provided for @summaryJson.
-  ///
-  /// In en, this message translates to:
-  /// **'Configuration JSON'**
-  String get summaryJson;
-
   /// No description provided for @summaryValidation.
   ///
   /// In en, this message translates to:
@@ -613,72 +607,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Complete the earlier sections to see the summary.'**
   String get fixSectionsFirst;
-
-  /// No description provided for @willSaveAsVersion.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving will create version {version}'**
-  String willSaveAsVersion(int version);
-
-  /// No description provided for @save.
-  ///
-  /// In en, this message translates to:
-  /// **'Save configuration'**
-  String get save;
-
-  /// No description provided for @saveSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved as version {version}'**
-  String saveSuccess(int version);
-
-  /// No description provided for @saveFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Save failed: {error}'**
-  String saveFailed(String error);
-
-  /// No description provided for @downloadJson.
-  ///
-  /// In en, this message translates to:
-  /// **'Download JSON'**
-  String get downloadJson;
-
-  /// No description provided for @downloadFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Download is only available in the browser'**
-  String get downloadFailed;
-
-  /// No description provided for @versionHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'Version history'**
-  String get versionHistory;
-
-  /// No description provided for @noVersions.
-  ///
-  /// In en, this message translates to:
-  /// **'No saved versions yet'**
-  String get noVersions;
-
-  /// No description provided for @versionLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version}'**
-  String versionLabel(int version);
-
-  /// No description provided for @restoreAsDraft.
-  ///
-  /// In en, this message translates to:
-  /// **'Restore as new draft'**
-  String get restoreAsDraft;
-
-  /// No description provided for @restored.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version} restored as a new draft'**
-  String restored(int version);
 
   /// No description provided for @valueNotSet.
   ///
@@ -965,7 +893,7 @@ abstract class AppLocalizations {
   /// No description provided for @phPackage.
   ///
   /// In en, this message translates to:
-  /// **'com.excp.enaya'**
+  /// **'myapp'**
   String get phPackage;
 
   /// No description provided for @helperPackage.
@@ -977,14 +905,8 @@ abstract class AppLocalizations {
   /// No description provided for @iosSameTitle.
   ///
   /// In en, this message translates to:
-  /// **'Use the same package for iOS'**
+  /// **'Same as the Android package name'**
   String get iosSameTitle;
-
-  /// No description provided for @iosSameDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'The Android identifier is copied to iOS automatically'**
-  String get iosSameDesc;
 
   /// No description provided for @errNameArRequired.
   ///
@@ -1001,13 +923,13 @@ abstract class AppLocalizations {
   /// No description provided for @errPackageRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the Android package name, e.g. com.excp.enaya'**
+  /// **'This field is required'**
   String get errPackageRequired;
 
   /// No description provided for @errBundleRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter the iOS bundle ID, e.g. com.excp.enaya'**
+  /// **'This field is required'**
   String get errBundleRequired;
 
   /// No description provided for @errClientRequired.
@@ -1429,6 +1351,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preview'**
   String get templatePreviewAction;
+
+  /// No description provided for @roleAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get roleAccent;
+
+  /// No description provided for @roleBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get roleBackground;
+
+  /// No description provided for @roleText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get roleText;
+
+  /// No description provided for @roleDescAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Links such as \"View all\", success states and selected items'**
+  String get roleDescAccent;
+
+  /// No description provided for @roleDescBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen background (optional; the template color is used otherwise)'**
+  String get roleDescBackground;
+
+  /// No description provided for @roleDescText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text color (optional; the template color is used otherwise)'**
+  String get roleDescText;
+
+  /// No description provided for @contrastOkAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'The link color is clear on the background (contrast {ratio}:1)'**
+  String contrastOkAccent(String ratio);
+
+  /// No description provided for @contrastWarnAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'The link color may not be clear on the background (contrast {ratio}:1)'**
+  String contrastWarnAccent(String ratio);
+
+  /// No description provided for @contrastOkText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text is readable on the background (contrast {ratio}:1)'**
+  String contrastOkText(String ratio);
+
+  /// No description provided for @contrastWarnText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text may not be readable on the background (contrast {ratio}:1)'**
+  String contrastWarnText(String ratio);
+
+  /// No description provided for @palettesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready-made palettes'**
+  String get palettesTitle;
+
+  /// No description provided for @paletteNavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Navy'**
+  String get paletteNavy;
+
+  /// No description provided for @paletteTeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get paletteTeal;
+
+  /// No description provided for @paletteBurgundy.
+  ///
+  /// In en, this message translates to:
+  /// **'Burgundy'**
+  String get paletteBurgundy;
+
+  /// No description provided for @palettePurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get palettePurple;
+
+  /// No description provided for @paletteCharcoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Charcoal'**
+  String get paletteCharcoal;
+
+  /// No description provided for @resetColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to template defaults'**
+  String get resetColors;
+
+  /// No description provided for @useTemplateDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the template default'**
+  String get useTemplateDefault;
+
+  /// No description provided for @assetSourceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Image source'**
+  String get assetSourceLabel;
+
+  /// No description provided for @assetSourceFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload file'**
+  String get assetSourceFile;
+
+  /// No description provided for @assetSourceUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Image URL'**
+  String get assetSourceUrl;
+
+  /// No description provided for @imageUrlPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'https://example.com/logo.png'**
+  String get imageUrlPlaceholder;
+
+  /// No description provided for @imageUrlLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load'**
+  String get imageUrlLoad;
+
+  /// No description provided for @imageUrlChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get imageUrlChange;
+
+  /// No description provided for @imageUrlLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the image…'**
+  String get imageUrlLoading;
+
+  /// No description provided for @imageUrlInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The link is not valid'**
+  String get imageUrlInvalid;
+
+  /// No description provided for @imageUrlLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load image from this link. Make sure the link is public and points directly to an image.'**
+  String get imageUrlLoadFailed;
+
+  /// No description provided for @imageUrlUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported image type. Allowed: PNG, JPG, JPEG, SVG and WEBP.'**
+  String get imageUrlUnsupported;
+
+  /// No description provided for @submitCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit request'**
+  String get submitCardTitle;
+
+  /// No description provided for @submitCardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the details above, then submit. The request is filed under the App ID.'**
+  String get submitCardDesc;
+
+  /// No description provided for @submitRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit request'**
+  String get submitRequest;
+
+  /// No description provided for @submitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting...'**
+  String get submitting;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retry;
+
+  /// No description provided for @requestSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request was submitted'**
+  String get requestSentTitle;
+
+  /// No description provided for @requestSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We received your request and our team will review it. We will contact you shortly to confirm the details.'**
+  String get requestSentBody;
+
+  /// No description provided for @requestReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Request reference'**
+  String get requestReference;
+
+  /// No description provided for @backToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to start'**
+  String get backToStart;
+
+  /// No description provided for @submitErrNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting is not connected yet: the Firebase keys are not configured. Contact your administrator.'**
+  String get submitErrNotConfigured;
+
+  /// No description provided for @submitErrInvalidAppId.
+  ///
+  /// In en, this message translates to:
+  /// **'The App ID is not valid. Fix it in step 1 and try again.'**
+  String get submitErrInvalidAppId;
+
+  /// No description provided for @submitErrPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to submit this request. Contact your administrator.'**
+  String get submitErrPermission;
+
+  /// No description provided for @submitErrNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server. Check your connection and try again. Your data is kept.'**
+  String get submitErrNetwork;
+
+  /// No description provided for @submitErrUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while submitting. Try again; your data is kept.'**
+  String get submitErrUnknown;
+
+  /// No description provided for @nextStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next steps'**
+  String get nextStepsTitle;
+
+  /// No description provided for @stepReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Request received'**
+  String get stepReceived;
+
+  /// No description provided for @stepReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Our team reviews your request'**
+  String get stepReview;
+
+  /// No description provided for @stepContact.
+  ///
+  /// In en, this message translates to:
+  /// **'We contact you'**
+  String get stepContact;
+
+  /// No description provided for @stepContactVia.
+  ///
+  /// In en, this message translates to:
+  /// **'via'**
+  String get stepContactVia;
+
+  /// No description provided for @stateDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get stateDone;
+
+  /// No description provided for @stateInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get stateInProgress;
+
+  /// No description provided for @stateUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get stateUpcoming;
+
+  /// No description provided for @appIdCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check the App ID, try again'**
+  String get appIdCheckFailed;
+
+  /// No description provided for @appIdSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Available suggestions:'**
+  String get appIdSuggestions;
+
+  /// No description provided for @appIdJustTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'The App ID \"{appId}\" was just taken by another client. Your data is kept: choose a different ID and submit again.'**
+  String appIdJustTaken(String appId);
+
+  /// No description provided for @phBundleId.
+  ///
+  /// In en, this message translates to:
+  /// **'myapp'**
+  String get phBundleId;
+
+  /// No description provided for @packagePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Package name: {value}'**
+  String packagePreview(String value);
+
+  /// No description provided for @errReservedPackage.
+  ///
+  /// In en, this message translates to:
+  /// **'A Java reserved word such as class, new, int or package cannot be used'**
+  String get errReservedPackage;
+
+  /// No description provided for @errPackageTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The package name is too long (100 characters at most)'**
+  String get errPackageTooLong;
+
+  /// No description provided for @imageUrlNotCopyable.
+  ///
+  /// In en, this message translates to:
+  /// **'The image loads, but this site doesn\'t allow copying it. Upload the file instead.'**
+  String get imageUrlNotCopyable;
+
+  /// No description provided for @imageSizeMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsuitable image size: required {required}, current {current}'**
+  String imageSizeMismatch(String required, String current);
+
+  /// No description provided for @requiredLogoSize.
+  ///
+  /// In en, this message translates to:
+  /// **'at least 512×512'**
+  String get requiredLogoSize;
+
+  /// No description provided for @requiredIconSize.
+  ///
+  /// In en, this message translates to:
+  /// **'exactly 1024×1024'**
+  String get requiredIconSize;
+
+  /// No description provided for @bundlePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle ID: {value}'**
+  String bundlePreview(String value);
+
+  /// No description provided for @iosUnderscoreNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Underscores \"_\" were converted to hyphens \"-\" because iOS does not allow them.'**
+  String get iosUnderscoreNote;
+
+  /// No description provided for @errBundleTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The bundle ID is too long (155 characters at most)'**
+  String get errBundleTooLong;
 }
 
 class _AppLocalizationsDelegate
@@ -1460,7 +1766,4 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
-}
+    'on GitHub with a reproducible sample app and 

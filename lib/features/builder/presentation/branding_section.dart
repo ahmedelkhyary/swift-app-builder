@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recruitment_ui/recruitment_ui.dart';
@@ -9,37 +8,33 @@ import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/providers.dart';
 import '../domain/asset.dart';
-import '../domain/asset_validator.dart';
 import '../domain/color_tools.dart';
 import '../domain/draft.dart';
 import '../domain/validators.dart';
 import 'color_picker.dart';
-import 'field_registry.dart';
 import 'form_widgets.dart';
 import 'interactive_preview.dart';
-import 'l10n_ext.dart';
+import 'image_source_input.dart';
 import 'phone_preview.dart';
 
-/// Signature of the file chooser, replaceable in tests.
-typedef FilePick =
-    Future<({String name, Uint8List bytes})?> Function(List<String> extensions);
+export 'image_source_input.dart'
+    show FilePick, defaultFilePick, filePickProvider;
 
-Future<({String name, Uint8List bytes})?> defaultFilePick(
-  List<String> extensions,
-) async {
-  final result = await FilePicker.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: extensions,
-  );
-  if (result.isEmpty) return null;
-  final f = result.first;
-  return (name: f.name, bytes: await f.readAsBytes());
-}
+/// The color roles of the config. Background and text are optional: when
+/// unset the template's own page / text colors apply.
+enum ColorRole { primary, secondary, accent, background, text, splash }
 
-final filePickProvider = Provider<FilePick>((ref) => defaultFilePick);
+/// Ready-made palettes: primary, secondary and accent together.
+const _palettes = <(String, String, String, String)>[
+  ('navy', '#213F80', '#29ABE2', '#2E9E5B'),
+  ('teal', '#00695C', '#FFB300', '#2E7D32'),
+  ('burgundy', '#7B1E3A', '#E0A526', '#2E7D32'),
+  ('purple', '#4527A0', '#00B8D4', '#43A047'),
+  ('charcoal', '#263238', '#FF7043', '#26A69A'),
+];
 
-/// The color roles the config really has (no background/text colors exist).
-enum ColorRole { primary, secondary, splash }
+const _defaultPageColor = Color(0xFFFFFFFF);
+const _defaultTextColor = Color(0xFF1A1F2E);
 
 /// Previous fixed presets, kept as "suggested colors".
 const kPresetColors = <Color>[
@@ -74,7 +69,7 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
   List<Color> _logoColors = const [];
 
   List<Color> _colorsFor(PickedAsset? logo) {
-    if (logo == null || logo.isSvg) {
+    if (logo == null || logo.isSvg || logo.isRemote) {
       _logoBytes = null;
       return _logoColors = const [];
     }
@@ -88,6 +83,9 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
   Color _colorOf(AppConfigDraft d, ColorRole r) => switch (r) {
     ColorRole.primary => d.primaryColor,
     ColorRole.secondary => d.secondaryColor,
+    ColorRole.accent => d.accentColor,
+    ColorRole.background => d.backgroundColor ?? _defaultPageColor,
+    ColorRole.text => d.textColor ?? _defaultTextColor,
     ColorRole.splash => parseHexColor(d.splashHex) ?? Colors.white,
   };
 
@@ -99,6 +97,12 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
         n.setPrimary(hex);
       case ColorRole.secondary:
         n.setSecondary(hex);
+      case ColorRole.accent:
+        n.setAccent(hex);
+      case ColorRole.background:
+        n.setBackground(hex);
+      case ColorRole.text:
+        n.setText(hex);
       case ColorRole.splash:
         n.setSplashColor(hex);
     }
@@ -129,10 +133,33 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
     final roleInfo = {
       ColorRole.primary: (l10n.rolePrimary, l10n.roleDescPrimary),
       ColorRole.secondary: (l10n.roleSecondary, l10n.roleDescSecondary),
+      ColorRole.accent: (l10n.roleAccent, l10n.roleDescAccent),
+      ColorRole.background: (l10n.roleBackground, l10n.roleDescBackground),
+      ColorRole.text: (l10n.roleText, l10n.roleDescText),
       ColorRole.splash: (l10n.roleSplash, l10n.roleDescSplash),
     };
     final color = _colorOf(d, _role);
+    final pageColor = d.backgroundColor ?? _defaultPageColor;
+    final textColor = d.textColor ?? _defaultTextColor;
     final ContrastStatus contrast = switch (_role) {
+      ColorRole.accent => () {
+        final r = contrastRatio(color, pageColor);
+        final s = r.toStringAsFixed(1);
+        return ContrastStatus(
+          ratio: r,
+          okMessage: l10n.contrastOkAccent(s),
+          warnMessage: l10n.contrastWarnAccent(s),
+        );
+      }(),
+      ColorRole.background || ColorRole.text => () {
+        final r = contrastRatio(textColor, pageColor);
+        final s = r.toStringAsFixed(1);
+        return ContrastStatus(
+          ratio: r,
+          okMessage: l10n.contrastOkText(s),
+          warnMessage: l10n.contrastWarnText(s),
+        );
+      }(),
       ColorRole.splash => () {
         final r = contrastRatio(d.primaryColor, color);
         final s = r.toStringAsFixed(1);
@@ -217,6 +244,49 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
                 ),
               ),
               const SizedBox(height: 16),
+              // ---- ready-made palettes + reset ----
+              Text(
+                l10n.palettesTitle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final p in _palettes)
+                    _PaletteChip(
+                      key: ValueKey('palette-${p.$1}'),
+                      label: switch (p.$1) {
+                        'navy' => l10n.paletteNavy,
+                        'teal' => l10n.paletteTeal,
+                        'burgundy' => l10n.paletteBurgundy,
+                        'purple' => l10n.palettePurple,
+                        _ => l10n.paletteCharcoal,
+                      },
+                      colors: [
+                        for (final h in [p.$2, p.$3, p.$4]) parseHexColor(h)!,
+                      ],
+                      selected:
+                          d.primaryHex.toUpperCase() == p.$2 &&
+                          d.secondaryHex.toUpperCase() == p.$3 &&
+                          d.accentHex.toUpperCase() == p.$4,
+                      onTap: () => ref
+                          .read(draftProvider.notifier)
+                          .setPalette(p.$2, p.$3, p.$4),
+                    ),
+                  TextButton.icon(
+                    key: const ValueKey('reset-colors'),
+                    onPressed: ref.read(draftProvider.notifier).resetColors,
+                    icon: const Icon(Icons.restart_alt, size: 18),
+                    label: Text(l10n.resetColors),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               ColorPickerPanel(
                 key: ValueKey('picker-${_role.name}'),
                 color: color,
@@ -227,7 +297,26 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
                 logoColors: logoColors,
                 contrast: contrast,
               ),
+              if ((_role == ColorRole.background &&
+                      d.backgroundHex.isNotEmpty) ||
+                  (_role == ColorRole.text && d.textHex.isNotEmpty))
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton(
+                    key: const ValueKey('role-clear'),
+                    onPressed: () {
+                      final n = ref.read(draftProvider.notifier);
+                      _role == ColorRole.background
+                          ? n.setBackground('')
+                          : n.setText('');
+                    },
+                    child: Text(l10n.useTemplateDefault),
+                  ),
+                ),
               if (errors[DraftField.primaryColor] != null ||
+                  errors[DraftField.accentColor] != null ||
+                  errors[DraftField.backgroundColor] != null ||
+                  errors[DraftField.textColor] != null ||
                   errors[DraftField.secondaryColor] != null ||
                   errors[DraftField.splashColor] != null)
                 Padding(
@@ -243,8 +332,9 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
         // ---- logo ----
         SectionCard(
           title: l10n.logoLabel,
-          child: _AssetPicker(
+          child: ImageSourceInput(
             kind: AssetKind.logo,
+            allowUrl: true,
             label: l10n.logoLabel,
             hint: l10n.logoHint,
             asset: d.logo,
@@ -259,8 +349,9 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
           title: l10n.iconSplashCard,
           child: Column(
             children: [
-              _AssetPicker(
+              ImageSourceInput(
                 kind: AssetKind.appIcon,
+                allowUrl: true,
                 label: l10n.appIconLabel,
                 hint: l10n.appIconHint,
                 asset: d.appIcon,
@@ -270,8 +361,9 @@ class _BrandingSectionState extends ConsumerState<BrandingSection> {
                 changeLabel: l10n.upload,
               ),
               const Divider(height: 32),
-              _AssetPicker(
+              ImageSourceInput(
                 kind: AssetKind.splashLogo,
+                allowUrl: true,
                 label: l10n.splashLogoLabel,
                 hint: l10n.splashLogoHint,
                 asset: d.splashLogo,
@@ -475,189 +567,61 @@ class _BrandingPreviewPanelState extends ConsumerState<BrandingPreviewPanel> {
   }
 }
 
-class _AssetPicker extends ConsumerStatefulWidget {
-  const _AssetPicker({
-    required this.kind,
+/// A ready-made palette: three color dots and a name.
+class _PaletteChip extends StatelessWidget {
+  const _PaletteChip({
+    super.key,
     required this.label,
-    required this.hint,
-    required this.asset,
-    required this.pickLabel,
-    required this.changeLabel,
-    this.field,
-    this.error,
+    required this.colors,
+    required this.selected,
+    required this.onTap,
   });
-  final AssetKind kind;
+
   final String label;
-  final String hint;
-  final PickedAsset? asset;
-  final String pickLabel;
-  final String changeLabel;
-  final DraftField? field;
-  final FieldError? error;
-
-  @override
-  ConsumerState<_AssetPicker> createState() => _AssetPickerState();
-}
-
-class _AssetPickerState extends ConsumerState<_AssetPicker> {
-  AssetIssue? _issue;
-  final FocusNode _node = FocusNode();
-  late final FieldRegistry _registry = ref.read(fieldRegistryProvider);
-
-  @override
-  void initState() {
-    super.initState();
-    final f = widget.field;
-    if (f != null) _registry.register(f, _node);
-  }
-
-  @override
-  void dispose() {
-    final f = widget.field;
-    if (f != null) _registry.unregister(f, _node);
-    _node.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pick() async {
-    final isIcon = widget.kind == AssetKind.appIcon;
-    final picked = await ref.read(filePickProvider)(
-      isIcon ? const ['png'] : const ['png', 'svg'],
-    );
-    if (picked == null) return;
-    final check = isIcon
-        ? AssetValidator.validateIcon(picked.name, picked.bytes)
-        : AssetValidator.validateLogo(picked.name, picked.bytes);
-    if (!mounted) return;
-    setState(() => _issue = check.issue);
-    if (check.asset != null) {
-      ref.read(draftProvider.notifier).setAsset(widget.kind, check.asset);
-    }
-  }
+  final List<Color> colors;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final a = widget.asset;
-    final issueText = _issue == null ? null : l10n.assetIssue(_issue!);
-    // A missing file is only reported once the user pressed Next.
-    final attempted = ref.watch(submitAttemptProvider(WizardSection.branding));
-    final errorText =
-        issueText ??
-        (widget.error != null && attempted
-            ? l10n.fieldError(widget.error!)
-            : null);
-
-    return Focus(
-      focusNode: _node,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: errorText == null
-                    ? AppColors.inputBorder
-                    : AppColors.error,
-              ),
-              borderRadius: BorderRadius.circular(12),
-              color: AppColors.fieldFill,
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected ? AppColors.accent : AppColors.inputBorder,
+              width: selected ? 2 : 1,
             ),
-            clipBehavior: Clip.antiAlias,
-            padding: const EdgeInsets.all(6),
-            child: a == null
-                ? const Icon(
-                    Icons.image_outlined,
-                    size: 28,
-                    color: AppColors.muted,
-                  )
-                : RuiLogo(logo: BrandLogo(a.bytes, isSvg: a.isSvg), size: 60),
+            color: selected ? AppColors.iconTile : AppColors.surface,
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.label,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final c in colors)
+                Container(
+                  width: 16,
+                  height: 16,
+                  margin: const EdgeInsetsDirectional.only(end: 4),
+                  decoration: BoxDecoration(
+                    color: c,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.border),
                   ),
                 ),
-                Text(
-                  widget.hint,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.muted,
-                    height: 1.4,
-                  ),
-                ),
-                if (a != null)
-                  Text(
-                    '${a.name}${a.width != null ? '  ${a.width}×${a.height}' : ''}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.muted,
-                    ),
-                    textDirection: TextDirection.ltr,
-                  ),
-                if (errorText != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 16,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            errorText,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.error,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    OutlinedButton.icon(
-                      key: ValueKey('upload-${widget.kind.name}'),
-                      onPressed: _pick,
-                      icon: const Icon(Icons.upload_file, size: 18),
-                      label: Text(
-                        a == null ? widget.pickLabel : widget.changeLabel,
-                      ),
-                    ),
-                    if (a != null)
-                      TextButton(
-                        key: ValueKey('remove-${widget.kind.name}'),
-                        onPressed: () {
-                          setState(() => _issue = null);
-                          ref
-                              .read(draftProvider.notifier)
-                              .setAsset(widget.kind, null);
-                        },
-                        child: Text(l10n.remove),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+              const SizedBox(width: 4),
+              Text(label, style: const TextStyle(fontSize: 13)),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

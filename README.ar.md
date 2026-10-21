@@ -61,6 +61,18 @@ flutter test
 (cd packages/recruitment_ui && flutter test)
 ```
 
+## إرسال الطلب (Firebase)
+
+تنتهي الخطوة 5 بزر **إرسال الطلب**: تُحفظ بيانات المعالج في Firestore داخل
+`app_requests/{appId}` بحالة `pending` مع `createdAt` و`updatedAt`، وتُرفع صورتا الشعار والأيقونة
+إلى Storage داخل `app_requests/{appId}/` ويُحفظ رابطا التنزيل في المستند. إن وُجد طلب بنفس المعرّف
+يُطلب من المستخدم تأكيد التحديث (ويبقى `createdAt` كما هو).
+
+الإعداد: أنشئ مشروع Firebase وتطبيق ويب وفعّل Firestore وStorage، وانسخ `.env.example` إلى `.env`
+واملأه، ثم شغّل `flutter run -d chrome --dart-define-from-file=.env`، وانشر القواعد من
+`firestore.rules` و`storage.rules`. على GitHub Pages أضف نفس المفاتيح كأسرار للمستودع.
+بدون المفاتيح يعمل التطبيق لكن الإرسال يعرض رسالة أن Firebase غير مضبوط.
+
 ## التخزين
 
 البيانات **في الذاكرة فقط** وتضيع عند إعادة تحميل الصفحة. الواجهة `ConfigRepository`

@@ -7,6 +7,7 @@ import '../demo/session.dart';
 import 'address_screen.dart';
 import 'auth_screens.dart';
 import 'contract_screen.dart';
+import 'featured.dart';
 import 'hourly_screens.dart';
 import 'individuals_screens.dart';
 import 'main_shell.dart';
@@ -149,6 +150,7 @@ class _RecruitmentAppState extends State<RecruitmentApp> {
       DemoRoutes.medPackages => const MediationPackagesScreen(),
       DemoRoutes.medMethod => const WorkerMethodScreen(),
       DemoRoutes.medSearch => const WorkerSearchScreen(),
+      DemoRoutes.featured => const FeaturedServicesScreen(),
       _ => const LoginScreen(),
     };
     return _TemplateRoute(

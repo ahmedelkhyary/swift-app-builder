@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../domain/draft.dart';
 import '../domain/validators.dart';
 import 'field_registry.dart';
 import 'l10n_ext.dart';
@@ -33,6 +34,8 @@ class DraftTextField extends ConsumerStatefulWidget {
     this.enabled = true,
     this.readOnly = false,
     this.dashed = false,
+    this.alwaysShowError = false,
+    this.fixedPrefix,
     this.fillColor,
     this.badge,
     this.suffix,
@@ -62,6 +65,16 @@ class DraftTextField extends ConsumerStatefulWidget {
   final bool mono;
   final bool enabled;
   final bool readOnly;
+
+  /// Show the error as soon as it exists (async checks), not only after the
+  /// field was left or Next was pressed.
+  final bool alwaysShowError;
+
+  /// A read-only addon shown inside the field before the editable text (for
+  /// example `com.excp.`). It is not part of [value] and cannot be edited,
+  /// selected, typed over or pasted away. The field itself is laid out
+  /// left-to-right; label, helper and errors keep the page direction.
+  final String? fixedPrefix;
 
   /// Dashed outline, used for fields that mirror another value.
   final bool dashed;
@@ -123,7 +136,8 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
     final attempted =
         f != null && ref.watch(submitAttemptProvider(sectionOfField(f)));
     final err = widget.error;
-    final showError = err != null && (_blurred || attempted);
+    final showError =
+        err != null && (widget.alwaysShowError || _blurred || attempted);
     final errorText = err == null
         ? null
         : (widget.messages[err] ?? l10n.fieldError(err));
@@ -141,6 +155,7 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
         ? AppColors.error
         : (focused ? AppColors.accent : AppColors.inputBorder);
 
+    final bare = widget.fixedPrefix != null;
     Widget input = TextField(
       key: widget.fieldKey,
       controller: _controller,
@@ -160,7 +175,7 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
           color: AppColors.muted.withValues(alpha: 0.75),
         ),
         hintTextDirection: widget.ltr ? TextDirection.ltr : null,
-        filled: true,
+        filled: !bare,
         fillColor: widget.enabled
             ? (widget.fillColor ?? AppColors.surface)
             : AppColors.fieldFill,
@@ -169,17 +184,59 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
           vertical: 14,
         ),
         constraints: const BoxConstraints(minHeight: 48),
-        border: widget.dashed ? InputBorder.none : border(borderColor),
-        enabledBorder: widget.dashed ? InputBorder.none : border(borderColor),
-        disabledBorder: widget.dashed
+        border: widget.dashed || bare ? InputBorder.none : border(borderColor),
+        enabledBorder: widget.dashed || bare
+            ? InputBorder.none
+            : border(borderColor),
+        disabledBorder: widget.dashed || bare
             ? InputBorder.none
             : border(AppColors.inputBorder),
-        focusedBorder: widget.dashed
+        focusedBorder: widget.dashed || bare
             ? InputBorder.none
             : border(showError ? AppColors.error : AppColors.accent, 1.5),
         suffixIcon: widget.suffix,
       ),
     );
+
+    if (bare) {
+      final prefix = widget.fixedPrefix!;
+      input = Directionality(
+        textDirection: TextDirection.ltr,
+        child: Container(
+          decoration: BoxDecoration(
+            color: widget.fillColor ?? AppColors.surface,
+            borderRadius: radius,
+            border: Border.all(color: borderColor, width: focused ? 1.5 : 1),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Read-only addon: not focusable, selectable or editable.
+                ExcludeSemantics(
+                  child: Container(
+                    key: const ValueKey('fixed-prefix'),
+                    color: AppColors.pageBackground,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    alignment: Alignment.center,
+                    child: Text(
+                      prefix,
+                      textDirection: TextDirection.ltr,
+                      style: (textStyle ?? const TextStyle()).copyWith(
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ),
+                ),
+                const VerticalDivider(width: 1, thickness: 1),
+                Expanded(child: input),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     if (widget.dashed) {
       input = CustomPaint(
@@ -391,6 +448,51 @@ class SectionCard extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+}
+
+/// Keeps the editable part of a package name well-formed while typing:
+/// lowercases, drops spaces and every character except letters, digits,
+/// underscores and dots, and ignores a pasted copy of the fixed prefix.
+class PackageSuffixFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var text = newValue.text.toLowerCase();
+    if (text.startsWith(kPackagePrefix)) {
+      text = text.substring(kPackagePrefix.length);
+    }
+    text = text.replaceAll(RegExp(r'[^a-z0-9_.]'), '');
+    if (text == newValue.text) return newValue;
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
+
+/// Keeps the editable part of an iOS bundle ID well-formed while typing:
+/// lowercases, turns pasted underscores into hyphens, drops spaces and every
+/// other character except letters, digits, hyphens and dots, and ignores a
+/// pasted copy of the fixed prefix.
+class BundleSuffixFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var text = newValue.text.toLowerCase().replaceAll('_', '-');
+    if (text.startsWith(kPackagePrefix)) {
+      text = text.substring(kPackagePrefix.length);
+    }
+    text = text.replaceAll(RegExp(r'[^a-z0-9.-]'), '');
+    if (text == newValue.text) return newValue;
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }

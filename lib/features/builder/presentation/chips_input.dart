@@ -171,7 +171,7 @@ class _EmailChipsInputState extends State<EmailChipsInput> {
     );
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           widget.label,
@@ -210,60 +210,85 @@ class _EmailChipsInputState extends State<EmailChipsInput> {
                       ]
                     : const [],
               ),
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (final e in widget.emails)
-                    _EmailChip(
-                      email: e,
-                      removeLabel: l10n.removeEmailLabel(e),
-                      onRemove: () => _remove(e),
-                    ),
-                  SizedBox(
-                    width: 220,
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: TextField(
-                        key: widget.fieldKey,
-                        controller: _controller,
-                        focusNode: _focus,
-                        keyboardType: TextInputType.emailAddress,
-                        textDirection: TextDirection.ltr,
-                        textAlign:
-                            Directionality.of(context) == TextDirection.rtl
-                            ? TextAlign.right
-                            : TextAlign.left,
-                        style: textStyle,
-                        // Pasted new lines become separators instead of being
-                        // dropped by the single-line field.
-                        inputFormatters: [_newLinesToSpaces],
-                        onChanged: _onTextChanged,
-                        onSubmitted: (v) {
-                          _commit(v, last: true);
-                          _focus.requestFocus();
-                        },
-                        decoration: InputDecoration(
-                          isDense: true,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          filled: false,
-                          hintText: widget.emails.isEmpty ? widget.hint : null,
-                          hintTextDirection: TextDirection.ltr,
-                          hintStyle: textStyle?.copyWith(
-                            color: AppColors.muted.withValues(alpha: 0.75),
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final maxW = box.maxWidth;
+                  return ConstrainedBox(
+                    // The field grows in height only; after about four lines
+                    // of chips it scrolls inside instead.
+                    constraints: const BoxConstraints(maxHeight: 156),
+                    child: SingleChildScrollView(
+                      reverse: true,
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          for (final e in widget.emails)
+                            ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: maxW),
+                              child: _EmailChip(
+                                email: e,
+                                removeLabel: l10n.removeEmailLabel(e),
+                                onRemove: () => _remove(e),
+                              ),
+                            ),
+                          SizedBox(
+                            // Alone it spans the whole row; after chips it takes at
+                            // least 160px and wraps to the next line when out of room.
+                            width: widget.emails.isEmpty
+                                ? maxW
+                                : (maxW < 180 ? maxW : 180),
+                            child: Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextField(
+                                key: widget.fieldKey,
+                                controller: _controller,
+                                focusNode: _focus,
+                                keyboardType: TextInputType.emailAddress,
+                                textDirection: TextDirection.ltr,
+                                textAlign:
+                                    Directionality.of(context) ==
+                                        TextDirection.rtl
+                                    ? TextAlign.right
+                                    : TextAlign.left,
+                                style: textStyle,
+                                // Pasted new lines become separators instead of being
+                                // dropped by the single-line field.
+                                inputFormatters: [_newLinesToSpaces],
+                                onChanged: _onTextChanged,
+                                onSubmitted: (v) {
+                                  _commit(v, last: true);
+                                  _focus.requestFocus();
+                                },
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  filled: false,
+                                  hintText: widget.emails.isEmpty
+                                      ? widget.hint
+                                      : null,
+                                  hintTextDirection: TextDirection.ltr,
+                                  hintStyle: textStyle?.copyWith(
+                                    color: AppColors.muted.withValues(
+                                      alpha: 0.75,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 10,
-                          ),
-                        ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ),

@@ -100,6 +100,17 @@ abstract class DemoRepository {
   List<Partner> get partners;
   ContactInfo get contact;
   List<DemoAddress> get initialAddresses;
+
+  /// The signed-in customer's display name (greeting on Home).
+  L get userName;
+
+  /// Services highlighted on Home, already in display order.
+  List<FeaturedService> get featuredServices;
+
+  /// The customer's main (default) address id. Kept by the repository, not the
+  /// session, so it survives logout and demo resets like a saved preference.
+  String? get mainAddressId;
+  set mainAddressId(String? id);
   List<L> get cities;
   List<Nationality> get nationalities;
   List<Profession> get professions;
@@ -218,6 +229,47 @@ class MockDemoRepository implements DemoRepository {
     ),
     hours: L('السبت - الخميس، 9 ص - 6 م', 'Sat - Thu, 9 AM - 6 PM'),
   );
+
+  @override
+  final userName = const L('أحمد', 'Ahmed');
+
+  @override
+  String? mainAddressId;
+
+  @override
+  final featuredServices = const [
+    FeaturedService(
+      id: 'hourly-maid',
+      module: ServiceModule.hourly,
+      title: L('عاملة بنظام الساعات', 'Hourly maid'),
+      icon: Icons.cleaning_services,
+      color: Color(0xFF2A6F97),
+    ),
+    FeaturedService(
+      id: 'driver',
+      module: ServiceModule.individuals,
+      professionId: 'driver',
+      title: L('سائق خاص', 'Private driver'),
+      icon: Icons.directions_car,
+      color: Color(0xFF6A4C93),
+    ),
+    FeaturedService(
+      id: 'nanny',
+      module: ServiceModule.individuals,
+      professionId: 'nanny',
+      title: L('مربية أطفال', 'Nanny'),
+      icon: Icons.child_care,
+      color: Color(0xFFC9184A),
+    ),
+    FeaturedService(
+      id: 'housemaid',
+      module: ServiceModule.individuals,
+      professionId: 'housemaid',
+      title: L('عاملة منزلية', 'Housemaid'),
+      icon: Icons.home_work,
+      color: Color(0xFF2D6A4F),
+    ),
+  ];
 
   @override
   final initialAddresses = const [

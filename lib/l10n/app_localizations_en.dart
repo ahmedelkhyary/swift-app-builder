@@ -81,10 +81,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldNameEn => 'App name (English)';
 
   @override
-  String get fieldAndroidPackage => 'Android package name';
+  String get fieldAndroidPackage => 'Package name for Android';
 
   @override
-  String get fieldIosBundleId => 'iOS bundle ID';
+  String get fieldIosBundleId => 'Bundle ID for iOS';
 
   @override
   String get fieldIosSame => 'Same as Android';
@@ -106,7 +106,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldClientPhone => 'Support phone';
 
   @override
-  String get appIdChecking => 'Checking availability…';
+  String get appIdChecking => 'Checking...';
 
   @override
   String get appIdAvailable => 'App ID is available';
@@ -116,11 +116,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errInvalidPackage =>
-      'Use lowercase letters without spaces, for example com.excp.enaya';
+      'Use lowercase English letters and digits only (underscores and dots are allowed); each part starts with a letter';
 
   @override
   String get errInvalidBundleId =>
-      'Use reverse-DNS format without spaces, for example com.excp.enaya';
+      'Use English letters, digits and hyphens (-) only; parts are separated by dots and cannot start or end with a hyphen';
 
   @override
   String get errInvalidEmail =>
@@ -135,10 +135,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errInvalidAppId =>
-      'Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. khidma_recruitment';
+      'Use 3–30 lowercase letters, digits, hyphens or underscores, starting with a letter, e.g. khidma-recruitment';
 
   @override
-  String get errAppIdTaken => 'This app ID is already used';
+  String get errAppIdTaken =>
+      'This App ID is already taken, choose another one';
 
   @override
   String get errDefaultNotSupported =>
@@ -268,9 +269,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summaryReview => 'Review';
 
   @override
-  String get summaryJson => 'Configuration JSON';
-
-  @override
   String get summaryValidation => 'Validation report';
 
   @override
@@ -282,49 +280,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fixSectionsFirst =>
       'Complete the earlier sections to see the summary.';
-
-  @override
-  String willSaveAsVersion(int version) {
-    return 'Saving will create version $version';
-  }
-
-  @override
-  String get save => 'Save configuration';
-
-  @override
-  String saveSuccess(int version) {
-    return 'Saved as version $version';
-  }
-
-  @override
-  String saveFailed(String error) {
-    return 'Save failed: $error';
-  }
-
-  @override
-  String get downloadJson => 'Download JSON';
-
-  @override
-  String get downloadFailed => 'Download is only available in the browser';
-
-  @override
-  String get versionHistory => 'Version history';
-
-  @override
-  String get noVersions => 'No saved versions yet';
-
-  @override
-  String versionLabel(int version) {
-    return 'Version $version';
-  }
-
-  @override
-  String get restoreAsDraft => 'Restore as new draft';
-
-  @override
-  String restored(int version) {
-    return 'Version $version restored as a new draft';
-  }
 
   @override
   String get valueNotSet => '—';
@@ -480,18 +435,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phNameEn => 'e.g. Al Khidma Recruitment';
 
   @override
-  String get phPackage => 'com.excp.enaya';
+  String get phPackage => 'myapp';
 
   @override
   String get helperPackage =>
       'Lowercase English letters and dots only. It cannot be changed after publishing.';
 
   @override
-  String get iosSameTitle => 'Use the same package for iOS';
-
-  @override
-  String get iosSameDesc =>
-      'The Android identifier is copied to iOS automatically';
+  String get iosSameTitle => 'Same as the Android package name';
 
   @override
   String get errNameArRequired =>
@@ -502,12 +453,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the English app name, e.g. Al Khidma Recruitment';
 
   @override
-  String get errPackageRequired =>
-      'Enter the Android package name, e.g. com.excp.enaya';
+  String get errPackageRequired => 'This field is required';
 
   @override
-  String get errBundleRequired =>
-      'Enter the iOS bundle ID, e.g. com.excp.enaya';
+  String get errBundleRequired => 'This field is required';
 
   @override
   String get errClientRequired => 'Enter the client or office name';
@@ -755,4 +704,219 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templatePreviewAction => 'Preview';
-}
+
+  @override
+  String get roleAccent => 'Accent';
+
+  @override
+  String get roleBackground => 'Background';
+
+  @override
+  String get roleText => 'Text';
+
+  @override
+  String get roleDescAccent =>
+      'Links such as \"View all\", success states and selected items';
+
+  @override
+  String get roleDescBackground =>
+      'Screen background (optional; the template color is used otherwise)';
+
+  @override
+  String get roleDescText =>
+      'Text color (optional; the template color is used otherwise)';
+
+  @override
+  String contrastOkAccent(String ratio) {
+    return 'The link color is clear on the background (contrast $ratio:1)';
+  }
+
+  @override
+  String contrastWarnAccent(String ratio) {
+    return 'The link color may not be clear on the background (contrast $ratio:1)';
+  }
+
+  @override
+  String contrastOkText(String ratio) {
+    return 'Text is readable on the background (contrast $ratio:1)';
+  }
+
+  @override
+  String contrastWarnText(String ratio) {
+    return 'Text may not be readable on the background (contrast $ratio:1)';
+  }
+
+  @override
+  String get palettesTitle => 'Ready-made palettes';
+
+  @override
+  String get paletteNavy => 'Navy';
+
+  @override
+  String get paletteTeal => 'Teal';
+
+  @override
+  String get paletteBurgundy => 'Burgundy';
+
+  @override
+  String get palettePurple => 'Purple';
+
+  @override
+  String get paletteCharcoal => 'Charcoal';
+
+  @override
+  String get resetColors => 'Reset to template defaults';
+
+  @override
+  String get useTemplateDefault => 'Use the template default';
+
+  @override
+  String get assetSourceLabel => 'Image source';
+
+  @override
+  String get assetSourceFile => 'Upload file';
+
+  @override
+  String get assetSourceUrl => 'Image URL';
+
+  @override
+  String get imageUrlPlaceholder => 'https://example.com/logo.png';
+
+  @override
+  String get imageUrlLoad => 'Load';
+
+  @override
+  String get imageUrlChange => 'Change';
+
+  @override
+  String get imageUrlLoading => 'Checking the image…';
+
+  @override
+  String get imageUrlInvalid => 'The link is not valid';
+
+  @override
+  String get imageUrlLoadFailed =>
+      'Couldn\'t load image from this link. Make sure the link is public and points directly to an image.';
+
+  @override
+  String get imageUrlUnsupported =>
+      'Unsupported image type. Allowed: PNG, JPG, JPEG, SVG and WEBP.';
+
+  @override
+  String get submitCardTitle => 'Submit request';
+
+  @override
+  String get submitCardDesc =>
+      'Review the details above, then submit. The request is filed under the App ID.';
+
+  @override
+  String get submitRequest => 'Submit request';
+
+  @override
+  String get submitting => 'Submitting...';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get requestSentTitle => 'Your request was submitted';
+
+  @override
+  String get requestSentBody =>
+      'We received your request and our team will review it. We will contact you shortly to confirm the details.';
+
+  @override
+  String get requestReference => 'Request reference';
+
+  @override
+  String get backToStart => 'Back to start';
+
+  @override
+  String get submitErrNotConfigured =>
+      'Submitting is not connected yet: the Firebase keys are not configured. Contact your administrator.';
+
+  @override
+  String get submitErrInvalidAppId =>
+      'The App ID is not valid. Fix it in step 1 and try again.';
+
+  @override
+  String get submitErrPermission =>
+      'You do not have permission to submit this request. Contact your administrator.';
+
+  @override
+  String get submitErrNetwork =>
+      'Could not reach the server. Check your connection and try again. Your data is kept.';
+
+  @override
+  String get submitErrUnknown =>
+      'Something went wrong while submitting. Try again; your data is kept.';
+
+  @override
+  String get nextStepsTitle => 'Next steps';
+
+  @override
+  String get stepReceived => 'Request received';
+
+  @override
+  String get stepReview => 'Our team reviews your request';
+
+  @override
+  String get stepContact => 'We contact you';
+
+  @override
+  String get stepContactVia => 'via';
+
+  @override
+  String get stateDone => 'Completed';
+
+  @override
+  String get stateInProgress => 'In progress';
+
+  @override
+  String get stateUpcoming => 'Upcoming';
+
+  @override
+  String get appIdCheckFailed => 'Couldn\'t check the App ID, try again';
+
+  @override
+  String get appIdSuggestions => 'Available suggestions:';
+
+  @override
+  String appIdJustTaken(String appId) {
+    return 'The App ID \"$appId\" was just taken by another client. Your data is kept: choose a different ID and submit again.';
+  }
+
+  @override
+  String get phBundleId => 'myapp';
+
+  @override
+  String packagePreview(String value) {
+    return 'Package name: $value';
+  }
+
+  @override
+  String get errReservedPackage =>
+      'A Java reserved word such as class, new, int or package cannot be used';
+
+  @override
+  String get errPackageTooLong =>
+      'The package name is too long (100 characters at most)';
+
+  @override
+  String get imageUrlNotCopyable =>
+      'The image loads, but this site doesn\'t allow copying it. Upload the file instead.';
+
+  @override
+  String imageSizeMismatch(String required, String current) {
+    return 'Unsuitable image size: required $required, current $current';
+  }
+
+  @override
+  String get requiredLogoSize => 'at least 512×512';
+
+  @override
+  String get requiredIconSize => 'exactly 1024×1024';
+
+  @override
+  String bundlePreview(String value) {
+    return 'Bundle ID: $value';

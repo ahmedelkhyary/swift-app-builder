@@ -17,6 +17,34 @@ class L {
   }
 }
 
+/// A service highlighted on Home ("الخدمات المميزة"). It is a shortcut into a
+/// real service flow, managed by the client (which services, their order,
+/// title and image) rather than a static banner.
+class FeaturedService {
+  const FeaturedService({
+    required this.id,
+    required this.module,
+    required this.title,
+    required this.icon,
+    required this.color,
+    this.professionId,
+    this.imageUrl,
+  });
+
+  /// Stable id of the service this card opens.
+  final String id;
+  final ServiceModule module;
+  final L title;
+  final IconData icon;
+
+  /// Card backdrop used when there is no [imageUrl].
+  final Color color;
+
+  /// Individuals only: opens the workers list pre-filtered to this profession.
+  final String? professionId;
+  final String? imageUrl;
+}
+
 /// Business modules a generated app can enable.
 enum ServiceModule { individuals, hourly, mediation }
 

@@ -78,6 +78,7 @@ class ConfigService {
       appNameEn: draft.nameEn.trim(),
       androidPackage: draft.androidPackage.trim(),
       iosBundleId: draft.effectiveIosBundleId.trim(),
+      iosSameAsAndroid: draft.iosSameAsAndroid,
       templateId: draft.templateId,
       templateVersion: AppTemplate.version,
       modules: List.unmodifiable(
@@ -85,9 +86,16 @@ class ConfigService {
       ),
       primaryColor: draft.primaryHex.toUpperCase(),
       secondaryColor: draft.secondaryHex.toUpperCase(),
+      accentColor: draft.accentHex.toUpperCase(),
+      backgroundColor: draft.backgroundHex.isEmpty
+          ? null
+          : draft.backgroundHex.toUpperCase(),
+      textColor: draft.textHex.isEmpty ? null : draft.textHex.toUpperCase(),
       fontFamily: draft.fontFamily,
       logoPath: logoPath,
       appIconPath: iconPath,
+      logoSourceUrl: logo.sourceUrl,
+      appIconSourceUrl: icon.sourceUrl,
       splashBackgroundColor: draft.splashHex.toUpperCase(),
       splashLogoPath: splashPath,
       defaultLanguage: draft.defaultLanguage,
@@ -124,18 +132,23 @@ class ConfigService {
   /// Loads the stored asset bytes of [config] into a draft ("restore this
   /// version as new draft").
   Future<AppConfigDraft> draftFromStored(AppConfig config) async {
-    Future<PickedAsset?> load(String path) async {
+    Future<PickedAsset?> load(String path, [String? sourceUrl]) async {
       final bytes = await _repo.getAsset(path);
       if (bytes == null) return null;
       final name = path.split('/').last;
       final ext = name.contains('.') ? name.split('.').last : 'png';
-      return PickedAsset(name: name, bytes: bytes, extension: ext);
+      return PickedAsset(
+        name: name,
+        bytes: bytes,
+        extension: ext,
+        sourceUrl: sourceUrl,
+      );
     }
 
     return AppConfigDraft.fromConfig(
       config,
-      logo: await load(config.logoPath),
-      appIcon: await load(config.appIconPath),
+      logo: await load(config.logoPath, config.logoSourceUrl),
+      appIcon: await load(config.appIconPath, config.appIconSourceUrl),
       splashLogo: await load(config.splashLogoPath),
     );
   }

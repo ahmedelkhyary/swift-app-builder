@@ -25,6 +25,7 @@ class DemoRoutes {
   static const medPackages = '/med/packages';
   static const medMethod = '/med/method';
   static const medSearch = '/med/search';
+  static const featured = '/featured';
 }
 
 /// Places the builder's preview can jump to without completing earlier flows.
@@ -318,6 +319,43 @@ class DemoSession extends ChangeNotifier {
   }
 
   // ---- addresses ----------------------------------------------------------
+
+  /// The customer's main address: the saved preference when it still exists,
+  /// otherwise the first saved address. Null when there are no addresses.
+  DemoAddress? get mainAddress {
+    final id = repo.mainAddressId;
+    for (final a in addresses) {
+      if (a.id == id) return a;
+    }
+    return addresses.isEmpty ? null : addresses.first;
+  }
+
+  void setMainAddress(String id) {
+    repo.mainAddressId = id;
+    notifyListeners();
+  }
+
+  /// Featured services whose module is enabled, in display order.
+  List<FeaturedService> get featuredServices => [
+    for (final f in repo.featuredServices)
+      if (enabledModules.contains(f.module)) f,
+  ];
+
+  /// Opens a featured service straight on its packages screen, skipping the
+  /// address step: the order uses [address] (the main address).
+  void startFeatured(FeaturedService f, DemoAddress address) {
+    selectedAddressId = address.id;
+    if (f.module == ServiceModule.individuals) {
+      indProfessionFilter = f.professionId;
+    }
+    notifyListeners();
+    navigator?.pushNamed(
+      f.module == ServiceModule.hourly
+          ? DemoRoutes.hrPackages
+          : DemoRoutes.indPackages,
+      arguments: f.module,
+    );
+  }
 
   DemoAddress? get selectedAddress {
     for (final a in addresses) {

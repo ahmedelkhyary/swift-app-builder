@@ -271,6 +271,16 @@ class AppTemplate {
       focusColor: tokens.focus,
       dividerColor: tokens.cardBorder,
       extensions: [tokens],
+      datePickerTheme: DatePickerThemeData(
+        dayBackgroundColor: WidgetStateProperty.resolveWith(
+          (st) => st.contains(WidgetState.selected) ? tokens.link : null,
+        ),
+        dayForegroundColor: WidgetStateProperty.resolveWith(
+          (st) => st.contains(WidgetState.selected)
+              ? onColorFor(tokens.link)
+              : null,
+        ),
+      ),
       inputDecorationTheme: _inputTheme(scheme, tokens, isDark),
       filledButtonTheme: FilledButtonThemeData(style: filled),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -392,6 +402,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
     required this.accent,
     required this.focus,
     required this.heroGradient,
+    required this.link,
   });
 
   /// Scaffold background.
@@ -415,17 +426,35 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
   /// Gradient used by hero headers, banners and gradient buttons.
   final List<Color> heroGradient;
 
+  /// The client's accent: links ("عرض الكل"), success states, selected items.
+  final Color link;
+
   static RuiTokens of(BuildContext context) =>
       Theme.of(context).extension<RuiTokens>()!;
 
   static const _champagne = Color(0xFFE8CE8A);
 
+  /// The client's colors always win over the template defaults: the page and
+  /// text colors when chosen, and the accent for links and success states.
+  /// Templates only derive shades from them.
   factory RuiTokens.resolve(
     AppTemplate t,
     BrandingConfig b,
     Brightness brightness,
   ) {
+    final base = _resolveBase(t, b, brightness);
+    return base.copyWith(page: b.backgroundColor, text: b.textColor);
+  }
+
+  static RuiTokens _resolveBase(
+    AppTemplate t,
+    BrandingConfig b,
+    Brightness brightness,
+  ) {
     final dark = brightness == Brightness.dark;
+    final link = dark
+        ? Color.lerp(b.accentColor, Colors.white, 0.2)!
+        : b.accentColor;
     final primary = dark
         ? Color.lerp(b.primaryColor, Colors.white, 0.25)!
         : b.primaryColor;
@@ -436,6 +465,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
             ? Color.lerp(b.primaryColor, Colors.black, 0.45)!
             : b.primaryColor;
         return RuiTokens(
+          link: link,
           page: dark ? const Color(0xFF121316) : Colors.white,
           text: dark ? const Color(0xFFECEDF0) : const Color(0xFF1A1F2E),
           cardFill: dark ? const Color(0xFF1A1B1F) : Colors.white,
@@ -454,6 +484,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
         )!;
         final gold = Color.lerp(secondary, _champagne, 0.55)!;
         return RuiTokens(
+          link: link,
           page: dark
               ? Color.lerp(b.primaryColor, Colors.black, 0.9)!
               : Color.lerp(const Color(0xFFFBF8F1), b.primaryColor, 0.03)!,
@@ -471,6 +502,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
       case PaletteKind.vivid:
         final mid = Color.lerp(primary, secondary, 0.55)!;
         return RuiTokens(
+          link: link,
           page: dark
               ? Color.lerp(const Color(0xFF0D0E13), primary, 0.08)!
               : Color.lerp(Colors.white, primary, 0.06)!,
@@ -505,6 +537,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
     Color? accent,
     Color? focus,
     List<Color>? heroGradient,
+    Color? link,
   }) => RuiTokens(
     page: page ?? this.page,
     text: text ?? this.text,
@@ -515,6 +548,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
     accent: accent ?? this.accent,
     focus: focus ?? this.focus,
     heroGradient: heroGradient ?? this.heroGradient,
+    link: link ?? this.link,
   );
 
   @override
@@ -529,6 +563,7 @@ class RuiTokens extends ThemeExtension<RuiTokens> {
       onChrome: Color.lerp(onChrome, other.onChrome, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       focus: Color.lerp(focus, other.focus, t)!,
+      link: Color.lerp(link, other.link, t)!,
       heroGradient: [
         for (var i = 0; i < heroGradient.length; i++)
           Color.lerp(

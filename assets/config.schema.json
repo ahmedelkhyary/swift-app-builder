@@ -27,7 +27,7 @@
     },
     "appId": {
       "type": "string",
-      "pattern": "^[a-z][a-z0-9_]{2,39}$"
+      "pattern": "^[a-z][a-z0-9_-]{2,29}$"
     },
     "configVersion": {
       "type": "integer",
@@ -105,6 +105,9 @@
         "bundleId": {
           "type": "string",
           "pattern": "^[A-Za-z][A-Za-z0-9-]*(\\.[A-Za-z0-9-]+)+$"
+        },
+        "sameAsAndroid": {
+          "type": "boolean"
         }
       }
     },
@@ -158,6 +161,23 @@
               "$ref": "#/definitions/storagePath"
             }
           }
+        },
+        "accentColor": {
+          "$ref": "#/definitions/hexColor"
+        },
+        "backgroundColor": {
+          "$ref": "#/definitions/hexColor"
+        },
+        "textColor": {
+          "$ref": "#/definitions/hexColor"
+        },
+        "logoSourceUrl": {
+          "type": "string",
+          "pattern": "^https?://\\S+$"
+        },
+        "appIconSourceUrl": {
+          "type": "string",
+          "pattern": "^https?://\\S+$"
         }
       }
     },

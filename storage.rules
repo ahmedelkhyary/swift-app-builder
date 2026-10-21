@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Request images: new files only (never overwritten or deleted), images up to
+// 12 MB. A file can be fetched only by its exact URL; listing is blocked.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /app_requests/{appId}/{file} {
+      allow create: if request.resource.size < 12 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*')
+        && file.matches('^(logo|app_icon|splash_logo)_[0-9]+[.](png|svg)$');
+      allow get: if true;
+      allow list, update, delete: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -6,6 +6,7 @@ import '../app_template.dart';
 import '../color_utils.dart';
 import '../demo/models.dart';
 import '../widgets.dart';
+import 'featured.dart';
 import 'scope.dart';
 
 class ModuleInfo {
@@ -111,9 +112,6 @@ class _HomeTabState extends State<_HomeTab> {
     final modules = ServiceModule.values
         .where(session.enabledModules.contains)
         .toList();
-    final featured = modules
-        .where((m) => m != ServiceModule.mediation)
-        .toList();
 
     final sections = <Widget>[
       _BannerSlider(
@@ -121,17 +119,7 @@ class _HomeTabState extends State<_HomeTab> {
             .where((b) => session.enabledModules.contains(b.target))
             .toList(),
       ),
-      if (featured.isNotEmpty) ...[
-        RuiSectionTitle(s.x('خدمات مميزة', 'Featured services')),
-        Row(
-          children: [
-            for (var i = 0; i < featured.length; i++) ...[
-              if (i > 0) const SizedBox(width: 12),
-              Expanded(child: _FeaturedCard(module: featured[i])),
-            ],
-          ],
-        ),
-      ],
+      const FeaturedSection(),
       RuiSectionTitle(s.x('الأقسام الرئيسية', 'Main categories')),
       _Categories(modules: modules),
       RuiSectionTitle(s.x('آراء العملاء', 'Customer reviews')),
@@ -162,9 +150,12 @@ class _HomeTabState extends State<_HomeTab> {
         RuiHeader(
           template: d.template,
           branding: d.branding,
-          title: d.branding.appName(d.lang),
-          subtitle: s.x('مرحباً بك', 'Welcome'),
-          showLogo: true,
+          title: s.x(
+            'مرحباً ${d.session.repo.userName.ar}',
+            'Hello ${d.session.repo.userName.en}',
+          ),
+          showAvatar: true,
+          subtitleBuilder: (color) => HomeAddressLine(color: color),
           large: true,
           trailing: IconButton(
             key: const ValueKey('home-bell'),
@@ -488,46 +479,6 @@ class _BannerSliderState extends State<_BannerSlider> {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _FeaturedCard extends StatelessWidget {
-  const _FeaturedCard({required this.module});
-  final ServiceModule module;
-
-  @override
-  Widget build(BuildContext context) {
-    final d = DemoScope.of(context);
-    final info = ModuleInfo.of(module);
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    return RuiCard(
-      key: ValueKey('featured-${module.name}'),
-      template: d.template,
-      onTap: () => d.session.openModule(module),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            backgroundColor: scheme.primary.withValues(alpha: 0.12),
-            child: Icon(info.icon, color: scheme.primary),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            info.title.of(d.lang),
-            style: text.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            info.subtitle.of(d.lang),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: text.bodySmall,
-          ),
-        ],
-      ),
     );
   }
 }

@@ -448,7 +448,7 @@ class _HourlyDetailsScreenState extends State<HourlyDetailsScreen> {
                   : BannerKind.error,
             ),
           RuiSectionTitle(s.x('ملخص السعر', 'Price summary')),
-          OrderSummaryCard(summary: summary),
+          OrderSummaryCard(summary: summary, canChangeAddress: true),
         ],
       ),
     );

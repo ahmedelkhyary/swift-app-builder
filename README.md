@@ -119,12 +119,22 @@ A saved configuration looks like this (full reference in
 
 Assets are stored under `apps/{appId}/v{configVersion}/…` and referenced by path.
 
+## Submitting a request (Firebase)
+
+Step 5 ends with **Submit request**: the wizard is stored in Firestore as
+`app_requests/{appId}` (`status: pending`, `createdAt` / `updatedAt` server timestamps)
+and the logo / app icon are uploaded to Storage under `app_requests/{appId}/`; the
+document holds their download URLs. If a request with that App ID already exists the user
+must confirm updating it (`createdAt` is kept).
+
+Setup: the app uses `lib/firebase_options.dart` (created by `flutterfire configure`). To point a build at another project, copy `.env.example` to `.env` and run with `--dart-define-from-file=.env` (optional; the same keys can be GitHub secrets). Enable Firestore and Storage in the console and deploy `firestore.rules` and `storage.rules` — note this replaces the project's existing rules. The Firebase code lives in `lib/firebase.dart`.
+
 ## Storage and backend
 
 Data lives **in memory only** and is lost on reload. `ConfigRepository`
 (`lib/features/builder/data`) is the seam for a real backend:
 
-- `InMemoryConfigRepository` – the current implementation.
+- `InMemoryConfigRepository` – used for the app-ID check and "load existing".
 - `RemoteConfigRepository` – a clearly marked stub. A real implementation must
   keep the append-only guarantee and throw `VersionConflictException` when
   `configVersion != latest + 1`.

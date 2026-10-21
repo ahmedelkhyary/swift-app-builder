@@ -12,7 +12,7 @@ fields (including anything that looks like a secret) are rejected.
 | Path | Type | Rules |
 |------|------|-------|
 | `schemaVersion` | int | `2` (version `1` documents are still read and validate) |
-| `appId` | string | `^[a-z][a-z0-9_]{2,39}$`, unique across apps |
+| `appId` | string | `^[a-z][a-z0-9_-]{2,29}$` (normalized: trimmed, lowercase), unique: checked in Firestore (`app_ids/{appId}`) while typing and again, atomically, on submit |
 | `configVersion` | int ≥ 1 | assigned by the service: latest + 1 |
 | `client.name / email / phone` | string | non-empty; email and phone format-checked (`email` is the primary email) |
 | `client.supportEmails` | string[] | optional; unique, each a valid email (older configs without it load as empty) |
@@ -23,7 +23,10 @@ fields (including anything that looks like a secret) are rejected.
 | `templateVersion` | int ≥ 1 | version of the template implementations (currently `2`; required in v2) |
 | `modules` | string[] | non-empty subset of `individuals`, `hourly`, `mediation` (required in v2) |
 | `branding.primaryColor / secondaryColor` | string | `#RRGGBB` |
+| `branding.accentColor` | string | `#RRGGBB`; links, success states, selected items (older configs: `#2E9E5B`) |
+| `branding.backgroundColor / textColor` | string | optional `#RRGGBB` overrides of the template page / text colors |
 | `branding.fontFamily` | string | non-empty |
+| `branding.logoSourceUrl / appIconSourceUrl` | string | optional http(s) link the image was loaded from; the bytes are still stored under `apps/{appId}/v{n}/…` |
 | `branding.logo / appIcon` | string | storage path `apps/{appId}/v{n}/…` |
 | `branding.splash.backgroundColor` | string | `#RRGGBB` |
 | `branding.splash.logo` | string | storage path (same as `logo` when no dedicated splash logo) |
@@ -42,6 +45,8 @@ Uploaded files are stored per version under `apps/{appId}/v{configVersion}/`:
 |------|-------|
 | `logo.png` / `logo.svg` | PNG or SVG, ≤ 2 MB, at least 512×512 (SVG: when it declares a size) |
 | `app_icon.png` | PNG, exactly 1024×1024, fully opaque |
+
+Images can also be added from a public http(s) link (PNG, JPG, JPEG, SVG, WEBP). They go through the same rules; JPG and WEBP are converted to PNG, and the original link is kept as a reference. The browser downloads the file, so hosts that block cross-origin requests must be uploaded as a file instead.
 | `splash_logo.*` | optional; same rules as the logo |
 
 ## Versioning

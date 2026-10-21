@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/providers.dart';
+import '../domain/draft.dart';
 import '../domain/validators.dart';
 import 'field_registry.dart';
+import 'app_id_status.dart';
 import 'chips_input.dart';
 import 'form_widgets.dart';
 
@@ -57,20 +59,14 @@ class _InfoSectionState extends ConsumerState<InfoSection> {
 
     // appId availability (only meaningful for new apps)
     FieldError? appIdError = errors[DraftField.appId];
-    String appIdHelper = l10n.fieldAppIdHelper;
-    if (appIdError == null && !d.existingApp && d.appId.isNotEmpty) {
+    // Backend availability (debounced, latest answer only).
+    var appIdTaken = false;
+    if (appIdError == null && d.appId.isNotEmpty) {
       final availability = ref.watch(appIdAvailabilityProvider(d.appId));
-      availability.when(
-        data: (ok) {
-          if (ok) {
-            appIdHelper = l10n.appIdAvailable;
-          } else {
-            appIdError = FieldError.appIdTaken;
-          }
-        },
-        loading: () => appIdHelper = l10n.appIdChecking,
-        error: (_, _) {},
-      );
+      if (availability.valueOrNull == false) {
+        appIdError = FieldError.appIdTaken;
+        appIdTaken = true;
+      }
     }
 
     final autoBadge = (!d.appIdEdited && !d.existingApp)
@@ -160,13 +156,14 @@ class _InfoSectionState extends ConsumerState<InfoSection> {
                 mono: true,
                 fillColor: AppColors.fieldFill,
                 readOnly: appIdReadOnly,
-                enabled: !d.existingApp,
-                helper: appIdHelper,
+                helper: l10n.fieldAppIdHelper,
                 error: appIdError,
+                alwaysShowError: appIdTaken,
                 messages: {FieldError.required: l10n.errAppIdRequired},
                 suffix: appIdSuffix,
                 onChanged: c.setAppId,
               ),
+              AppIdStatus(appId: d.appId),
             ],
           ),
         ),
@@ -177,76 +174,91 @@ class _InfoSectionState extends ConsumerState<InfoSection> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DraftTextField(
-                fieldKey: const ValueKey('android-package'),
-                field: DraftField.androidPackage,
-                label: l10n.fieldAndroidPackage,
-                required: true,
-                hint: l10n.phPackage,
-                helper: l10n.helperPackage,
-                value: d.androidPackage,
-                ltr: true,
-                mono: true,
-                error: errors[DraftField.androidPackage],
-                messages: {FieldError.required: l10n.errPackageRequired},
-                onChanged: c.setAndroidPackage,
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+              // Android and iOS side by side (stacked on small screens).
+              FieldPair(
+                first: DraftTextField(
+                  fieldKey: const ValueKey('android-package'),
+                  field: DraftField.androidPackage,
+                  label: l10n.fieldAndroidPackage,
+                  required: true,
+                  hint: l10n.phPackage,
+                  helper: l10n.packagePreview(d.androidPackage),
+                  // Only the part after the fixed prefix is editable.
+                  fixedPrefix: kPackagePrefix,
+                  value: packageSuffix(d.androidPackage),
+                  inputFormatters: [PackageSuffixFormatter()],
+                  ltr: true,
+                  mono: true,
+                  error: errors[DraftField.androidPackage],
+                  messages: {FieldError.required: l10n.errPackageRequired},
+                  onChanged: (suffix) =>
+                      c.setAndroidPackage(kPackagePrefix + suffix),
                 ),
-                decoration: BoxDecoration(
-                  color: AppColors.pageBackground,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
+                second: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.iosSameTitle,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            l10n.iosSameDesc,
-                            style: const TextStyle(
-                              color: AppColors.muted,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
+                    DraftTextField(
+                      fieldKey: const ValueKey('ios-bundle'),
+                      field: DraftField.iosBundleId,
+                      label: l10n.fieldIosBundleId,
+                      required: true,
+                      hint: l10n.phBundleId,
+                      helper: l10n.bundlePreview(d.effectiveIosBundleId),
+                      fixedPrefix: kPackagePrefix,
+                      value: packageSuffix(d.effectiveIosBundleId),
+                      inputFormatters: [BundleSuffixFormatter()],
+                      ltr: true,
+                      mono: true,
+                      // Read-only while it follows the Android value.
+                      readOnly: d.iosSameAsAndroid,
+                      fillColor: d.iosSameAsAndroid
+                          ? AppColors.fieldFill
+                          : null,
+                      error: errors[DraftField.iosBundleId],
+                      messages: {FieldError.required: l10n.errBundleRequired},
+                      onChanged: (suffix) =>
+                          c.setIosBundleId(kPackagePrefix + suffix),
                     ),
-                    Switch(
+                    CheckboxListTile(
                       key: const ValueKey('ios-same'),
                       value: d.iosSameAsAndroid,
-                      onChanged: c.setIosSameAsAndroid,
+                      onChanged: (v) => c.setIosSameAsAndroid(v ?? true),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      title: Text(
+                        l10n.iosSameTitle,
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ),
+                    if (d.iosMirrorConverted)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          key: const ValueKey('ios-converted-note'),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: AppColors.muted,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                l10n.iosUnderscoreNote,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.muted,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
-              DraftTextField(
-                fieldKey: const ValueKey('ios-bundle'),
-                field: DraftField.iosBundleId,
-                label: l10n.fieldIosBundleId,
-                required: !d.iosSameAsAndroid,
-                hint: l10n.phPackage,
-                value: d.effectiveIosBundleId,
-                ltr: true,
-                mono: true,
-                enabled: !d.iosSameAsAndroid,
-                dashed: d.iosSameAsAndroid,
-                error: errors[DraftField.iosBundleId],
-                messages: {FieldError.required: l10n.errBundleRequired},
-                onChanged: c.setIosBundleId,
               ),
             ],
           ),

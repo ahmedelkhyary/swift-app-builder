@@ -30,24 +30,24 @@
   "loadedFromJsonNote": "Configuration loaded. Re-upload the logo and icon, which are not part of the JSON.",
   "fieldNameAr": "App name (Arabic)",
   "fieldNameEn": "App name (English)",
-  "fieldAndroidPackage": "Android package name",
-  "fieldIosBundleId": "iOS bundle ID",
+  "fieldAndroidPackage": "Package name for Android",
+  "fieldIosBundleId": "Bundle ID for iOS",
   "fieldIosSame": "Same as Android",
   "fieldAppId": "App ID",
   "fieldAppIdHelper": "Generated from the English name; you can edit it manually.",
   "fieldClientName": "Client / office name",
   "fieldClientEmail": "Primary email",
   "fieldClientPhone": "Support phone",
-  "appIdChecking": "Checking availability…",
+  "appIdChecking": "Checking...",
   "appIdAvailable": "App ID is available",
   "errRequired": "This field is required",
-  "errInvalidPackage": "Use lowercase letters without spaces, for example com.excp.enaya",
-  "errInvalidBundleId": "Use reverse-DNS format without spaces, for example com.excp.enaya",
+  "errInvalidPackage": "Use lowercase English letters and digits only (underscores and dots are allowed); each part starts with a letter",
+  "errInvalidBundleId": "Use English letters, digits and hyphens (-) only; parts are separated by dots and cannot start or end with a hyphen",
   "errInvalidEmail": "Enter a valid email address, for example name@company.com",
   "errInvalidPhone": "Enter a phone number with 8–15 digits, for example +966500000000",
   "errInvalidHex": "Use a hex color like #1565C0",
-  "errInvalidAppId": "Use 3–40 lowercase letters, digits or underscores, starting with a letter, e.g. khidma_recruitment",
-  "errAppIdTaken": "This app ID is already used",
+  "errInvalidAppId": "Use 3–30 lowercase letters, digits, hyphens or underscores, starting with a letter, e.g. khidma-recruitment",
+  "errAppIdTaken": "This App ID is already taken, choose another one",
   "errDefaultNotSupported": "The default language must be among the supported languages",
   "errAssetMissing": "This file is required",
   "primaryColor": "Primary color",
@@ -102,57 +102,10 @@
   "screenWorker": "Worker",
   "screenCheckout": "Checkout",
   "summaryReview": "Review",
-  "summaryJson": "Configuration JSON",
   "summaryValidation": "Validation report",
   "validationPassed": "Configuration is valid against the schema",
   "validationFailed": "Schema validation failed",
   "fixSectionsFirst": "Complete the earlier sections to see the summary.",
-  "willSaveAsVersion": "Saving will create version {version}",
-  "@willSaveAsVersion": {
-    "placeholders": {
-      "version": {
-        "type": "int"
-      }
-    }
-  },
-  "save": "Save configuration",
-  "saveSuccess": "Saved as version {version}",
-  "@saveSuccess": {
-    "placeholders": {
-      "version": {
-        "type": "int"
-      }
-    }
-  },
-  "saveFailed": "Save failed: {error}",
-  "@saveFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "downloadJson": "Download JSON",
-  "downloadFailed": "Download is only available in the browser",
-  "versionHistory": "Version history",
-  "noVersions": "No saved versions yet",
-  "versionLabel": "Version {version}",
-  "@versionLabel": {
-    "placeholders": {
-      "version": {
-        "type": "int"
-      }
-    }
-  },
-  "restoreAsDraft": "Restore as new draft",
-  "restored": "Version {version} restored as a new draft",
-  "@restored": {
-    "placeholders": {
-      "version": {
-        "type": "int"
-      }
-    }
-  },
   "valueNotSet": "—",
   "labelTemplate": "Template",
   "labelColors": "Colors",
@@ -224,14 +177,13 @@
   "cardClientDesc": "The organization the app is built for",
   "phNameAr": "مثال: الخدمة للاستقدام",
   "phNameEn": "e.g. Al Khidma Recruitment",
-  "phPackage": "com.excp.enaya",
+  "phPackage": "myapp",
   "helperPackage": "Lowercase English letters and dots only. It cannot be changed after publishing.",
-  "iosSameTitle": "Use the same package for iOS",
-  "iosSameDesc": "The Android identifier is copied to iOS automatically",
+  "iosSameTitle": "Same as the Android package name",
   "errNameArRequired": "Enter the Arabic app name, e.g. الخدمة للاستقدام",
   "errNameEnRequired": "Enter the English app name, e.g. Al Khidma Recruitment",
-  "errPackageRequired": "Enter the Android package name, e.g. com.excp.enaya",
-  "errBundleRequired": "Enter the iOS bundle ID, e.g. com.excp.enaya",
+  "errPackageRequired": "This field is required",
+  "errBundleRequired": "This field is required",
   "errClientRequired": "Enter the client or office name",
   "errAppIdRequired": "Enter an app ID, e.g. khidma_recruitment",
   "templateHeading": "Choose the app template",
@@ -398,5 +350,128 @@
   "templateSimpleDesc": "Clean, flat and lightweight with thin lines",
   "templateLuxuryDesc": "Dark tones, gold accents and elegant type",
   "templateBadgeAdvanced": "Advanced",
-  "templatePreviewAction": "Preview"
+  "templatePreviewAction": "Preview",
+  "roleAccent": "Accent",
+  "roleBackground": "Background",
+  "roleText": "Text",
+  "roleDescAccent": "Links such as \"View all\", success states and selected items",
+  "roleDescBackground": "Screen background (optional; the template color is used otherwise)",
+  "roleDescText": "Text color (optional; the template color is used otherwise)",
+  "contrastOkAccent": "The link color is clear on the background (contrast {ratio}:1)",
+  "contrastWarnAccent": "The link color may not be clear on the background (contrast {ratio}:1)",
+  "contrastOkText": "Text is readable on the background (contrast {ratio}:1)",
+  "contrastWarnText": "Text may not be readable on the background (contrast {ratio}:1)",
+  "palettesTitle": "Ready-made palettes",
+  "paletteNavy": "Navy",
+  "paletteTeal": "Teal",
+  "paletteBurgundy": "Burgundy",
+  "palettePurple": "Purple",
+  "paletteCharcoal": "Charcoal",
+  "resetColors": "Reset to template defaults",
+  "useTemplateDefault": "Use the template default",
+  "@contrastOkAccent": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "@contrastWarnAccent": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "@contrastOkText": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "@contrastWarnText": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "assetSourceLabel": "Image source",
+  "assetSourceFile": "Upload file",
+  "assetSourceUrl": "Image URL",
+  "imageUrlPlaceholder": "https://example.com/logo.png",
+  "imageUrlLoad": "Load",
+  "imageUrlChange": "Change",
+  "imageUrlLoading": "Checking the image…",
+  "imageUrlInvalid": "The link is not valid",
+  "imageUrlLoadFailed": "Couldn't load image from this link. Make sure the link is public and points directly to an image.",
+  "imageUrlUnsupported": "Unsupported image type. Allowed: PNG, JPG, JPEG, SVG and WEBP.",
+  "submitCardTitle": "Submit request",
+  "submitCardDesc": "Review the details above, then submit. The request is filed under the App ID.",
+  "submitRequest": "Submit request",
+  "submitting": "Submitting...",
+  "retry": "Try again",
+  "requestSentTitle": "Your request was submitted",
+  "requestSentBody": "We received your request and our team will review it. We will contact you shortly to confirm the details.",
+  "requestReference": "Request reference",
+  "backToStart": "Back to start",
+  "submitErrNotConfigured": "Submitting is not connected yet: the Firebase keys are not configured. Contact your administrator.",
+  "submitErrInvalidAppId": "The App ID is not valid. Fix it in step 1 and try again.",
+  "submitErrPermission": "You do not have permission to submit this request. Contact your administrator.",
+  "submitErrNetwork": "Could not reach the server. Check your connection and try again. Your data is kept.",
+  "submitErrUnknown": "Something went wrong while submitting. Try again; your data is kept.",
+  "nextStepsTitle": "Next steps",
+  "stepReceived": "Request received",
+  "stepReview": "Our team reviews your request",
+  "stepContact": "We contact you",
+  "stepContactVia": "via",
+  "stateDone": "Completed",
+  "stateInProgress": "In progress",
+  "stateUpcoming": "Upcoming",
+  "appIdCheckFailed": "Couldn't check the App ID, try again",
+  "appIdSuggestions": "Available suggestions:",
+  "appIdJustTaken": "The App ID \"{appId}\" was just taken by another client. Your data is kept: choose a different ID and submit again.",
+  "@appIdJustTaken": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "phBundleId": "myapp",
+  "packagePreview": "Package name: {value}",
+  "errReservedPackage": "A Java reserved word such as class, new, int or package cannot be used",
+  "errPackageTooLong": "The package name is too long (100 characters at most)",
+  "@packagePreview": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "imageUrlNotCopyable": "The image loads, but this site doesn't allow copying it. Upload the file instead.",
+  "imageSizeMismatch": "Unsuitable image size: required {required}, current {current}",
+  "requiredLogoSize": "at least 512×512",
+  "requiredIconSize": "exactly 1024×1024",
+  "@imageSizeMismatch": {
+    "placeholders": {
+      "required": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "bundlePreview": "Bundle ID: {value}",
+  "iosUnderscoreNote": "Underscores \"_\" were converted to hyphens \"-\" because iOS does not allow them.",
+  "errBundleTooLong": "The bundle ID is too long (155 characters at most)",
+  "@bundlePreview": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

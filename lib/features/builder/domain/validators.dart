@@ -7,6 +7,9 @@ enum WizardSection { info, branding, localization, template, summary }
 enum FieldError {
   required,
   invalidPackage,
+  bundleTooLong,
+  reservedPackage,
+  packageTooLong,
   invalidBundleId,
   invalidEmail,
   invalidPhone,
@@ -29,6 +32,9 @@ enum DraftField {
   clientPhone,
   primaryColor,
   secondaryColor,
+  accentColor,
+  backgroundColor,
+  textColor,
   splashColor,
   logo,
   appIcon,
@@ -40,13 +46,83 @@ enum DraftField {
 class Validators {
   const Validators._();
 
+  /// Dot-separated segments; each starts with a lowercase letter and holds
+  /// lowercase letters, digits and underscores. No empty segments.
   static final androidPackageRegex = RegExp(
     r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$',
   );
+
+  /// Java keywords (and literals) cannot be package segments.
+  static const javaReserved = {
+    'abstract',
+    'assert',
+    'boolean',
+    'break',
+    'byte',
+    'case',
+    'catch',
+    'char',
+    'class',
+    'const',
+    'continue',
+    'default',
+    'do',
+    'double',
+    'else',
+    'enum',
+    'extends',
+    'final',
+    'finally',
+    'float',
+    'for',
+    'goto',
+    'if',
+    'implements',
+    'import',
+    'instanceof',
+    'int',
+    'interface',
+    'long',
+    'native',
+    'new',
+    'null',
+    'package',
+    'private',
+    'protected',
+    'public',
+    'return',
+    'short',
+    'static',
+    'strictfp',
+    'super',
+    'switch',
+    'synchronized',
+    'this',
+    'throw',
+    'throws',
+    'transient',
+    'true',
+    'false',
+    'try',
+    'void',
+    'volatile',
+    'while',
+    '_',
+  };
+
+  static const maxPackageLength = 100;
+
+  /// iOS: dot-separated segments of lowercase letters, digits and hyphens;
+  /// a segment never starts or ends with a hyphen. No underscores.
   static final bundleIdRegex = RegExp(
-    r'^[A-Za-z][A-Za-z0-9-]*(\.[A-Za-z0-9-]+)+$',
+    r'^[a-z0-9]+(-[a-z0-9]+)*(\.[a-z0-9]+(-[a-z0-9]+)*)*$',
   );
-  static final appIdRegex = RegExp(r'^[a-z][a-z0-9_]{2,39}$');
+
+  static const maxBundleIdLength = 155;
+
+  /// Lowercase letters, digits, hyphens and underscores; 3-30 characters;
+  /// starts with a letter.
+  static final appIdRegex = RegExp(r'^[a-z][a-z0-9_-]{2,29}$');
   static final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$');
   static final phoneRegex = RegExp(r'^\+?[0-9][0-9 \-]{6,18}$');
 
@@ -54,15 +130,27 @@ class Validators {
       v.trim().isEmpty ? FieldError.required : null;
 
   static FieldError? androidPackage(String v) {
+    // Nothing typed after the fixed prefix counts as empty.
     if (v.trim().isEmpty || v.trim() == kPackagePrefix) {
       return FieldError.required;
     }
-    return androidPackageRegex.hasMatch(v) ? null : FieldError.invalidPackage;
+    if (v.length > maxPackageLength) return FieldError.packageTooLong;
+    if (!androidPackageRegex.hasMatch(v)) return FieldError.invalidPackage;
+    if (v.split('.').any(javaReserved.contains)) {
+      return FieldError.reservedPackage;
+    }
+    return null;
   }
 
   static FieldError? iosBundleId(String v) {
-    if (v.trim().isEmpty) return FieldError.required;
-    return bundleIdRegex.hasMatch(v) ? null : FieldError.invalidBundleId;
+    if (v.trim().isEmpty || v.trim() == kPackagePrefix) {
+      return FieldError.required;
+    }
+    if (v.length > maxBundleIdLength) return FieldError.bundleTooLong;
+    if (!bundleIdRegex.hasMatch(v) || !v.contains('.')) {
+      return FieldError.invalidBundleId;
+    }
+    return null;
   }
 
   static FieldError? appId(String v) {
@@ -120,6 +208,14 @@ class DraftValidator {
       case WizardSection.branding:
         add(DraftField.primaryColor, Validators.hexColor(d.primaryHex));
         add(DraftField.secondaryColor, Validators.hexColor(d.secondaryHex));
+        add(DraftField.accentColor, Validators.hexColor(d.accentHex));
+        // Background and text are optional: empty means the template default.
+        if (d.backgroundHex.isNotEmpty) {
+          add(DraftField.backgroundColor, Validators.hexColor(d.backgroundHex));
+        }
+        if (d.textHex.isNotEmpty) {
+          add(DraftField.textColor, Validators.hexColor(d.textHex));
+        }
         add(DraftField.splashColor, Validators.hexColor(d.splashHex));
         if (d.logo == null) errors[DraftField.logo] = FieldError.assetMissing;
         if (d.appIcon == null) {

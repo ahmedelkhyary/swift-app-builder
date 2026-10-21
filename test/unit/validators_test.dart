@@ -28,12 +28,39 @@ void main() {
     });
 
     test('ios bundle id', () {
-      expect(Validators.iosBundleId('com.Example.my-app'), isNull);
-      expect(Validators.iosBundleId('single'), FieldError.invalidBundleId);
+      expect(Validators.iosBundleId('com.excp.my-app'), isNull);
+      expect(Validators.iosBundleId('com.excp.enaya.client'), isNull);
+      expect(Validators.iosBundleId('com.excp.app2'), isNull);
+      expect(Validators.iosBundleId(''), FieldError.required);
+      expect(Validators.iosBundleId('com.excp.'), FieldError.required);
+      for (final bad in [
+        'single',
+        'com.excp.my_app', // underscores are not allowed on iOS
+        'com.excp.-app',
+        'com.excp.app-',
+        'com.excp.a..b',
+        'com.excp.a.',
+        'com.exa mple',
+        'com.excp.My-App', // lowercase only
+        'com.excp.app!',
+      ]) {
+        expect(
+          Validators.iosBundleId(bad),
+          FieldError.invalidBundleId,
+          reason: bad,
+        );
+      }
       expect(
-        Validators.iosBundleId('com.exa mple'),
-        FieldError.invalidBundleId,
+        Validators.iosBundleId('com.excp.${'a' * 150}'),
+        FieldError.bundleTooLong,
       );
+    });
+
+    test('mirroring Android turns underscores into hyphens', () {
+      expect(mirrorBundleId('com.excp.my_app'), 'com.excp.my-app');
+      expect(mirrorBundleId('com.excp.enaya.client'), 'com.excp.enaya.client');
+      expect(normalizeBundleId('com.example.my_app'), 'com.excp.my-app');
+      expect(normalizeBundleId('com.excp.OK'), 'com.excp.ok');
     });
 
     test('app id', () {
@@ -102,7 +129,7 @@ void main() {
 
     test('ios same-as-android uses the android package', () {
       final d = validDraft().copyWith(iosBundleId: 'ignored.value');
-      expect(d.effectiveIosBundleId, 'com.example.swift');
+      expect(d.effectiveIosBundleId, 'com.excp.swift');
     });
   });
 

@@ -17,11 +17,17 @@ class AppConfig {
     required this.appNameEn,
     required this.androidPackage,
     required this.iosBundleId,
+    this.iosSameAsAndroid,
     required this.templateId,
     this.templateVersion = 1,
     this.modules = defaultModules,
     required this.primaryColor,
     required this.secondaryColor,
+    this.accentColor = '#2E9E5B',
+    this.logoSourceUrl,
+    this.appIconSourceUrl,
+    this.backgroundColor,
+    this.textColor,
     required this.fontFamily,
     required this.logoPath,
     required this.appIconPath,
@@ -51,6 +57,10 @@ class AppConfig {
   final String appNameEn;
   final String androidPackage;
   final String iosBundleId;
+
+  /// Whether the iOS bundle ID follows the Android package (null in older
+  /// configs: derived from the values).
+  final bool? iosSameAsAndroid;
   final String templateId;
 
   /// Version of the template implementation the generator must use.
@@ -60,6 +70,17 @@ class AppConfig {
   final List<String> modules;
   final String primaryColor;
   final String secondaryColor;
+
+  /// Links, success states and selected items (older configs: green).
+  final String accentColor;
+
+  /// Optional page / text color overrides (null = the template's default).
+  final String? backgroundColor;
+  final String? textColor;
+
+  /// Original links when the logo / icon were added from a URL.
+  final String? logoSourceUrl;
+  final String? appIconSourceUrl;
   final String fontFamily;
   final String logoPath;
   final String appIconPath;
@@ -83,16 +104,24 @@ class AppConfig {
     },
     'appName': {'ar': appNameAr, 'en': appNameEn},
     'android': {'packageName': androidPackage},
-    'ios': {'bundleId': iosBundleId},
+    'ios': {
+      'bundleId': iosBundleId,
+      if (iosSameAsAndroid != null) 'sameAsAndroid': iosSameAsAndroid,
+    },
     'templateId': templateId,
     'templateVersion': templateVersion,
     'modules': modules,
     'branding': {
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
+      'accentColor': accentColor,
+      if (backgroundColor != null) 'backgroundColor': backgroundColor,
+      if (textColor != null) 'textColor': textColor,
       'fontFamily': fontFamily,
       'logo': logoPath,
       'appIcon': appIconPath,
+      if (logoSourceUrl != null) 'logoSourceUrl': logoSourceUrl,
+      if (appIconSourceUrl != null) 'appIconSourceUrl': appIconSourceUrl,
       'splash': {
         'backgroundColor': splashBackgroundColor,
         'logo': splashLogoPath,
@@ -137,6 +166,8 @@ class AppConfig {
         androidPackage:
             (j['android'] as Map<String, dynamic>)['packageName'] as String,
         iosBundleId: (j['ios'] as Map<String, dynamic>)['bundleId'] as String,
+        iosSameAsAndroid:
+            (j['ios'] as Map<String, dynamic>)['sameAsAndroid'] as bool?,
         templateId: j['templateId'] as String,
         templateVersion: (j['templateVersion'] as int?) ?? 1,
         modules: j['modules'] == null
@@ -144,9 +175,14 @@ class AppConfig {
             : List<String>.from(j['modules'] as List),
         primaryColor: branding['primaryColor'] as String,
         secondaryColor: branding['secondaryColor'] as String,
+        accentColor: (branding['accentColor'] as String?) ?? '#2E9E5B',
+        backgroundColor: branding['backgroundColor'] as String?,
+        textColor: branding['textColor'] as String?,
         fontFamily: branding['fontFamily'] as String,
         logoPath: branding['logo'] as String,
         appIconPath: branding['appIcon'] as String,
+        logoSourceUrl: branding['logoSourceUrl'] as String?,
+        appIconSourceUrl: branding['appIconSourceUrl'] as String?,
         splashBackgroundColor: splash['backgroundColor'] as String,
         splashLogoPath: splash['logo'] as String,
         defaultLanguage: loc['defaultLanguage'] as String,

@@ -25,6 +25,18 @@ class RuiLogo extends StatelessWidget {
         size: size * 0.8,
         color: color ?? Theme.of(context).colorScheme.primary,
       );
+    } else if (l.url != null) {
+      // Falls back to a plain <img> element on hosts without CORS headers.
+      child = Image.network(
+        l.url!,
+        fit: BoxFit.contain,
+        webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+        errorBuilder: (_, _, _) => Icon(
+          Icons.home_work_rounded,
+          size: size * 0.8,
+          color: color ?? Theme.of(context).colorScheme.primary,
+        ),
+      );
     } else if (l.isSvg) {
       child = SvgPicture.memory(l.bytes, fit: BoxFit.contain);
     } else {
@@ -343,7 +355,8 @@ class RuiHeader extends StatelessWidget {
     required this.branding,
     required this.title,
     this.subtitle,
-    this.showLogo = false,
+    this.showAvatar = false,
+    this.subtitleBuilder,
     this.onBack,
     this.trailing,
     this.large = false,
@@ -353,7 +366,11 @@ class RuiHeader extends StatelessWidget {
   final BrandingConfig branding;
   final String title;
   final String? subtitle;
-  final bool showLogo;
+  final bool showAvatar;
+
+  /// Replaces the subtitle text (e.g. the Home address selector); receives the
+  /// header's secondary text color.
+  final Widget Function(Color color)? subtitleBuilder;
   final VoidCallback? onBack;
   final Widget? trailing;
 
@@ -401,13 +418,15 @@ class RuiHeader extends StatelessWidget {
           ],
         ),
       },
-      child: style == HeaderStyle.solid
-          ? Icon(Icons.person, size: 26, color: fg)
-          : RuiLogo(
-              logo: branding.logo,
-              size: 38,
-              color: style == HeaderStyle.luxe ? tokens.accent : null,
-            ),
+      child: Icon(
+        Icons.person,
+        size: 26,
+        color: switch (style) {
+          HeaderStyle.solid => fg,
+          HeaderStyle.luxe => tokens.accent,
+          HeaderStyle.hero => scheme.primary,
+        },
+      ),
     );
 
     final content = Padding(
@@ -428,10 +447,10 @@ class RuiHeader extends StatelessWidget {
             )
           else
             const SizedBox(width: 8),
-          if (showLogo) ...[logoBox, const SizedBox(width: 12)],
+          if (showAvatar) ...[logoBox, const SizedBox(width: 12)],
           Expanded(
             child: Column(
-              crossAxisAlignment: style == HeaderStyle.solid && !showLogo
+              crossAxisAlignment: style == HeaderStyle.solid && !showAvatar
                   ? CrossAxisAlignment.center
                   : CrossAxisAlignment.start,
               children: [
@@ -452,7 +471,10 @@ class RuiHeader extends StatelessWidget {
                               : text.titleLarge)
                           ?.copyWith(color: fg, fontWeight: FontWeight.bold),
                 ),
-                if (subtitle != null && !(large && style == HeaderStyle.hero))
+                if (subtitleBuilder != null)
+                  subtitleBuilder!(subtitleColor)
+                else if (subtitle != null &&
+                    !(large && style == HeaderStyle.hero))
                   Text(
                     subtitle!,
                     maxLines: 1,
@@ -464,7 +486,7 @@ class RuiHeader extends StatelessWidget {
           ),
           if (trailing != null)
             trailing!
-          else if (style == HeaderStyle.solid && !showLogo && onBack != null)
+          else if (style == HeaderStyle.solid && !showAvatar && onBack != null)
             const SizedBox(width: 48), // balances the back button
         ],
       ),
@@ -763,7 +785,10 @@ class RuiNotice extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final (color, defaultIcon) = switch (kind) {
       BannerKind.info => (scheme.primary, Icons.info_outline),
-      BannerKind.success => (Colors.green.shade700, Icons.check_circle_outline),
+      BannerKind.success => (
+        RuiTokens.of(context).link,
+        Icons.check_circle_outline,
+      ),
       BannerKind.error => (scheme.error, Icons.error_outline),
       BannerKind.warning => (Colors.orange.shade800, Icons.warning_amber),
     };

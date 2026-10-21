@@ -4,13 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:recruitment_ui/recruitment_ui.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../application/file_io.dart';
 import '../application/providers.dart';
+import '../data/request_submitter.dart';
 import '../domain/config.dart';
 import '../domain/draft.dart';
 import '../domain/validators.dart';
 import 'form_widgets.dart';
 import 'l10n_ext.dart';
+import 'field_registry.dart';
+import 'submit_success.dart';
+import 'wizard_reset.dart';
 
 class SummarySection extends ConsumerWidget {
   const SummarySection({super.key});
@@ -42,24 +45,7 @@ class SummarySection extends ConsumerWidget {
           children: [
             _Review(draft: d, config: p.config),
             _ValidationReport(draft: d, errors: p.schemaErrors),
-            SectionCard(
-              title: l10n.summaryJson,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: SelectableText(
-                  p.config.toPrettyJson(),
-                  textDirection: TextDirection.ltr,
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                ),
-              ),
-            ),
-            _Actions(prepared: p.config, valid: p.isValid),
-            const _VersionHistory(),
+            _SubmitPanel(appId: p.config.appId, valid: p.isValid),
           ],
         );
       },
@@ -90,11 +76,18 @@ class _Review extends StatelessWidget {
       (l10n.labelTemplate, l10n.templateName(config.templateId)),
       (
         l10n.labelColors,
-        '${config.primaryColor} / ${config.secondaryColor} / ${config.splashBackgroundColor}',
+        [
+          '${config.primaryColor} / ${config.secondaryColor} / ${config.accentColor}',
+          if (config.backgroundColor != null) config.backgroundColor!,
+          if (config.textColor != null) config.textColor!,
+          config.splashBackgroundColor,
+        ].join(' · '),
       ),
       (l10n.fontFamily, config.fontFamily),
       (l10n.labelLogo, config.logoPath),
       (l10n.labelIcon, config.appIconPath),
+      if (draft.splashLogo != null)
+        (l10n.splashLogoLabel, config.splashLogoPath),
       (
         l10n.labelLanguages,
         '${config.defaultLanguage} (${config.supportedLanguages.join(', ')})',
@@ -178,114 +171,111 @@ class _ValidationReport extends StatelessWidget {
   }
 }
 
-class _Actions extends ConsumerWidget {
-  const _Actions({required this.prepared, required this.valid});
-  final AppConfig prepared;
+/// "Submit request": sends the wizard to the backend with loading, error +
+/// retry, an overwrite confirmation and a success dialog.
+class _SubmitPanel extends ConsumerWidget {
+  const _SubmitPanel({required this.appId, required this.valid});
+  final String appId;
   final bool valid;
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Future<void> _submit(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    Future<void> save() async {
-      try {
-        final saved = await ref
-            .read(configServiceProvider)
-            .save(
-              ref.read(draftProvider),
-              updatedBy: ref.read(currentUserProvider),
-            );
-        final c = ref.read(draftProvider.notifier);
-        c.replace(ref.read(draftProvider).copyWith(existingApp: true));
-        ref.invalidate(versionHistoryProvider);
-        ref.invalidate(preparedConfigProvider);
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.saveSuccess(saved.configVersion))),
-        );
-      } catch (e) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.saveFailed('$e'))));
-      }
+    final controller = ref.read(submitProvider.notifier);
+    final result = await controller.submit();
+    if (result == null || !context.mounted) return;
+    if (result == SubmitResult.taken) {
+      // Someone else got this ID first: nothing was written. Keep every
+      // answer, mark the ID as taken and take the user back to Step 1.
+      ref.read(appIdTakenProvider.notifier).update((ids) => {...ids, appId});
+      ref.read(submitAttemptProvider(WizardSection.info).notifier).state = true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          key: const ValueKey('app-id-just-taken'),
+          content: Text(l10n.appIdJustTaken(appId)),
+          duration: const Duration(seconds: 8),
+        ),
+      );
+      context.go('/builder/${WizardSection.info.name}');
+      return;
     }
-
-    void download() {
-      try {
-        downloadTextFile(
-          '${prepared.appId}_v${prepared.configVersion}.json',
-          prepared.toPrettyJson(),
-        );
-      } on UnsupportedError {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.downloadFailed)));
-      }
-    }
-
-    return SectionCard(
-      title: l10n.willSaveAsVersion(prepared.configVersion),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 8,
-        children: [
-          FilledButton.icon(
-            key: const ValueKey('save-config'),
-            onPressed: valid ? save : null,
-            icon: const Icon(Icons.save),
-            label: Text(l10n.save),
-          ),
-          OutlinedButton.icon(
-            key: const ValueKey('download-json'),
-            onPressed: download,
-            icon: const Icon(Icons.download),
-            label: Text(l10n.downloadJson),
-          ),
-        ],
-      ),
+    if (!context.mounted) return;
+    final draft = ref.read(draftProvider);
+    await showSubmitSuccess(
+      context,
+      appId: appId,
+      email: draft.clientEmail.trim(),
+      primary: draft.primaryColor,
     );
+    // Back to the beginning: every step and any draft data is cleared.
+    if (!context.mounted) return;
+    resetWizard(ref);
+    context.go('/builder/${WizardSection.info.name}');
   }
-}
-
-class _VersionHistory extends ConsumerWidget {
-  const _VersionHistory();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final versions = ref.watch(versionHistoryProvider);
+    final state = ref.watch(submitProvider);
+    final error = state.error;
     return SectionCard(
-      title: l10n.versionHistory,
-      child: versions.when(
-        loading: () => const LinearProgressIndicator(),
-        error: (e, _) => Text('$e'),
-        data: (list) {
-          if (list.isEmpty) return Text(l10n.noVersions);
-          return Column(
-            children: [
-              for (final v in list.reversed)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.history),
-                  title: Text(l10n.versionLabel(v.configVersion)),
-                  subtitle: Text(
-                    '${v.updatedAt.toLocal().toString().split('.').first} · ${v.updatedBy}',
+      title: l10n.submitCardTitle,
+      description: l10n.submitCardDesc,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Semantics(
+                liveRegion: true,
+                child: Container(
+                  key: const ValueKey('submit-error'),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFDEFEA),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFB4441C)),
                   ),
-                  trailing: TextButton(
-                    key: ValueKey('restore-${v.configVersion}'),
-                    onPressed: () async {
-                      final draft = await ref
-                          .read(configServiceProvider)
-                          .draftFromStored(v);
-                      ref.read(draftProvider.notifier).replace(draft);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.restored(v.configVersion))),
-                      );
-                      context.go('/builder/${WizardSection.info.name}');
-                    },
-                    child: Text(l10n.restoreAsDraft),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Color(0xFFB4441C),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(l10n.submitError(error))),
+                    ],
                   ),
                 ),
+              ),
+            ),
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                key: const ValueKey('submit-request'),
+                onPressed: valid && !state.submitting
+                    ? () => _submit(context, ref)
+                    : null,
+                icon: state.submitting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(error == null ? Icons.send : Icons.refresh),
+                label: Text(
+                  state.submitting
+                      ? l10n.submitting
+                      : (error == null ? l10n.submitRequest : l10n.retry),
+                ),
+              ),
             ],
-          );
-        },
+          ),
+        ],
       ),
     );
   }

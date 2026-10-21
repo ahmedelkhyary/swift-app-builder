@@ -21,6 +21,9 @@ const _visualOrder = [
   DraftField.clientPhone,
   DraftField.primaryColor,
   DraftField.secondaryColor,
+  DraftField.accentColor,
+  DraftField.backgroundColor,
+  DraftField.textColor,
   DraftField.logo,
   DraftField.appIcon,
   DraftField.splashColor,
@@ -39,6 +42,9 @@ WizardSection sectionOfField(DraftField f) => switch (f) {
   DraftField.clientPhone => WizardSection.info,
   DraftField.primaryColor ||
   DraftField.secondaryColor ||
+  DraftField.accentColor ||
+  DraftField.backgroundColor ||
+  DraftField.textColor ||
   DraftField.splashColor ||
   DraftField.logo ||
   DraftField.appIcon => WizardSection.branding,

@@ -1,0 +1,38 @@
+rules_version = '2';
+
+// App requests are create-only from the browser: a client can create its
+// request (together with the App ID marker) but cannot read, list, update,
+// overwrite or delete any request.
+//
+// app_ids/{appId} is a marker with no client data. Anyone may `get` one by id
+// (that is how availability is checked) but never list them; it can only be
+// created, once.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /app_ids/{appId} {
+      allow get: if appId.matches('^[a-z][a-z0-9_-]{2,29}$');
+      allow list, update, delete: if false;
+      allow create: if appId.matches('^[a-z][a-z0-9_-]{2,29}$')
+        && request.resource.data.keys().hasOnly(['createdAt'])
+        && request.resource.data.createdAt == request.time
+        // ...and only together with its request.
+        && existsAfter(/databases/$(database)/documents/app_requests/$(appId));
+    }
+
+    match /app_requests/{appId} {
+      allow read, update, delete: if false;
+      allow create: if appId.matches('^[a-z][a-z0-9_-]{2,29}$')
+        && request.resource.data.appId == appId
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        // The marker is created in the same transaction, never before.
+        && getAfter(/databases/$(database)/documents/app_ids/$(appId)).data.createdAt == request.time;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

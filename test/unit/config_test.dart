@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:swiftappbuilder/features/builder/application/config_service.dart';
 import 'package:swiftappbuilder/features/builder/data/config_repository.dart';
 import 'package:swiftappbuilder/features/builder/data/in_memory_config_repository.dart';
+import 'package:swiftappbuilder/features/builder/domain/asset.dart';
 import 'package:swiftappbuilder/features/builder/domain/config.dart';
 import 'package:swiftappbuilder/features/builder/domain/draft.dart';
 
@@ -128,6 +129,105 @@ void main() {
       expect(loadSchema().validate(old), isNotEmpty);
     });
 
+    test('accent, background and text colors are saved and loaded', () async {
+      final service = makeService(
+        InMemoryConfigRepository(),
+        now: () => fixedNow,
+      );
+      final draft = validDraft().copyWith(
+        accentHex: '#e91e63',
+        backgroundHex: '#faf3e0',
+        textHex: '#222222',
+      );
+      final config = (await service.prepare(draft, updatedBy: 'x')).config;
+      final branding = config.toJson()['branding'] as Map;
+      expect(branding['accentColor'], '#E91E63');
+      expect(branding['backgroundColor'], '#FAF3E0');
+      expect(branding['textColor'], '#222222');
+      expect(loadSchema().validate(config.toJson()), isEmpty);
+      final back = AppConfigDraft.fromConfig(
+        AppConfig.fromJsonString(config.toPrettyJson()),
+      );
+      expect(back.accentHex, '#E91E63');
+      expect(back.backgroundHex, '#FAF3E0');
+      expect(back.textHex, '#222222');
+
+      // Unset background/text are not written; old configs without an accent
+      // load with the default one.
+      final plain = (await service.prepare(
+        validDraft(),
+        updatedBy: 'x',
+      )).config;
+      final pb = plain.toJson()['branding'] as Map;
+      expect(pb.containsKey('backgroundColor'), isFalse);
+      expect(pb.containsKey('textColor'), isFalse);
+      pb.remove('accentColor');
+      expect(AppConfig.fromJson(plain.toJson()).accentColor, '#2E9E5B');
+    });
+
+    test('image source links are kept as references', () async {
+      final service = makeService(
+        InMemoryConfigRepository(),
+        now: () => fixedNow,
+      );
+      final base = validDraft();
+      final draft = base.copyWith(
+        logo: PickedAsset(
+          name: 'logo.png',
+          bytes: base.logo!.bytes,
+          extension: 'png',
+          sourceUrl: 'https://cdn.example.com/logo.png',
+        ),
+      );
+      final config = (await service.prepare(draft, updatedBy: 'x')).config;
+      final branding = config.toJson()['branding'] as Map;
+      expect(branding['logoSourceUrl'], 'https://cdn.example.com/logo.png');
+      expect(branding.containsKey('appIconSourceUrl'), isFalse);
+      expect(loadSchema().validate(config.toJson()), isEmpty);
+      expect(AppConfig.fromJsonString(config.toPrettyJson()), config);
+    });
+
+    test(
+      'iOS bundle ID is saved with its sync flag and rebuilt when missing',
+      () async {
+        final service = makeService(
+          InMemoryConfigRepository(),
+          now: () => fixedNow,
+        );
+        final mirrored = validDraft().copyWith(
+          androidPackage: 'com.excp.my_app',
+        );
+        final c1 = (await service.prepare(mirrored, updatedBy: 'x')).config;
+        final ios = c1.toJson()['ios'] as Map;
+        expect(ios['bundleId'], 'com.excp.my-app');
+        expect(ios['sameAsAndroid'], true);
+        expect(loadSchema().validate(c1.toJson()), isEmpty);
+
+        final own = validDraft().copyWith(
+          iosSameAsAndroid: false,
+          iosBundleId: 'com.excp.other',
+        );
+        final c2 = (await service.prepare(own, updatedBy: 'x')).config;
+        final back2 = AppConfigDraft.fromConfig(
+          AppConfig.fromJsonString(c2.toPrettyJson()),
+        );
+        expect(back2.iosSameAsAndroid, isFalse);
+        expect(back2.effectiveIosBundleId, 'com.excp.other');
+
+        // Data from before the fixed prefix: another prefix is replaced and an
+        // empty iOS value is generated from Android with syncing on.
+        final json = c1.toJson();
+        (json['android'] as Map)['packageName'] = 'com.example.my_app';
+        (json['ios'] as Map)
+          ..['bundleId'] = ''
+          ..remove('sameAsAndroid');
+        final old = AppConfigDraft.fromConfig(AppConfig.fromJson(json));
+        expect(old.androidPackage, 'com.excp.my_app');
+        expect(old.iosSameAsAndroid, isTrue);
+        expect(old.effectiveIosBundleId, 'com.excp.my-app');
+      },
+    );
+
     test('rejects malformed structure', () {
       expect(() => AppConfig.fromJsonString('[]'), throwsFormatException);
       expect(
@@ -145,7 +245,7 @@ void main() {
       final config = (await service.prepare(draft, updatedBy: 'x')).config;
       final back = AppConfigDraft.fromConfig(config);
       expect(back.nameAr, draft.nameAr);
-      expect(back.androidPackage, draft.androidPackage);
+      expect(back.androidPackage, normalizePackage(draft.androidPackage));
       expect(back.templateId, 'luxury');
       expect(back.existingApp, isTrue);
       expect(back.iosSameAsAndroid, isTrue);

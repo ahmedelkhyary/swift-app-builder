@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,11 +8,16 @@ import 'package:recruitment_ui/recruitment_ui.dart';
 import 'package:swiftappbuilder/app/app.dart';
 import 'package:swiftappbuilder/app/locale_provider.dart';
 import 'package:swiftappbuilder/app/router.dart';
+import 'package:swiftappbuilder/features/builder/application/image_probe.dart';
+import 'package:swiftappbuilder/features/builder/application/image_url_loader.dart';
 import 'package:swiftappbuilder/features/builder/application/providers.dart';
+import 'package:swiftappbuilder/features/builder/data/app_id_checker.dart';
+import 'package:swiftappbuilder/features/builder/data/request_submitter.dart';
 import 'package:swiftappbuilder/features/builder/presentation/phone_frame.dart';
 import 'package:swiftappbuilder/features/builder/presentation/phone_preview.dart';
 
 import 'package:swiftappbuilder/features/builder/domain/asset.dart';
+import 'package:swiftappbuilder/features/builder/domain/draft.dart';
 import 'package:image/image.dart' as img;
 import '../helpers.dart';
 
@@ -22,6 +29,10 @@ class _EnglishLocale extends LocaleController {
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   bool arabic = false,
+  ImageFetch? fetch,
+  ImageProbe? probe,
+  RequestSubmitter? submitter,
+  AppIdChecker? checker,
 }) async {
   AppTemplate.useGoogleFonts = false;
   AppTemplate.skeletonDuration = Duration.zero;
@@ -33,6 +44,14 @@ Future<ProviderContainer> pumpApp(
       overrides: [
         schemaValidatorProvider.overrideWithValue(loadSchema()),
         if (!arabic) localeProvider.overrideWith(_EnglishLocale.new),
+        if (fetch != null) imageFetchProvider.overrideWithValue(fetch),
+        if (probe != null) imageProbeProvider.overrideWithValue(probe),
+        if (submitter != null)
+          requestSubmitterProvider.overrideWithValue(submitter),
+        appIdCheckerProvider.overrideWithValue(
+          checker ?? InMemoryAppIdChecker(),
+        ),
+        appIdDebounceProvider.overrideWithValue(Duration.zero),
         demoRepositoryProvider.overrideWithValue(
           MockDemoRepository(latency: Duration.zero),
         ),
@@ -83,10 +102,8 @@ void main() {
         find.text('Enter the Arabic app name, e.g. الخدمة للاستقدام'),
         findsOneWidget,
       );
-      expect(
-        find.text('Enter the Android package name, e.g. com.excp.enaya'),
-        findsOneWidget,
-      );
+      // The package starts with the fixed prefix only: that counts as empty.
+      expect(find.text('This field is required'), findsWidgets);
       // Focus moved to the first invalid field.
       expect(
         tester
@@ -106,33 +123,31 @@ void main() {
 
       await tester.enterText(f('name-ar'), 'سويفت');
       await tester.enterText(f('name-en'), 'Swift Maids');
-      await tester.enterText(f('android-package'), 'Not Valid');
+      await tester.enterText(f('android-package'), '9bad');
       // Still typing in the package field: no error yet.
       await tester.pump();
-      expect(find.textContaining('for example com.excp.enaya'), findsNothing);
+      expect(find.textContaining('start'), findsNothing);
 
       // Leaving the field shows a specific message.
       await tester.enterText(f('client-name'), 'مكتب سويفت');
       await tester.pumpAndSettle();
       expect(
-        find.text(
-          'Use lowercase letters without spaces, for example com.excp.enaya',
-        ),
+        find.textContaining('Use lowercase English letters and digits only'),
         findsOneWidget,
       );
 
       await tester.enterText(f('client-phone'), '+966500000000');
       await tester.enterText(f('client-email'), 'info@swift.example');
-      await tester.enterText(f('android-package'), 'com.example.swift');
+      await tester.enterText(f('android-package'), 'swift');
       await tester.pumpAndSettle();
 
       // appId was auto-generated from the English name.
       expect(container.read(draftProvider).appId, 'swift_maids');
       // iOS mirrors the Android value while the toggle is on.
-      expect(tester.widget<TextField>(f('ios-bundle')).enabled, isFalse);
+      expect(tester.widget<TextField>(f('ios-bundle')).readOnly, isTrue);
       expect(
         tester.widget<TextField>(f('ios-bundle')).controller!.text,
-        'com.example.swift',
+        'swift',
       );
 
       await tapIn(tester, f('wizard-next'));
@@ -152,22 +167,20 @@ void main() {
   ) async {
     final container = await pumpApp(tester);
     final c = container.read(draftProvider.notifier);
-    c.setAndroidPackage('com.example.swift');
+    c.setAndroidPackage('com.excp.swift');
     await tester.pumpAndSettle();
     await tapIn(tester, find.byKey(const ValueKey('ios-same')));
     expect(
       tester
           .widget<TextField>(find.byKey(const ValueKey('ios-bundle')))
-          .enabled,
-      isTrue,
+          .readOnly,
+      isFalse,
     );
-    await tester.enterText(find.byKey(const ValueKey('ios-bundle')), 'bad id');
+    await tester.enterText(find.byKey(const ValueKey('ios-bundle')), '-bad');
     await tester.enterText(find.byKey(const ValueKey('client-name')), 'x');
     await tester.pumpAndSettle();
     expect(
-      find.text(
-        'Use reverse-DNS format without spaces, for example com.excp.enaya',
-      ),
+      find.textContaining('Use English letters, digits and hyphens'),
       findsOneWidget,
     );
   });
@@ -720,8 +733,15 @@ void main() {
     WidgetTester tester, {
     bool arabic = false,
     bool withLogo = true,
+    ImageFetch? fetch,
+    ImageProbe? probe,
   }) async {
-    final container = await pumpApp(tester, arabic: arabic);
+    final container = await pumpApp(
+      tester,
+      arabic: arabic,
+      fetch: fetch,
+      probe: probe,
+    );
     final d = validDraft();
     container
         .read(draftProvider.notifier)
@@ -807,6 +827,639 @@ void main() {
     expect(container.read(draftProvider).primaryHex, '#21FF80');
     await tapIn(tester, key('hex-field'));
     expect(tester.widget<TextField>(key('rgb-b')).controller!.text, '128');
+  });
+
+  testWidgets('branding: accent, optional background/text, palettes, reset', (
+    tester,
+  ) async {
+    final container = await openBranding(tester);
+    AppConfigDraft d() => container.read(draftProvider);
+    for (final r in ['accent', 'background', 'text']) {
+      expect(key('role-$r'), findsOneWidget);
+    }
+
+    // A ready-made palette sets primary, secondary and accent together.
+    await tapIn(tester, key('palette-teal'));
+    expect(
+      [d().primaryHex, d().secondaryHex, d().accentHex],
+      ['#00695C', '#FFB300', '#2E7D32'],
+    );
+
+    // Background / text are unset until chosen, and can be cleared again.
+    expect(d().backgroundHex, isEmpty);
+    await tapIn(tester, key('role-background'));
+    await tester.enterText(key('hex-field'), '#FAF3E0');
+    await tester.pumpAndSettle();
+    expect(d().backgroundHex, '#FAF3E0');
+    expect(key('role-clear'), findsOneWidget);
+    await tapIn(tester, key('role-clear'));
+    expect(d().backgroundHex, isEmpty);
+
+    // Text on the page: a low-contrast choice warns but is never blocked.
+    await tapIn(tester, key('role-text'));
+    await tester.enterText(key('hex-field'), '#F5F5F5');
+    await tester.pumpAndSettle();
+    expect(d().textHex, '#F5F5F5');
+    expect(find.textContaining('may not be readable'), findsOneWidget);
+
+    await tapIn(tester, key('reset-colors'));
+    expect(
+      [d().primaryHex, d().secondaryHex, d().accentHex],
+      ['#213F80', '#29ABE2', '#2E9E5B'],
+    );
+    expect(d().textHex, isEmpty);
+  });
+
+  testWidgets(
+    'branding: live preview Home has the address header and featured',
+    (tester) async {
+      await openBranding(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BuilderApp)),
+      );
+      container.read(demoSessionProvider).jumpTo(DemoEntry.home);
+      await tester.pumpAndSettle();
+      expect(inPhone('home-address'), findsOneWidget);
+      expect(inPhone('featured-hourly-maid'), findsOneWidget);
+    },
+  );
+
+  testWidgets('branding: logo from an image URL', (tester) async {
+    const ok = 'https://cdn.example.com/brand/ok.png';
+    final container = await openBranding(
+      tester,
+      fetch: (u) async {
+        if (u.toString() == ok) return pngBytes(700, 700);
+        throw StateError('blocked');
+      },
+      probe: (u) async {
+        if (u == ok) return const ProbedImage(700, 700);
+        throw const ImageProbeException('error');
+      },
+    );
+    AppConfigDraft d() => container.read(draftProvider);
+    Finder logoTab(String seg) => find.descendant(
+      of: key('source-logo'),
+      matching: key('seg-AssetSource.$seg'),
+    );
+    final before = d().logo!;
+    await tester.ensureVisible(key('source-logo'));
+    await tester.pumpAndSettle();
+    expect(key('upload-logo'), findsOneWidget);
+
+    // URL mode: a bad link shows the error and keeps the current image.
+    await tapIn(tester, logoTab('url'));
+    expect(key('upload-logo'), findsNothing);
+    await tester.enterText(key('url-logo'), 'https://nope.example.com/x.png');
+    await tapIn(tester, key('load-logo'));
+    expect(
+      find.textContaining("Couldn't load image from this link"),
+      findsOneWidget,
+    );
+    expect(identical(d().logo, before), isTrue);
+
+    // A malformed link is rejected before any download.
+    await tester.enterText(key('url-logo'), 'ftp://example.com/x.png');
+    await tapIn(tester, key('load-logo'));
+    expect(find.text('The link is not valid'), findsOneWidget);
+
+    // A good link replaces the image and keeps the original URL.
+    await tester.enterText(key('url-logo'), ok);
+    await tapIn(tester, key('load-logo'));
+    expect(d().logo!.sourceUrl, ok);
+    expect(d().logo!.name, 'ok.png');
+    expect(find.textContaining("Couldn't load"), findsNothing);
+
+    // The chosen source is remembered when coming back to the step.
+    container.read(routerProvider).go('/builder/localization');
+    await tester.pumpAndSettle();
+    container.read(routerProvider).go('/builder/branding');
+    await tester.pumpAndSettle();
+    expect(key('url-logo'), findsOneWidget);
+    expect(tester.widget<TextField>(key('url-logo')).controller!.text, ok);
+
+    // Remove works the same as for uploads; the file mode is back on demand.
+    await tapIn(tester, key('remove-logo'));
+    expect(d().logo, isNull);
+    await tapIn(tester, logoTab('file'));
+    expect(key('upload-logo'), findsOneWidget);
+  });
+
+  testWidgets('branding: app icon from a URL follows the icon rules', (
+    tester,
+  ) async {
+    final container = await openBranding(
+      tester,
+      fetch: (u) async => u.path.endsWith('small.png')
+          ? pngBytes(512, 512)
+          : pngBytes(1024, 1024),
+      probe: (u) async => u.endsWith('small.png')
+          ? const ProbedImage(512, 512)
+          : const ProbedImage(1024, 1024),
+    );
+    await tester.ensureVisible(key('source-appIcon'));
+    await tester.pumpAndSettle();
+    await tapIn(
+      tester,
+      find.descendant(
+        of: key('source-appIcon'),
+        matching: key('seg-AssetSource.url'),
+      ),
+    );
+    await tester.enterText(
+      key('url-appIcon'),
+      'https://x.example.com/small.png',
+    );
+    await tapIn(tester, key('load-appIcon'));
+    expect(
+      find.text(
+        'Unsuitable image size: required exactly 1024×1024, current 512×512',
+      ),
+      findsOneWidget,
+    );
+    await tester.enterText(
+      key('url-appIcon'),
+      'https://x.example.com/icon.png',
+    );
+    await tapIn(tester, key('load-appIcon'));
+    expect(
+      container.read(draftProvider).appIcon!.sourceUrl,
+      'https://x.example.com/icon.png',
+    );
+  });
+
+  group('summary: submit request', () {
+    Future<ProviderContainer> openSummary(
+      WidgetTester tester,
+      RequestSubmitter submitter,
+    ) async {
+      final container = await pumpApp(tester, submitter: submitter);
+      container.read(draftProvider.notifier).replace(validDraft());
+      await tester.pumpAndSettle();
+      container.read(routerProvider).go('/builder/summary');
+      await tester.pumpAndSettle();
+      return container;
+    }
+
+    testWidgets('JSON, download and version history are gone', (tester) async {
+      await openSummary(tester, _FakeSubmitter());
+      expect(find.text('Configuration JSON'), findsNothing);
+      expect(key('download-json'), findsNothing);
+      expect(find.text('Version history'), findsNothing);
+      expect(find.text('Review'), findsWidgets);
+      expect(find.text('Submit request'), findsWidgets);
+      expect(find.text('Save configuration'), findsNothing);
+    });
+
+    testWidgets('submits, shows success with the App ID, then resets', (
+      tester,
+    ) async {
+      final submitter = _FakeSubmitter();
+      final container = await openSummary(tester, submitter);
+      await tapIn(tester, key('submit-request'));
+      expect(submitter.calls, ['swift_maids']);
+      expect(key('submit-success'), findsOneWidget);
+      expect(find.text('Your request was submitted'), findsOneWidget);
+      expect(
+        tester.widget<SelectableText>(key('request-ref')).data,
+        'swift_maids',
+      );
+
+      await tapIn(tester, key('back-to-start'));
+      // Everything is cleared and the user is back on step 1.
+      expect(currentPath(container), '/builder/info');
+      final d = container.read(draftProvider);
+      expect(d.appId, isEmpty);
+      expect(d.nameEn, isEmpty);
+      expect(d.logo, isNull);
+      expect(d.supportEmails, isEmpty);
+    });
+
+    testWidgets('shows a loading state and blocks double submissions', (
+      tester,
+    ) async {
+      final gate = Completer<SubmitResult>();
+      final submitter = _FakeSubmitter(gate: gate);
+      await openSummary(tester, submitter);
+      await tester.ensureVisible(key('submit-request'));
+      await tester.tap(key('submit-request'));
+      await tester.pump();
+      expect(find.text('Submitting...'), findsOneWidget);
+      expect(
+        tester.widget<FilledButton>(key('submit-request')).onPressed,
+        isNull,
+      );
+      gate.complete(SubmitResult.created);
+      await tester.pumpAndSettle();
+      expect(submitter.calls, hasLength(1));
+      expect(key('submit-success'), findsOneWidget);
+    });
+
+    testWidgets('an error keeps the data and offers a retry', (tester) async {
+      final submitter = _FakeSubmitter(
+        failures: [const SubmitException(SubmitErrorKind.network)],
+      );
+      final container = await openSummary(tester, submitter);
+      await tapIn(tester, key('submit-request'));
+      expect(key('submit-error'), findsOneWidget);
+      expect(find.textContaining('Could not reach the server'), findsOneWidget);
+      expect(find.text('Try again'), findsOneWidget);
+      expect(container.read(draftProvider).appId, 'swift_maids');
+
+      await tapIn(tester, key('submit-request'));
+      expect(submitter.calls, hasLength(2));
+      expect(key('submit-error'), findsNothing);
+      expect(key('submit-success'), findsOneWidget);
+    });
+
+    testWidgets('an ID taken in the meantime sends the user back to Step 1', (
+      tester,
+    ) async {
+      final submitter = _FakeSubmitter(taken: true);
+      final container = await openSummary(tester, submitter);
+      await tapIn(tester, key('submit-request'));
+      // Nothing is lost; the user is on Step 1 with the ID marked as used.
+      expect(currentPath(container), '/builder/info');
+      expect(container.read(draftProvider).clientName, 'مكتب سويفت');
+      expect(key('app-id-just-taken'), findsOneWidget);
+      expect(find.textContaining('was just taken'), findsOneWidget);
+      expect(
+        find.text('This App ID is already taken, choose another one'),
+        findsOneWidget,
+      );
+      expect(key('submit-success'), findsNothing);
+      // Next stays blocked until another ID is chosen.
+      expect(currentPath(container), '/builder/info');
+    });
+  });
+
+  group('step 1: App ID availability (Firestore)', () {
+    Future<ProviderContainer> openInfo(
+      WidgetTester tester,
+      AppIdChecker checker,
+    ) async {
+      final container = await pumpApp(tester, checker: checker);
+      await tester.pumpAndSettle();
+      return container;
+    }
+
+    Future<void> fillRest(WidgetTester tester) async {
+      Finder f(String k) => find.byKey(ValueKey(k));
+      await tester.enterText(f('name-ar'), 'عناية');
+      await tester.enterText(f('client-name'), 'مكتب عناية');
+      await tester.enterText(f('client-phone'), '+966500000000');
+      await tester.enterText(f('client-email'), 'info@enaya.example');
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a taken ID shows the error, suggestions, and blocks Next', (
+      tester,
+    ) async {
+      final checker = InMemoryAppIdChecker(taken: {'enaya', 'enaya-app'});
+      final container = await openInfo(tester, checker);
+      await tester.enterText(key('name-en'), 'Enaya');
+      await fillRest(tester);
+      expect(container.read(draftProvider).appId, 'enaya');
+      expect(
+        find.text('This App ID is already taken, choose another one'),
+        findsOneWidget,
+      );
+      // Only checked, free alternatives are offered.
+      expect(key('suggest-enaya-app'), findsNothing);
+      expect(key('suggest-enaya-2'), findsOneWidget);
+
+      await tapIn(tester, key('wizard-next'));
+      expect(currentPath(container), '/builder/info');
+
+      // Tapping a suggestion fills the field and unblocks the step.
+      await tapIn(tester, key('suggest-enaya-2'));
+      expect(container.read(draftProvider).appId, 'enaya-2');
+      expect(find.text('App ID is available'), findsOneWidget);
+      await tapIn(tester, key('wizard-next'));
+      expect(currentPath(container), isNot('/builder/info'));
+    });
+
+    testWidgets('IDs are normalized: spaces and capitals do not matter', (
+      tester,
+    ) async {
+      final checker = InMemoryAppIdChecker(taken: {'enaya'});
+      final container = await openInfo(tester, checker);
+      await tester.enterText(key('name-en'), 'Something');
+      await tester.pumpAndSettle();
+      await tapIn(tester, key('app-id-edit'));
+      await tester.enterText(key('app-id'), '  ENAYA ');
+      await tester.pumpAndSettle();
+      expect(container.read(draftProvider).appId, 'enaya');
+      expect(checker.calls, contains('enaya'));
+      expect(checker.calls.every((c) => c == c.trim().toLowerCase()), isTrue);
+      expect(
+        find.text('This App ID is already taken, choose another one'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a malformed ID is not sent to the backend', (tester) async {
+      final checker = InMemoryAppIdChecker();
+      await openInfo(tester, checker);
+      await tester.enterText(key('name-en'), 'Something');
+      await tester.pumpAndSettle();
+      checker.calls.clear();
+      await tapIn(tester, key('app-id-edit'));
+      await tester.enterText(key('app-id'), '9bad id!');
+      await tester.pumpAndSettle();
+      expect(checker.calls, isEmpty);
+      expect(key('app-id-available'), findsNothing);
+    });
+
+    testWidgets('a network error offers a retry and blocks Next', (
+      tester,
+    ) async {
+      final checker = InMemoryAppIdChecker(failing: true);
+      final container = await openInfo(tester, checker);
+      await tester.enterText(key('name-en'), 'Enaya');
+      await fillRest(tester);
+      expect(find.text("Couldn't check the App ID, try again"), findsOneWidget);
+      await tapIn(tester, key('wizard-next'));
+      expect(currentPath(container), '/builder/info');
+
+      checker.failing = false;
+      await tapIn(tester, key('app-id-retry'));
+      expect(find.text('App ID is available'), findsOneWidget);
+      await tapIn(tester, key('wizard-next'));
+      expect(currentPath(container), isNot('/builder/info'));
+    });
+
+    testWidgets('only the latest check result is applied', (tester) async {
+      final slow = _SlowChecker();
+      final container = await openInfo(tester, slow);
+      await tester.enterText(key('name-en'), 'Slow One');
+      await tester.pump();
+      // The user keeps typing: the first answer arrives late and is ignored.
+      await tester.enterText(key('name-en'), 'Fast Two');
+      await tester.pump();
+      slow.answer('slow_one', false); // outdated: "taken"
+      await tester.pump();
+      slow.answer('fast_two', true);
+      await tester.pumpAndSettle();
+      expect(container.read(draftProvider).appId, 'fast_two');
+      expect(find.text('App ID is available'), findsOneWidget);
+      expect(
+        find.text('This App ID is already taken, choose another one'),
+        findsNothing,
+      );
+    });
+  });
+
+  group('step 1: iOS bundle ID', () {
+    testWidgets('mirrors Android, converting underscores, with a note', (
+      tester,
+    ) async {
+      final container = await pumpApp(tester);
+      final ios = key('ios-bundle');
+      AppConfigDraft d() => container.read(draftProvider);
+      expect(
+        find.descendant(
+          of: key('fixed-prefix').last,
+          matching: find.text('com.excp.'),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.widget<TextField>(ios).readOnly, isTrue);
+
+      await tester.enterText(key('android-package'), 'my_app');
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextField>(ios).controller!.text, 'my-app');
+      expect(d().effectiveIosBundleId, 'com.excp.my-app');
+      expect(d().androidPackage, 'com.excp.my_app');
+      expect(key('ios-converted-note'), findsOneWidget);
+      expect(find.text('Bundle ID: com.excp.my-app'), findsOneWidget);
+
+      await tester.enterText(key('android-package'), 'enaya');
+      await tester.pumpAndSettle();
+      expect(key('ios-converted-note'), findsNothing);
+      expect(tester.widget<TextField>(ios).controller!.text, 'enaya');
+    });
+
+    testWidgets('unticking makes it editable on its own and filters input', (
+      tester,
+    ) async {
+      final container = await pumpApp(tester);
+      AppConfigDraft d() => container.read(draftProvider);
+      await tester.enterText(key('android-package'), 'my_app');
+      await tester.pumpAndSettle();
+      await tapIn(tester, key('ios-same'));
+      expect(d().iosSameAsAndroid, isFalse);
+      // It starts from the current (converted) value...
+      expect(
+        tester.widget<TextField>(key('ios-bundle')).controller!.text,
+        'my-app',
+      );
+      expect(tester.widget<TextField>(key('ios-bundle')).readOnly, isFalse);
+
+      // ...and then follows only its own input: lowercase, hyphens, dots.
+      await tester.enterText(key('ios-bundle'), 'My_Other App.v2!');
+      await tester.pumpAndSettle();
+      expect(d().iosBundleId, 'com.excp.my-otherapp.v2');
+      expect(
+        d().androidPackage,
+        'com.excp.my_app',
+        reason: 'Android unchanged',
+      );
+      await tester.enterText(key('android-package'), 'changed');
+      await tester.pumpAndSettle();
+      expect(d().iosBundleId, 'com.excp.my-otherapp.v2');
+
+      // Ticking again goes back to mirroring.
+      await tapIn(tester, key('ios-same'));
+      expect(d().effectiveIosBundleId, 'com.excp.changed');
+    });
+
+    testWidgets('Android and iOS sit side by side, stacked on phones', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      final a = tester.getTopLeft(key('android-package'));
+      final i = tester.getTopLeft(key('ios-bundle'));
+      expect(a.dy, i.dy, reason: 'same row on a wide screen');
+      tester.view.physicalSize = const Size(420, 900);
+      await tester.pumpAndSettle();
+      final a2 = tester.getTopLeft(key('android-package'));
+      final i2 = tester.getTopLeft(key('ios-bundle'));
+      expect(i2.dy, greaterThan(a2.dy));
+    });
+  });
+
+  group('step 1: package name with a fixed prefix', () {
+    testWidgets(
+      'the prefix is a read-only addon; only the suffix is editable',
+      (tester) async {
+        final container = await pumpApp(tester);
+        final field = key('android-package');
+        expect(
+          find.descendant(
+            of: key('fixed-prefix').first,
+            matching: find.text('com.excp.'),
+          ),
+          findsOneWidget,
+        );
+        // The editable text never contains the prefix.
+        expect(tester.widget<TextField>(field).controller!.text, isEmpty);
+        expect(find.text('Package name: com.excp.'), findsOneWidget);
+
+        // Uppercase becomes lowercase; spaces and other characters are dropped.
+        await tester.enterText(field, ' My App-1! ');
+        await tester.pumpAndSettle();
+        expect(tester.widget<TextField>(field).controller!.text, 'myapp1');
+        expect(container.read(draftProvider).androidPackage, 'com.excp.myapp1');
+        expect(find.text('Package name: com.excp.myapp1'), findsOneWidget);
+
+        // Pasting the prefix as well does not duplicate it.
+        await tester.enterText(field, 'com.excp.enaya.client');
+        await tester.pumpAndSettle();
+        expect(
+          container.read(draftProvider).androidPackage,
+          'com.excp.enaya.client',
+        );
+
+        // The field is laid out left-to-right in the Arabic page too.
+        final dir = tester.widget<TextField>(field).textDirection;
+        expect(dir, TextDirection.ltr);
+      },
+    );
+
+    testWidgets('invalid suffixes show specific errors', (tester) async {
+      final container = await pumpApp(tester);
+      final field = key('android-package');
+      Future<void> typeAndLeave(String v) async {
+        await tester.enterText(field, v);
+        await tester.enterText(key('client-name'), 'x');
+        await tester.pumpAndSettle();
+      }
+
+      for (final bad in ['9app', '.app', 'app.', 'a..b', 'enaya._x']) {
+        await typeAndLeave(bad);
+        expect(
+          find.textContaining('Use lowercase English letters and digits only'),
+          findsOneWidget,
+          reason: bad,
+        );
+      }
+      await typeAndLeave('enaya.class');
+      expect(find.textContaining('Java reserved word'), findsOneWidget);
+      await typeAndLeave('a' * 95);
+      expect(find.textContaining('too long'), findsOneWidget);
+      await typeAndLeave('enaya.client');
+      expect(find.textContaining('Use lowercase'), findsNothing);
+      expect(
+        container.read(draftProvider).androidPackage,
+        'com.excp.enaya.client',
+      );
+    });
+
+    testWidgets(
+      'loading existing data keeps only the last part under the prefix',
+      (tester) async {
+        final container = await pumpApp(tester);
+        container.read(draftProvider.notifier).replace(validDraft());
+        await tester.pumpAndSettle();
+        expect(normalizePackage('com.example.swift'), 'com.excp.swift');
+        expect(normalizePackage('com.excp.a.b'), 'com.excp.a.b');
+        expect(normalizePackage('swift'), 'com.excp.swift');
+        expect(packageSuffix('com.excp.a.b'), 'a.b');
+      },
+    );
+  });
+
+  testWidgets('branding: Firebase Storage link works, fields stay separate', (
+    tester,
+  ) async {
+    const own =
+        'https://firebasestorage.googleapis.com/v0/b/swift-saas-5ac3a.firebasestorage.app/o/app_requests%2Fblkedma_req%2Flogo_1792593994316.png?alt=media&token=709a3722-3fee-4f74-93e5-df777b635897';
+    final seen = <String>[];
+    final container = await openBranding(
+      tester,
+      // Reading bytes is blocked (no CORS), like on the real host.
+      fetch: (u) async => throw StateError('CORS'),
+      probe: (u) async {
+        seen.add(u);
+        if (u == own) return const ProbedImage(1024, 1024);
+        throw const ImageProbeException('error');
+      },
+    );
+    AppConfigDraft d() => container.read(draftProvider);
+    Finder tab(String field, String seg) => find.descendant(
+      of: key('source-$field'),
+      matching: key('seg-AssetSource.$seg'),
+    );
+    await tester.ensureVisible(key('source-logo'));
+    await tester.pumpAndSettle();
+    await tapIn(tester, tab('logo', 'url'));
+
+    // The exact link, untouched (%2F stays), is accepted without any download.
+    await tester.enterText(key('url-logo'), ' $own ');
+    await tapIn(tester, key('load-logo'));
+    expect(seen.single, own);
+    expect(d().logo!.isRemote, isTrue);
+    expect(d().logo!.sourceUrl, own);
+    expect(find.textContaining("Couldn't load"), findsNothing);
+
+    // A broken link in the logo field shows its error once, and the previous
+    // image is kept. Switching the icon to URL mode does not copy the error.
+    await tester.enterText(key('url-logo'), 'https://example.com/broken.png');
+    await tapIn(tester, key('load-logo'));
+    expect(find.textContaining("Couldn't load image"), findsOneWidget);
+    expect(d().logo!.sourceUrl, own);
+    await tester.ensureVisible(key('source-appIcon'));
+    await tapIn(tester, tab('appIcon', 'url'));
+    expect(find.textContaining("Couldn't load image"), findsOneWidget);
+  });
+
+  testWidgets('branding: splash logo has Image URL with its own state', (
+    tester,
+  ) async {
+    const good = 'https://cdn.example.com/brand/splash.png';
+    final container = await openBranding(
+      tester,
+      fetch: (u) async => pngBytes(700, 700),
+      probe: (u) async {
+        if (u == good) return const ProbedImage(700, 700);
+        throw const ImageProbeException('error');
+      },
+    );
+    AppConfigDraft d() => container.read(draftProvider);
+    Finder tab(String field, String seg) => find.descendant(
+      of: key('source-$field'),
+      matching: key('seg-AssetSource.$seg'),
+    );
+
+    // Optional: nothing selected is fine and the hint explains the fallback.
+    expect(d().splashLogo, isNull);
+    expect(find.text('Uses the main logo when empty'), findsOneWidget);
+
+    await tester.ensureVisible(key('source-splashLogo'));
+    await tapIn(tester, tab('splashLogo', 'url'));
+    expect(key('upload-splashLogo'), findsNothing);
+
+    // A broken link: its own error, nothing changes elsewhere.
+    final logoBefore = d().logo;
+    await tester.enterText(key('url-splashLogo'), 'https://example.com/x.png');
+    await tapIn(tester, key('load-splashLogo'));
+    expect(find.textContaining("Couldn't load image"), findsOneWidget);
+    expect(d().splashLogo, isNull);
+    expect(identical(d().logo, logoBefore), isTrue);
+    // The logo and icon fields are still in file mode, without errors.
+    expect(key('upload-logo'), findsOneWidget);
+    expect(key('upload-appIcon'), findsOneWidget);
+
+    // A good link is loaded, previewed, and can be changed or removed.
+    await tester.enterText(key('url-splashLogo'), good);
+    await tapIn(tester, key('load-splashLogo'));
+    expect(d().splashLogo!.sourceUrl, good);
+    expect(d().splashLogo!.name, 'splash.png');
+    expect(find.textContaining("Couldn't load"), findsNothing);
+    expect(find.text('splash.png  700×700'), findsOneWidget);
+    await tapIn(tester, key('remove-splashLogo'));
+    expect(d().splashLogo, isNull);
   });
 
   testWidgets('branding: contrast row warns but never blocks', (tester) async {
@@ -1039,4 +1692,35 @@ void main() {
     final dir = Directionality.of(tester.element(key('sv-area')));
     expect(dir, TextDirection.ltr);
   });
+}
+
+class _FakeSubmitter implements RequestSubmitter {
+  _FakeSubmitter({this.gate, this.failures = const [], this.taken = false});
+
+  final Completer<SubmitResult>? gate;
+  final List<SubmitException> failures;
+
+  /// The ID is used by someone else when the user submits.
+  final bool taken;
+  final calls = <String>[];
+
+  @override
+  Future<SubmitResult> submit(AppConfigDraft draft) async {
+    calls.add(draft.appId);
+    if (failures.length >= calls.length) throw failures[calls.length - 1];
+    if (gate != null) return gate!.future;
+    return taken ? SubmitResult.taken : SubmitResult.created;
+  }
+}
+
+/// Answers each check only when the test says so.
+class _SlowChecker implements AppIdChecker {
+  final _pending = <String, Completer<bool>>{};
+
+  @override
+  Future<bool> isAvailable(String appId) =>
+      (_pending[appId] ??= Completer<bool>()).future;
+
+  void answer(String appId, bool free) =>
+      (_pending[appId] ??= Completer<bool>()).complete(free);
 }

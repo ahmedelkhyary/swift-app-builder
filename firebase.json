@@ -1,0 +1,20 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "swift-saas-5ac3a",
+          "configurations": {
+            "web": "1:619089453592:web:478f37f0d303354e24596d"
+          }
+        }
+      }
+    }
+  }
+}

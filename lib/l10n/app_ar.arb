@@ -23,24 +23,24 @@
   "loadedFromJsonNote": "تم تحميل الإعدادات. أعد رفع الشعار والأيقونة لأنهما ليسا جزءاً من ملف JSON.",
   "fieldNameAr": "اسم التطبيق (عربي)",
   "fieldNameEn": "اسم التطبيق (إنجليزي)",
-  "fieldAndroidPackage": "اسم حزمة أندرويد",
-  "fieldIosBundleId": "معرّف حزمة iOS",
+  "fieldAndroidPackage": "اسم الحزمة لـ Android (Package Name)",
+  "fieldIosBundleId": "معرف الحزمة لـ iOS (Bundle ID)",
   "fieldIosSame": "نفس حزمة أندرويد",
   "fieldAppId": "معرّف التطبيق",
   "fieldAppIdHelper": "يُولَّد من الاسم الإنجليزي، ويمكنك تعديله يدويًا.",
   "fieldClientName": "اسم العميل / المكتب",
   "fieldClientEmail": "البريد الإلكتروني الأساسي",
   "fieldClientPhone": "هاتف الدعم",
-  "appIdChecking": "جارٍ التحقق من التوفر…",
-  "appIdAvailable": "المعرّف متاح",
+  "appIdChecking": "جارٍ التحقق...",
+  "appIdAvailable": "معرف التطبيق متاح",
   "errRequired": "هذا الحقل مطلوب",
-  "errInvalidPackage": "استخدم أحرفًا صغيرة بدون مسافات، مثل com.excp.enaya",
-  "errInvalidBundleId": "استخدم صيغة النطاق العكسي بدون مسافات، مثل com.excp.enaya",
+  "errInvalidPackage": "اسم الحزمة يجب أن يحتوي على أحرف إنجليزية صغيرة وأرقام فقط ويبدأ بحرف",
+  "errInvalidBundleId": "معرف الحزمة يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطة (-) فقط",
   "errInvalidEmail": "أدخل بريدًا إلكترونيًا صحيحًا، مثل name@company.com",
   "errInvalidPhone": "أدخل رقم هاتف من 8 إلى 15 رقمًا، مثل +966500000000",
   "errInvalidHex": "استخدم لوناً بصيغة hex مثل #1565C0",
-  "errInvalidAppId": "من 3 إلى 40 حرفًا إنجليزيًا صغيرًا أو أرقامًا أو شرطة سفلية، ويبدأ بحرف، مثل khidma_recruitment",
-  "errAppIdTaken": "هذا المعرّف مستخدم بالفعل",
+  "errInvalidAppId": "من 3 إلى 30 حرفًا: أحرف إنجليزية صغيرة وأرقام وشرطات، ويبدأ بحرف، مثل khidma-recruitment",
+  "errAppIdTaken": "معرف التطبيق مستخدم من قبل، اختر معرفًا آخر",
   "errDefaultNotSupported": "يجب أن تكون اللغة الافتراضية ضمن اللغات المدعومة",
   "errAssetMissing": "هذا الملف مطلوب",
   "primaryColor": "اللون الأساسي",
@@ -81,22 +81,10 @@
   "screenWorker": "العاملة",
   "screenCheckout": "الدفع",
   "summaryReview": "المراجعة",
-  "summaryJson": "ملف الإعدادات JSON",
   "summaryValidation": "تقرير التحقق",
   "validationPassed": "الإعدادات صالحة وفق المخطط",
   "validationFailed": "فشل التحقق من المخطط",
   "fixSectionsFirst": "أكمل الأقسام السابقة لعرض الملخص.",
-  "willSaveAsVersion": "سيتم الحفظ كإصدار {version}",
-  "save": "حفظ الإعدادات",
-  "saveSuccess": "تم الحفظ كإصدار {version}",
-  "saveFailed": "فشل الحفظ: {error}",
-  "downloadJson": "تنزيل JSON",
-  "downloadFailed": "التنزيل متاح في المتصفح فقط",
-  "versionHistory": "سجل الإصدارات",
-  "noVersions": "لا توجد إصدارات محفوظة بعد",
-  "versionLabel": "الإصدار {version}",
-  "restoreAsDraft": "استعادة كمسودة جديدة",
-  "restored": "تمت استعادة الإصدار {version} كمسودة جديدة",
   "valueNotSet": "—",
   "labelTemplate": "القالب",
   "labelColors": "الألوان",
@@ -144,14 +132,13 @@
   "cardClientDesc": "الجهة التي يُبنى لها التطبيق",
   "phNameAr": "مثال: الخدمة للاستقدام",
   "phNameEn": "e.g. Al Khidma Recruitment",
-  "phPackage": "com.excp.enaya",
+  "phPackage": "myapp",
   "helperPackage": "أحرف إنجليزية صغيرة ونقاط فقط، ولا يمكن تغييره بعد النشر.",
-  "iosSameTitle": "استخدام نفس الحزمة لـ iOS",
-  "iosSameDesc": "سيُنسخ معرّف أندرويد تلقائيًا إلى iOS",
+  "iosSameTitle": "نفس اسم حزمة Android",
   "errNameArRequired": "أدخل اسم التطبيق بالعربية، مثل: الخدمة للاستقدام",
   "errNameEnRequired": "أدخل اسم التطبيق بالإنجليزية، مثل: Al Khidma Recruitment",
-  "errPackageRequired": "أدخل اسم حزمة أندرويد، مثل com.excp.enaya",
-  "errBundleRequired": "أدخل معرّف حزمة iOS، مثل com.excp.enaya",
+  "errPackageRequired": "هذا الحقل مطلوب",
+  "errBundleRequired": "هذا الحقل مطلوب",
   "errClientRequired": "أدخل اسم العميل أو المكتب",
   "errAppIdRequired": "أدخل معرّف التطبيق، مثل khidma_recruitment",
   "templateHeading": "اختر قالب التطبيق",
@@ -252,5 +239,128 @@
   "templateSimpleDesc": "تصميم نظيف وخفيف بمساحات بيضاء وخطوط رفيعة",
   "templateLuxuryDesc": "فخامة هادئة بدرجات داكنة ولمسات ذهبية وخطوط أنيقة",
   "templateBadgeAdvanced": "متقدم",
-  "templatePreviewAction": "معاينة"
+  "templatePreviewAction": "معاينة",
+  "roleAccent": "اللون المميز",
+  "roleBackground": "الخلفية",
+  "roleText": "لون النص",
+  "roleDescAccent": "الروابط مثل «عرض الكل»، وحالات النجاح، والعناصر المحددة",
+  "roleDescBackground": "خلفية الشاشات (اختياري، وإلا يُستخدم لون القالب)",
+  "roleDescText": "لون النصوص (اختياري، وإلا يُستخدم لون القالب)",
+  "contrastOkAccent": "الرابط واضح على الخلفية (التباين {ratio}:1)",
+  "contrastWarnAccent": "قد لا يكون الرابط واضحًا على الخلفية (التباين {ratio}:1)",
+  "contrastOkText": "النص مقروء على الخلفية (التباين {ratio}:1)",
+  "contrastWarnText": "قد لا يكون النص مقروءًا على الخلفية (التباين {ratio}:1)",
+  "palettesTitle": "ألوان جاهزة",
+  "paletteNavy": "كحلي",
+  "paletteTeal": "أخضر مزرق",
+  "paletteBurgundy": "عنابي",
+  "palettePurple": "بنفسجي",
+  "paletteCharcoal": "فحمي",
+  "resetColors": "إعادة إلى ألوان القالب الافتراضية",
+  "useTemplateDefault": "استخدام لون القالب الافتراضي",
+  "@contrastOkAccent": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "@contrastWarnAccent": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "@contrastOkText": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "@contrastWarnText": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "assetSourceLabel": "مصدر الصورة",
+  "assetSourceFile": "رفع ملف",
+  "assetSourceUrl": "رابط صورة",
+  "imageUrlPlaceholder": "https://example.com/logo.png",
+  "imageUrlLoad": "تحميل",
+  "imageUrlChange": "تغيير",
+  "imageUrlLoading": "جارٍ التحقق من الصورة…",
+  "imageUrlInvalid": "الرابط غير صالح",
+  "imageUrlLoadFailed": "تعذّر تحميل الصورة من هذا الرابط. تأكد أن الرابط عام ويشير مباشرة إلى صورة.",
+  "imageUrlUnsupported": "نوع الصورة غير مدعوم. المسموح: PNG وJPG وJPEG وSVG وWEBP.",
+  "submitCardTitle": "إرسال الطلب",
+  "submitCardDesc": "راجع البيانات أعلاه ثم أرسل الطلب. سيتم تسجيله برقم معرّف التطبيق.",
+  "submitRequest": "إرسال الطلب",
+  "submitting": "جاري الإرسال...",
+  "retry": "إعادة المحاولة",
+  "requestSentTitle": "تم إرسال طلبك بنجاح",
+  "requestSentBody": "استلمنا طلبك وسيقوم فريقنا بمراجعته، وسنتواصل معك في أقرب وقت لتأكيد التفاصيل.",
+  "requestReference": "رقم الطلب",
+  "backToStart": "العودة للبداية",
+  "submitErrNotConfigured": "لم يتم ربط الإرسال بعد: مفاتيح Firebase غير مضبوطة. تواصل مع مسؤول النظام.",
+  "submitErrInvalidAppId": "معرّف التطبيق غير صحيح. عدّله في الخطوة الأولى ثم أعد المحاولة.",
+  "submitErrPermission": "لا توجد صلاحية لإرسال الطلب. تواصل مع مسؤول النظام.",
+  "submitErrNetwork": "تعذّر الاتصال بالخادم. تحقق من الإنترنت ثم أعد المحاولة. بياناتك محفوظة.",
+  "submitErrUnknown": "حدث خطأ أثناء إرسال الطلب. أعد المحاولة؛ بياناتك محفوظة.",
+  "nextStepsTitle": "الخطوات القادمة",
+  "stepReceived": "تم استلام الطلب",
+  "stepReview": "مراجعة الطلب من فريقنا",
+  "stepContact": "التواصل معك",
+  "stepContactVia": "عبر",
+  "stateDone": "مكتمل",
+  "stateInProgress": "جارٍ الآن",
+  "stateUpcoming": "قادم",
+  "appIdCheckFailed": "تعذّر التحقق من المعرف، حاول مرة أخرى",
+  "appIdSuggestions": "معرفات متاحة مقترحة:",
+  "appIdJustTaken": "تم استخدام معرف التطبيق «{appId}» للتو من عميل آخر. بياناتك محفوظة، اختر معرفًا آخر ثم أعد الإرسال.",
+  "@appIdJustTaken": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "phBundleId": "myapp",
+  "packagePreview": "اسم الحزمة: {value}",
+  "errReservedPackage": "لا يمكن استخدام كلمة محجوزة في Java مثل class أو new أو int أو package",
+  "errPackageTooLong": "اسم الحزمة طويل جدًا (الحد الأقصى 100 حرف)",
+  "@packagePreview": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "imageUrlNotCopyable": "تم تحميل الصورة لكن هذا الموقع لا يسمح بنسخها. ارفع الملف بدلًا من ذلك.",
+  "imageSizeMismatch": "أبعاد الصورة غير مناسبة: المطلوب {required} والحالية {current}",
+  "requiredLogoSize": "512×512 على الأقل",
+  "requiredIconSize": "1024×1024 بالضبط",
+  "@imageSizeMismatch": {
+    "placeholders": {
+      "required": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "bundlePreview": "معرف الحزمة: {value}",
+  "iosUnderscoreNote": "تم تحويل «_» إلى «-» لأن iOS لا يدعم الشرطة السفلية.",
+  "errBundleTooLong": "معرف الحزمة طويل جدًا (الحد الأقصى 155 حرفًا)",
+  "@bundlePreview": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../app_template.dart';
 import '../demo/models.dart';
 import '../demo/session.dart';
 import '../widgets.dart';
+import 'address_sheet.dart';
 import 'main_shell.dart';
 import 'scope.dart';
 
 /// Order summary card shared by payment and success.
 class OrderSummaryCard extends StatelessWidget {
-  const OrderSummaryCard({super.key, required this.summary});
+  const OrderSummaryCard({
+    super.key,
+    required this.summary,
+    this.canChangeAddress = false,
+  });
   final OrderSummary summary;
+
+  /// Shows "Change address" under the order lines (individuals and hourly).
+  final bool canChangeAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +31,21 @@ class OrderSummaryCard extends StatelessWidget {
         children: [
           for (final line in summary.details)
             RuiInfoRow(line.label.of(d.lang), line.value.of(d.lang)),
+          if (canChangeAddress && summary.module != ServiceModule.mediation)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton.icon(
+                key: const ValueKey('change-address'),
+                onPressed: () =>
+                    showAddressSheet(context, target: AddressTarget.order),
+                icon: const Icon(Icons.edit_location_alt_outlined, size: 18),
+                label: Text(s.x('تغيير العنوان', 'Change address')),
+                style: TextButton.styleFrom(
+                  foregroundColor: RuiTokens.of(context).link,
+                  minimumSize: const Size(44, 44),
+                ),
+              ),
+            ),
           const Divider(),
           for (final p in summary.prices)
             RuiInfoRow(
@@ -124,7 +148,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             kind: BannerKind.warning,
           ),
           RuiSectionTitle(s.x('ملخص الطلب', 'Order summary')),
-          OrderSummaryCard(summary: summary),
+          OrderSummaryCard(summary: summary, canChangeAddress: true),
           RuiSectionTitle(s.x('طريقة الدفع', 'Payment method')),
           for (final m in session.repo.paymentMethods)
             RuiSelectTile(

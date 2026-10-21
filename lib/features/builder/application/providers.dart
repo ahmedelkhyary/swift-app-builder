@@ -2,9 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recruitment_ui/recruitment_ui.dart';
 
 import '../data/config_repository.dart';
+import '../data/app_id_checker.dart';
+import '../data/firebase_request_submitter.dart';
 import '../data/in_memory_config_repository.dart';
+import '../data/request_submitter.dart';
 import '../domain/asset.dart';
-import '../domain/config.dart';
+import '../../../firebase_options.dart';
+import 'image_probe.dart';
+import 'image_url_loader.dart';
 import '../domain/draft.dart';
 import '../domain/validators.dart';
 import 'config_service.dart';
@@ -52,12 +57,14 @@ class DraftController extends Notifier<AppConfigDraft> {
       nameEn: v,
       appId: state.appIdEdited || state.existingApp ? null : slugifyAppId(v),
       androidPackage: pkg,
-      iosBundleId: pkg != null && state.iosSameAsAndroid ? pkg : null,
+      iosBundleId: pkg != null && state.iosSameAsAndroid
+          ? mirrorBundleId(pkg)
+          : null,
     );
   }
 
   void setAppId(String v) =>
-      state = state.copyWith(appId: v.toLowerCase(), appIdEdited: true);
+      state = state.copyWith(appId: normalizeAppId(v), appIdEdited: true);
 
   void regenerateAppId() => state = state.copyWith(
     appId: slugifyAppId(state.nameEn),
@@ -67,12 +74,14 @@ class DraftController extends Notifier<AppConfigDraft> {
   void setAndroidPackage(String v) => state = state.copyWith(
     androidPackage: v,
     packageEdited: true,
-    iosBundleId: state.iosSameAsAndroid ? v : null,
+    iosBundleId: state.iosSameAsAndroid ? mirrorBundleId(v) : null,
   );
 
+  /// Checked: iOS follows Android. Unchecked: iOS becomes editable on its own,
+  /// starting from the value it has now.
   void setIosSameAsAndroid(bool v) => state = state.copyWith(
     iosSameAsAndroid: v,
-    iosBundleId: v ? state.androidPackage : null,
+    iosBundleId: mirrorBundleId(state.androidPackage),
   );
 
   void setIosBundleId(String v) => state = state.copyWith(iosBundleId: v);
@@ -85,6 +94,30 @@ class DraftController extends Notifier<AppConfigDraft> {
 
   void setPrimary(String hex) => state = state.copyWith(primaryHex: hex);
   void setSecondary(String hex) => state = state.copyWith(secondaryHex: hex);
+  void setAccent(String hex) => state = state.copyWith(accentHex: hex);
+
+  /// An empty value goes back to the template's own page / text color.
+  void setBackground(String hex) => state = state.copyWith(backgroundHex: hex);
+  void setText(String hex) => state = state.copyWith(textHex: hex);
+
+  /// Applies a ready-made palette (primary, secondary and accent together).
+  void setPalette(String primary, String secondary, String accent) =>
+      state = state.copyWith(
+        primaryHex: primary,
+        secondaryHex: secondary,
+        accentHex: accent,
+      );
+
+  /// Back to the template defaults: default brand colors, no page / text
+  /// override, white splash.
+  void resetColors() => state = state.copyWith(
+    primaryHex: kDefaultPrimaryHex,
+    secondaryHex: kDefaultSecondaryHex,
+    accentHex: kDefaultAccentHex,
+    backgroundHex: '',
+    textHex: '',
+    splashHex: '#FFFFFF',
+  );
   void setSplashColor(String hex) => state = state.copyWith(splashHex: hex);
   void setFont(String family) => state = state.copyWith(fontFamily: family);
 
@@ -135,11 +168,62 @@ class DraftController extends Notifier<AppConfigDraft> {
   }
 }
 
-/// Whether [appId] is free. Loaded drafts (existing apps) are always fine.
+/// Backend check of App IDs. Replaced in tests.
+final appIdCheckerProvider = Provider<AppIdChecker>(
+  (ref) => FirestoreAppIdChecker(),
+);
+
+/// How long typing must pause before the App ID is checked.
+final appIdDebounceProvider = Provider<Duration>(
+  (ref) => const Duration(milliseconds: 500),
+);
+
+/// IDs found to be taken during a submit (someone else got them first). They
+/// stay unavailable even if an earlier check said otherwise.
+final appIdTakenProvider = StateProvider<Set<String>>((ref) => const {});
+
+/// Whether [appId] (already normalized) is free in the backend. A malformed
+/// ID is not asked about: the format error is shown instead.
+///
+/// The provider is per ID and auto-disposed, so when the user keeps typing the
+/// previous check is cancelled and its result can never be applied.
 final appIdAvailabilityProvider = FutureProvider.autoDispose
     .family<bool, String>((ref, appId) async {
-      if (appId.isEmpty) return true;
-      return ref.watch(configRepositoryProvider).isAppIdAvailable(appId);
+      if (appId.isEmpty || !Validators.appIdRegex.hasMatch(appId)) return true;
+      if (ref.watch(appIdTakenProvider).contains(appId)) return false;
+      var disposed = false;
+      ref.onDispose(() => disposed = true);
+      final debounce = ref.read(appIdDebounceProvider);
+      if (debounce > Duration.zero) await Future<void>.delayed(debounce);
+      if (disposed) return true; // outdated: nobody is listening anymore
+      return ref.read(appIdCheckerProvider).isAvailable(appId);
+    });
+
+/// Up to three alternatives to a taken [appId] that were checked and are free.
+final appIdSuggestionsProvider = FutureProvider.autoDispose
+    .family<List<String>, String>((ref, appId) async {
+      final checker = ref.read(appIdCheckerProvider);
+      final taken = ref.read(appIdTakenProvider);
+      final candidates = <String>[];
+      for (final suffix in ['-app', '-2', '-3', '-4']) {
+        final base = appId.length > 30 - suffix.length
+            ? appId.substring(0, 30 - suffix.length)
+            : appId;
+        final c = '$base$suffix';
+        if (Validators.appIdRegex.hasMatch(c) && !taken.contains(c)) {
+          candidates.add(c);
+        }
+      }
+      final free = <String>[];
+      for (final c in candidates) {
+        if (free.length == 3) break;
+        try {
+          if (await checker.isAvailable(c)) free.add(c);
+        } on AppIdCheckException {
+          break; // offline: no suggestions rather than unchecked ones
+        }
+      }
+      return free;
     });
 
 /// True when every field of [section] is valid, including async appId check.
@@ -151,9 +235,10 @@ final sectionValidProvider = Provider.autoDispose.family<bool, WizardSection>((
   if (!DraftValidator.isSectionValid(draft, section)) return false;
   final needsAppId =
       section == WizardSection.info || section == WizardSection.summary;
-  if (needsAppId && !draft.existingApp) {
+  // Checked for loaded drafts too: an ID that is already requested is taken.
+  if (needsAppId) {
     final available = ref.watch(appIdAvailabilityProvider(draft.appId));
-    return available.value == true;
+    return available.valueOrNull == true;
   }
   return true;
 });
@@ -174,16 +259,7 @@ final brandingProvider = Provider.autoDispose<BrandingConfig>(
   (ref) => ref.watch(draftProvider).branding,
 );
 
-/// Versions already stored for the draft's app (newest last).
-final versionHistoryProvider = FutureProvider.autoDispose<List<AppConfig>>((
-  ref,
-) {
-  final id = ref.watch(draftProvider.select((d) => d.appId));
-  if (id.isEmpty) return const <AppConfig>[];
-  return ref.watch(configRepositoryProvider).listVersions(id);
-});
-
-/// The config (and schema errors) that "Save" would produce right now.
+/// The config (and schema errors) the request would contain right now.
 final preparedConfigProvider = FutureProvider.autoDispose<PreparedConfig?>((
   ref,
 ) async {
@@ -215,6 +291,28 @@ final demoSessionProvider = Provider<DemoSession>((ref) {
   ref.onDispose(session.dispose);
   return session;
 });
+
+/// Where a brand image comes from. UI-only; the choice is remembered while
+/// the user moves between steps.
+enum AssetSource { file, url }
+
+final assetSourceProvider = StateProvider.family<AssetSource?, AssetKind>(
+  (ref, kind) => null,
+);
+
+/// Downloads images added by URL. Replaced in tests.
+final imageFetchProvider = Provider<ImageFetch>((ref) => defaultImageFetch);
+
+/// Checks that an image URL really loads and reads its size (browser `<img>`).
+final imageProbeProvider = Provider<ImageProbe>((ref) => probeImageElement);
+
+/// Storage buckets of this project: images in them are kept as they are.
+final ownStorageBucketsProvider = Provider<List<String>>(
+  (ref) => [
+    DefaultFirebaseOptions.web.storageBucket!,
+    '${DefaultFirebaseOptions.web.projectId}.appspot.com',
+  ],
+);
 
 /// Template shown by the full-size preview page. It is only applied to the
 /// draft when the user presses "Use this template"; null means the draft's.
@@ -283,4 +381,52 @@ class TemplatePickController extends AutoDisposeNotifier<TemplatePick> {
   }
 
   void closeCompare() => state = state.copyWith(comparing: false);
+}
+
+/// Sends the finished wizard to the backend. Replaced in tests.
+final requestSubmitterProvider = Provider<RequestSubmitter>(
+  (ref) => FirebaseRequestSubmitter(),
+);
+
+enum SubmitStatus { idle, submitting, error }
+
+class SubmitState {
+  const SubmitState({this.status = SubmitStatus.idle, this.error});
+  final SubmitStatus status;
+  final SubmitErrorKind? error;
+
+  bool get submitting => status == SubmitStatus.submitting;
+}
+
+final submitProvider = NotifierProvider<SubmitController, SubmitState>(
+  SubmitController.new,
+);
+
+class SubmitController extends Notifier<SubmitState> {
+  @override
+  SubmitState build() => const SubmitState();
+
+  /// Submits the current draft. Returns null on failure (see [state]); the
+  /// draft is never touched, so the user can retry with everything filled in.
+  Future<SubmitResult?> submit() async {
+    if (state.submitting) return null; // no double submissions
+    state = const SubmitState(status: SubmitStatus.submitting);
+    try {
+      final result = await ref
+          .read(requestSubmitterProvider)
+          .submit(ref.read(draftProvider));
+      state = const SubmitState();
+      return result;
+    } on SubmitException catch (e) {
+      state = SubmitState(status: SubmitStatus.error, error: e.kind);
+    } catch (_) {
+      state = const SubmitState(
+        status: SubmitStatus.error,
+        error: SubmitErrorKind.unknown,
+      );
+    }
+    return null;
+  }
+
+  void clearError() => state = const SubmitState();
 }

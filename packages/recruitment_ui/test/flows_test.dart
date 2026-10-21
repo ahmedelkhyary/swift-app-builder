@@ -98,6 +98,8 @@ String routeName(DemoSession s) {
 void main() {
   _screenSweep();
   _templateBehaviorTests();
+  _homeAddressTests();
+  _colorTokenTests();
   testWidgets(
     'login validates the phone, OTP rejects a wrong code, then Home',
     (tester) async {
@@ -159,8 +161,9 @@ void main() {
     await settle(tester);
 
     expect(k('banner-slider'), findsOneWidget);
-    expect(k('featured-individuals'), findsOneWidget);
-    expect(k('featured-hourly'), findsOneWidget);
+    expect(k('featured-hourly-maid'), findsOneWidget);
+    expect(k('featured-driver'), findsOneWidget);
+    expect(k('home-address'), findsOneWidget);
     final scrollable = find
         .descendant(of: k('home-list'), matching: find.byType(Scrollable))
         .first;
@@ -173,7 +176,7 @@ void main() {
     expect(k('category-hourly'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Customer reviews'),
-      300,
+      -300, // the section is above after reaching the categories
       scrollable: scrollable,
     );
     await tester.scrollUntilVisible(
@@ -509,7 +512,8 @@ void main() {
     expect(k('category-individuals'), findsOneWidget);
     expect(k('category-hourly'), findsNothing);
     expect(k('category-mediation'), findsNothing);
-    expect(k('featured-hourly'), findsNothing);
+    expect(k('featured-hourly-maid'), findsNothing);
+    expect(k('featured-driver'), findsOneWidget);
 
     session.setIndNationality('ph');
     session.setEnabledModules(ServiceModule.values.toSet());
@@ -658,6 +662,170 @@ void _screenSweep() {
   }
 }
 
+void _homeAddressTests() {
+  testWidgets('Home header shows the main address; the sheet changes it', (
+    tester,
+  ) async {
+    final session = newSession()..signInDemo();
+    await pumpApp(tester, session, lang: 'en');
+    session.jumpTo(DemoEntry.home);
+    await settle(tester);
+    expect(find.text('Hello Ahmed'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: k('home-address'),
+        matching: find.text('Riyadh - Al Olaya'),
+      ),
+      findsOneWidget,
+    );
+
+    await tapKey(tester, 'home-address');
+    expect(k('sheet-address-a1'), findsOneWidget);
+    await tapKey(tester, 'sheet-address-a2');
+    await settle(tester);
+    expect(session.mainAddress!.id, 'a2');
+    expect(
+      find.descendant(
+        of: k('home-address'),
+        matching: find.text('Jeddah - Al Rawdah'),
+      ),
+      findsOneWidget,
+    );
+    // The preference lives in the repository, so it survives a demo reset.
+    session.reset();
+    expect(session.mainAddress!.id, 'a2');
+  });
+
+  testWidgets('no addresses: "Add your address" opens the add form', (
+    tester,
+  ) async {
+    final session = newSession()..signInDemo();
+    session.addresses = [];
+    await pumpApp(tester, session, lang: 'en');
+    session.jumpTo(DemoEntry.home);
+    await settle(tester);
+    expect(
+      find.descendant(
+        of: k('home-address'),
+        matching: find.text('Add your address'),
+      ),
+      findsOneWidget,
+    );
+    await tapKey(tester, 'home-address');
+    expect(k('addr-save'), findsOneWidget);
+    expect(k('addr-make-main'), findsOneWidget);
+  });
+
+  testWidgets('long addresses are truncated on one line', (tester) async {
+    final session = newSession()..signInDemo();
+    session.addAddress(
+      DemoAddress(
+        id: 'long',
+        label: const L.same('x'),
+        city: const L.same('A very very very very long city name'),
+        district: const L.same('An even longer district name that never ends'),
+        street: const L.same('s'),
+        building: '1',
+      ),
+    );
+    session.setMainAddress('long');
+    await pumpApp(tester, session, lang: 'en');
+    session.jumpTo(DemoEntry.home);
+    await settle(tester);
+    expect(tester.takeException(), isNull);
+    final text = tester.widget<Text>(
+      find.descendant(of: k('home-address'), matching: find.byType(Text)),
+    );
+    expect(text.maxLines, 1);
+    expect(text.overflow, TextOverflow.ellipsis);
+  });
+
+  testWidgets(
+    'featured service skips the address step and uses the main address',
+    (tester) async {
+      final session = newSession()..signInDemo();
+      await pumpApp(tester, session, lang: 'en');
+      session.jumpTo(DemoEntry.home);
+      await settle(tester);
+      await tapKey(tester, 'featured-hourly-maid');
+      await settle(tester);
+      expect(routeName(session), DemoRoutes.hrPackages);
+      expect(session.selectedAddressId, session.mainAddress!.id);
+
+      // The normal grid flow still starts with the address step.
+      session.jumpTo(DemoEntry.home);
+      await settle(tester);
+      await tapKey(tester, 'category-individuals');
+      await settle(tester);
+      expect(routeName(session), DemoRoutes.address);
+    },
+  );
+
+  testWidgets('featured service without a main address picks one first', (
+    tester,
+  ) async {
+    final session = newSession()..signInDemo();
+    session.addresses = [];
+    await pumpApp(tester, session, lang: 'en');
+    session.jumpTo(DemoEntry.home);
+    await settle(tester);
+    await tapKey(tester, 'featured-driver');
+    await settle(tester);
+    expect(k('sheet-address-add'), findsOneWidget, reason: 'sheet first');
+    expect(k('sheet-address-add'), findsOneWidget);
+    // Add an address from the sheet: the flow continues straight to packages.
+    await tapKey(tester, 'sheet-address-add');
+    await tester.enterText(k('addr-label'), 'Home');
+    await tapKey(tester, 'addr-city');
+    await tester.tap(find.text('Riyadh').last);
+    await tester.pump();
+    await tester.enterText(k('addr-district'), 'Olaya');
+    await tester.enterText(k('addr-street'), 'Street');
+    await tester.enterText(k('addr-building'), '5');
+    await tapKey(tester, 'addr-save');
+    await settle(tester);
+    expect(routeName(session), DemoRoutes.indPackages);
+    expect(session.indProfessionFilter, 'driver');
+    expect(session.mainAddress, isNotNull);
+  });
+
+  testWidgets('"View all" lists every featured service', (tester) async {
+    final session = newSession()..signInDemo();
+    await pumpApp(tester, session, lang: 'en');
+    session.jumpTo(DemoEntry.home);
+    await settle(tester);
+    await tapKey(tester, 'featured-view-all');
+    await settle(tester);
+    expect(routeName(session), DemoRoutes.featured);
+    for (final id in ['hourly-maid', 'driver', 'nanny', 'housemaid']) {
+      expect(k('featured-all-$id'), findsOneWidget);
+    }
+  });
+
+  testWidgets('the order summary can change the address', (tester) async {
+    final session = newSession()..signInDemo();
+    session
+      ..selectAddress('a1')
+      ..setIndNationality('ph')
+      ..setIndPackage('standard')
+      ..selectIndWorker('w_ph_housemaid_0');
+    await pumpApp(tester, session, lang: 'en');
+    session.navigator!.pushNamed(
+      DemoRoutes.payment,
+      arguments: ServiceModule.individuals,
+    );
+    await settle(tester);
+    expect(find.textContaining('Riyadh'), findsWidgets);
+    await tapKey(tester, 'change-address');
+    await tapKey(tester, 'sheet-address-a2');
+    await settle(tester);
+    expect(session.selectedAddressId, 'a2');
+    expect(find.textContaining('Jeddah'), findsWidgets);
+    // Order address only: the main address is unchanged.
+    expect(session.mainAddress!.id, 'a1');
+  });
+}
+
 void _templateBehaviorTests() {
   testWidgets('premium shows a quick-order button; the others do not', (
     tester,
@@ -708,5 +876,36 @@ void _templateBehaviorTests() {
   test('unknown template ids fall back to Simple', () {
     expect(AppTemplate.byId('premium').id, 'premium');
     expect(AppTemplate.byId('unknown').id, 'simple');
+  });
+}
+
+void _colorTokenTests() {
+  test('client colors override every template and templates only derive', () {
+    const branding = BrandingConfig(
+      primaryColor: Color(0xFF123456),
+      secondaryColor: Color(0xFF654321),
+      accentColor: Color(0xFFE91E63),
+      backgroundColor: Color(0xFFFAF3E0),
+      textColor: Color(0xFF222222),
+    );
+    for (final t in AppTemplate.all) {
+      final tokens = RuiTokens.resolve(t, branding, Brightness.light);
+      expect(tokens.link, const Color(0xFFE91E63), reason: t.id);
+      expect(tokens.page, const Color(0xFFFAF3E0), reason: t.id);
+      expect(tokens.text, const Color(0xFF222222), reason: t.id);
+      // The header color follows the client's primary color.
+      final theme = t.buildTheme(branding, Brightness.light);
+      expect(theme.colorScheme.primary, const Color(0xFF123456), reason: t.id);
+    }
+    // Without overrides the template keeps its own page and text colors.
+    final plain = RuiTokens.resolve(
+      AppTemplate.simple,
+      const BrandingConfig(
+        primaryColor: Color(0xFF123456),
+        secondaryColor: Color(0xFF654321),
+      ),
+      Brightness.light,
+    );
+    expect(plain.page, const Color(0xFFFFFFFF));
   });
 }
