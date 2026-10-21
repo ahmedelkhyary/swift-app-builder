@@ -83,7 +83,11 @@ class _RecruitmentAppState extends State<RecruitmentApp> {
     final branding = w.branding;
     final languageCode = w.languageCode;
     final isAr = languageCode == 'ar';
-    final theme = template.buildTheme(branding, w.brightness);
+    final theme = template.buildTheme(
+      branding,
+      w.brightness,
+      languageCode: languageCode,
+    );
     final start =
         w.initialRoute ??
         (session.isAuthenticated ? DemoRoutes.main : DemoRoutes.login);
@@ -199,7 +203,13 @@ class _TemplateRoute extends PageRoute<void> {
   @override
   bool get maintainState => true;
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 260);
+  Duration get transitionDuration => Duration(
+    milliseconds: switch (transition) {
+      PageTransitionKind.fade => 180,
+      PageTransitionKind.rise => 360,
+      PageTransitionKind.scale => 320,
+    },
+  );
 
   @override
   Widget buildPage(
@@ -220,15 +230,6 @@ class _TemplateRoute extends PageRoute<void> {
       curve: Curves.easeOutCubic,
     );
     switch (transition) {
-      case PageTransitionKind.slide:
-        final dx = Directionality.of(context) == TextDirection.rtl ? -1.0 : 1.0;
-        return SlideTransition(
-          position: Tween(
-            begin: Offset(dx, 0),
-            end: Offset.zero,
-          ).animate(curved),
-          child: child,
-        );
       case PageTransitionKind.fade:
         return FadeTransition(opacity: curved, child: child);
       case PageTransitionKind.rise:

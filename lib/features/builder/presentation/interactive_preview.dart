@@ -23,8 +23,12 @@ class InteractivePreview extends ConsumerWidget {
     super.key,
     this.phoneScale = 1,
     this.showOpenFull = true,
+    this.templateId,
   });
 
+  /// Template to show instead of the draft's final choice (step 4 shows the
+  /// one most recently clicked while several are ticked).
+  final String? templateId;
   final double phoneScale;
   final bool showOpenFull;
 
@@ -85,7 +89,13 @@ class InteractivePreview extends ConsumerWidget {
                   key: const ValueKey('preview-open-full'),
                   label: l10n.previewOpenFull,
                   icon: Icons.open_in_full,
-                  onPressed: () => context.go('/preview'),
+                  onPressed: () {
+                    // The full preview opens on the template shown here but
+                    // only changes the draft on "Use this template".
+                    ref.read(previewTemplateProvider.notifier).state =
+                        templateId ?? d.templateId;
+                    context.go('/preview');
+                  },
                 ),
               ],
             ],
@@ -137,7 +147,7 @@ class InteractivePreview extends ConsumerWidget {
             alignment: Alignment.center,
             child: PhonePreview(
               session: session,
-              template: AppTemplate.byId(d.templateId),
+              template: AppTemplate.byId(templateId ?? d.templateId),
               branding: d.branding,
               languageCode: lang,
               dark: dark,
@@ -270,6 +280,33 @@ class _ScreenPills extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: session,
+      builder: (context, _) => ScreenSwitcher(
+        active: session.currentEntry,
+        enabledModules: enabledModules,
+        onSelect: session.jumpTo,
+      ),
+    );
+  }
+}
+
+/// Row of screen pills (Home, Login, flows). Used by the single preview and,
+/// in the compare view, to switch every phone at once.
+class ScreenSwitcher extends StatelessWidget {
+  const ScreenSwitcher({
+    super.key,
+    required this.active,
+    required this.enabledModules,
+    required this.onSelect,
+  });
+
+  final DemoEntry? active;
+  final List<String> enabledModules;
+  final ValueChanged<DemoEntry> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final items = <(DemoEntry, String, String?)>[
       (DemoEntry.home, l10n.jumpHome, null),
@@ -283,29 +320,23 @@ class _ScreenPills extends StatelessWidget {
       'hourly': l10n.moduleHourly,
       'mediation': l10n.moduleMediation,
     };
-    return ListenableBuilder(
-      listenable: session,
-      builder: (context, _) {
-        final active = session.currentEntry;
-        return Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 0,
-          children: [
-            for (final it in items)
-              _Pill(
-                key: ValueKey('jump-${it.$1.name}'),
-                label: it.$2,
-                active: active == it.$1,
-                enabled: it.$3 == null || enabledModules.contains(it.$3),
-                disabledTooltip: it.$3 == null
-                    ? null
-                    : l10n.enableModuleTooltip(moduleNames[it.$3]!),
-                onTap: () => session.jumpTo(it.$1),
-              ),
-          ],
-        );
-      },
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 0,
+      children: [
+        for (final it in items)
+          _Pill(
+            key: ValueKey('jump-${it.$1.name}'),
+            label: it.$2,
+            active: active == it.$1,
+            enabled: it.$3 == null || enabledModules.contains(it.$3),
+            disabledTooltip: it.$3 == null
+                ? null
+                : l10n.enableModuleTooltip(moduleNames[it.$3]!),
+            onTap: () => onSelect(it.$1),
+          ),
+      ],
     );
   }
 }

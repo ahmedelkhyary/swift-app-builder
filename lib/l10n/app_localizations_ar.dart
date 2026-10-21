@@ -100,7 +100,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fieldClientName => 'اسم العميل / المكتب';
 
   @override
-  String get fieldClientEmail => 'البريد الإلكتروني';
+  String get fieldClientEmail => 'البريد الإلكتروني الأساسي';
 
   @override
   String get fieldClientPhone => 'هاتف الدعم';
@@ -238,16 +238,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseTemplate => 'اختر قالباً';
 
   @override
-  String get templateClassic => 'كلاسيكي';
-
-  @override
-  String get templateModern => 'عصري';
-
-  @override
-  String get templateMinimal => 'بسيط';
-
-  @override
-  String get templatePremium => 'فاخر';
+  String get templatePremium => 'بريميوم';
 
   @override
   String get previewLanguage => 'لغة المعاينة';
@@ -544,16 +535,8 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get templateClassicDesc => 'تخطيط متوازن وبطاقات واضحة';
-
-  @override
-  String get templateModernDesc => 'حواف مدوّرة وطابع هادئ';
-
-  @override
-  String get templateMinimalDesc => 'خطوط نظيفة وقوائم بسيطة';
-
-  @override
-  String get templatePremiumDesc => 'تدرجات جريئة وعمق بصري';
+  String get templatePremiumDesc =>
+      'الأكثر تطورًا: أسطح زجاجية وتدرجات وحركة سلسة';
 
   @override
   String get selectedPill => 'مُختار';
@@ -679,4 +662,95 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noColorsInLogo => 'لم يتم العثور على ألوان مميزة في الشعار';
+
+  @override
+  String get fieldSupportEmails => 'بريد الدعم';
+
+  @override
+  String get helperSupportEmails =>
+      'أضف بريدًا أو أكثر. اضغط Enter أو فاصلة بعد كل بريد.';
+
+  @override
+  String get phSupportEmails => 'support@example.com';
+
+  @override
+  String get errSupportEmailInvalid => 'صيغة البريد غير صحيحة';
+
+  @override
+  String get hintSupportEmailDuplicate => 'هذا البريد مضاف بالفعل';
+
+  @override
+  String removeEmailLabel(String email) {
+    return 'إزالة $email';
+  }
+
+  @override
+  String templatesSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تم اختيار $count قالبًا',
+      few: 'تم اختيار $count قوالب',
+      two: 'تم اختيار قالبين',
+      one: 'تم اختيار قالب واحد',
+      zero: 'لم يتم اختيار أي قالب',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pickAtLeastOneTemplate => 'اختر قالبًا واحدًا على الأقل';
+
+  @override
+  String get multipleTemplatesSelectedLabel => 'عدة قوالب قيد المقارنة';
+
+  @override
+  String compareTemplates(int count) {
+    return 'قارن القوالب ($count)';
+  }
+
+  @override
+  String get compareHeading => 'قارن واختر قالبك';
+
+  @override
+  String get compareSubtitle => 'اختر قالبًا واحدًا لتطبيقك';
+
+  @override
+  String get chooseThisTemplate => 'اختيار هذا القالب';
+
+  @override
+  String get backToTemplates => 'رجوع للقوالب';
+
+  @override
+  String compareIndicator(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get comparePrevious => 'القالب السابق';
+
+  @override
+  String get compareNext => 'القالب التالي';
+
+  @override
+  String get compareScreenLabel => 'الشاشة المعروضة في كل الهواتف';
+
+  @override
+  String get templateSimple => 'البسيط';
+
+  @override
+  String get templateLuxury => 'فاخر';
+
+  @override
+  String get templateSimpleDesc => 'تصميم نظيف وخفيف بمساحات بيضاء وخطوط رفيعة';
+
+  @override
+  String get templateLuxuryDesc =>
+      'فخامة هادئة بدرجات داكنة ولمسات ذهبية وخطوط أنيقة';
+
+  @override
+  String get templateBadgeAdvanced => 'متقدم';
+
+  @override
+  String get templatePreviewAction => 'معاينة';
 }

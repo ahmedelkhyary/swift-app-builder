@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../app_template.dart';
 import '../demo/session.dart';
 import '../widgets.dart';
 import 'scope.dart';
@@ -123,132 +124,206 @@ class _LoginScreenState extends State<LoginScreen> {
     final s = d.s;
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
+    final tokens = RuiTokens.of(context);
+    final radius = d.template.cornerRadius.clamp(8.0, 14.0);
     return Scaffold(
+      backgroundColor: tokens.chrome,
       body: RuiBusy(
         busy: _busy,
-        child: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 24),
-                  Center(child: RuiLogo(logo: d.branding.logo, size: 84)),
-                  const SizedBox(height: 12),
-                  Text(
-                    d.branding.appName(d.lang),
-                    textAlign: TextAlign.center,
-                    style: text.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: tokens.heroGradient.length > 1
+                  ? tokens.heroGradient
+                  : [tokens.chrome, tokens.chrome],
+            ),
+          ),
+          child: Column(
+            children: [
+              // Brand area on the primary color.
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(radius + 4),
+                        ),
+                        child: RuiLogo(logo: d.branding.logo, size: 64),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        d.branding.appName(d.lang),
+                        textAlign: TextAlign.center,
+                        style: text.titleLarge?.copyWith(
+                          color: tokens.onChrome,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // White sheet with rounded top corners.
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    s.x('سجّل الدخول للمتابعة', 'Sign in to continue'),
-                    textAlign: TextAlign.center,
-                    style: text.bodyMedium,
-                  ),
-                  const SizedBox(height: 28),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 108,
-                        child: DropdownButtonFormField<String>(
-                          key: const ValueKey('dial-code'),
-                          initialValue: _dial,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: s.x('الرمز', 'Code'),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            s.x('مرحباً بك', 'Welcome'),
+                            style: text.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          items: [
-                            for (final c in PhoneRules.dialCodes)
-                              DropdownMenuItem(
-                                value: c,
-                                child: Text(
-                                  c,
-                                  textDirection: TextDirection.ltr,
+                          const SizedBox(height: 4),
+                          Text(
+                            s.x('سجّل الدخول للمتابعة', 'Sign in to continue'),
+                            style: text.bodyMedium?.copyWith(
+                              color: scheme.outline,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 108,
+                                child: DropdownButtonFormField<String>(
+                                  key: const ValueKey('dial-code'),
+                                  initialValue: _dial,
+                                  isExpanded: true,
+                                  decoration: InputDecoration(
+                                    labelText: s.x('الرمز', 'Code'),
+                                  ),
+                                  items: [
+                                    for (final c in PhoneRules.dialCodes)
+                                      DropdownMenuItem(
+                                        value: c,
+                                        child: Text(
+                                          c,
+                                          textDirection: TextDirection.ltr,
+                                        ),
+                                      ),
+                                  ],
+                                  onChanged: (v) =>
+                                      setState(() => _dial = v ?? _dial),
                                 ),
                               ),
-                          ],
-                          onChanged: (v) => setState(() => _dial = v ?? _dial),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          key: const ValueKey('phone-field'),
-                          controller: _phone,
-                          keyboardType: TextInputType.phone,
-                          textDirection: TextDirection.ltr,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: InputDecoration(
-                            labelText: s.x('رقم الجوال', 'Phone number'),
-                            hintText: '5XXXXXXXX',
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextFormField(
+                                  key: const ValueKey('phone-field'),
+                                  controller: _phone,
+                                  keyboardType: TextInputType.phone,
+                                  textDirection: TextDirection.ltr,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  decoration: InputDecoration(
+                                    labelText: s.x(
+                                      'رقم الجوال',
+                                      'Phone number',
+                                    ),
+                                    hintText: '5XXXXXXXX',
+                                    prefixIcon: const Icon(
+                                      Icons.phone_iphone,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  validator: _validate,
+                                  onFieldSubmitted: (_) => _continue(),
+                                ),
+                              ),
+                            ],
                           ),
-                          validator: _validate,
-                          onFieldSubmitted: (_) => _continue(),
-                        ),
+                          if (_error != null)
+                            RuiNotice(_error!, kind: BannerKind.error),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RuiButton(
+                                  key: const ValueKey('login-continue'),
+                                  template: d.template,
+                                  label: s.x('متابعة', 'Continue'),
+                                  loading: _busy,
+                                  onPressed: _continue,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              // Square biometric button next to the primary one.
+                              Semantics(
+                                button: true,
+                                label: s.x(
+                                  'الدخول بالبصمة / الوجه',
+                                  'Fingerprint / Face ID',
+                                ),
+                                excludeSemantics: true,
+                                child: Material(
+                                  color: scheme.secondary,
+                                  borderRadius: BorderRadius.circular(radius),
+                                  child: InkWell(
+                                    key: const ValueKey('login-biometric'),
+                                    onTap: _biometric,
+                                    borderRadius: BorderRadius.circular(radius),
+                                    focusColor: tokens.focus,
+                                    child: SizedBox(
+                                      width: 52,
+                                      height: 52,
+                                      child: Icon(
+                                        Icons.fingerprint,
+                                        size: 28,
+                                        color: scheme.onSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          RuiNotice(
+                            s.x(
+                              'تجريبي: أي رقم سعودي صحيح مقبول (مثل 500000000)، ورمز التحقق هو ${d.session.repo.demoOtp}.',
+                              'Demo: any valid Saudi number works (e.g. 500000000); the verification code is ${d.session.repo.demoOtp}. No SMS is sent.',
+                            ),
+                            icon: Icons.science_outlined,
+                          ),
+                          Text(
+                            s.x(
+                              'تطبيق تجريبي — لا يتم إرسال رسائل حقيقية.',
+                              'Demo app — no real messages are sent.',
+                            ),
+                            textAlign: TextAlign.center,
+                            style: text.bodySmall?.copyWith(
+                              color: scheme.outline,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  if (_error != null)
-                    RuiNotice(_error!, kind: BannerKind.error),
-                  const SizedBox(height: 16),
-                  RuiButton(
-                    key: const ValueKey('login-continue'),
-                    template: d.template,
-                    label: s.x('متابعة', 'Continue'),
-                    loading: _busy,
-                    onPressed: _continue,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(s.x('أو', 'or'), style: text.bodySmall),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  RuiButton(
-                    key: const ValueKey('login-biometric'),
-                    template: d.template,
-                    label: s.x(
-                      'الدخول بالبصمة / الوجه',
-                      'Fingerprint / Face ID',
                     ),
-                    icon: Icons.fingerprint,
-                    outlined: true,
-                    onPressed: _biometric,
                   ),
-                  const SizedBox(height: 24),
-                  RuiNotice(
-                    s.x(
-                      'تجريبي: أي رقم سعودي صحيح مقبول (مثل 500000000)، ورمز التحقق هو ${d.session.repo.demoOtp}.',
-                      'Demo: any valid Saudi number works (e.g. 500000000); the verification code is ${d.session.repo.demoOtp}. No SMS is sent.',
-                    ),
-                    icon: Icons.science_outlined,
-                  ),
-                  Text(
-                    s.x(
-                      'تطبيق تجريبي — لا يتم إرسال رسائل حقيقية.',
-                      'Demo app — no real messages are sent.',
-                    ),
-                    textAlign: TextAlign.center,
-                    style: text.bodySmall?.copyWith(color: scheme.outline),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app_template.dart';
+import '../color_utils.dart';
 import '../demo/models.dart';
 import '../widgets.dart';
 import 'scope.dart';
@@ -46,6 +49,7 @@ class MainShell extends StatelessWidget {
         index: tab,
         children: const [_HomeTab(), _OrdersTab(), _AccountTab()],
       ),
+      floatingActionButton: _QuickOrderButton(visible: tab == 0),
       bottomNavigationBar: RuiNavBar(
         template: d.template,
         selected: tab,
@@ -64,20 +68,94 @@ class MainShell extends StatelessWidget {
 // Home
 // ---------------------------------------------------------------------------
 
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
+
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  Timer? _timer;
+  bool _loading = false;
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    // Rich-motion templates show skeleton placeholders while "loading".
+    final rich = DemoScope.of(context).template.motion == MotionLevel.rich;
+    final delay = AppTemplate.skeletonDuration;
+    if (rich && delay > Duration.zero) {
+      _loading = true;
+      _timer = Timer(delay, () {
+        if (mounted) setState(() => _loading = false);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final d = DemoScope.of(context);
     final s = d.s;
     final session = d.session;
+    final gap = d.template.spacing;
     final modules = ServiceModule.values
         .where(session.enabledModules.contains)
         .toList();
     final featured = modules
         .where((m) => m != ServiceModule.mediation)
         .toList();
+
+    final sections = <Widget>[
+      _BannerSlider(
+        banners: session.repo.banners
+            .where((b) => session.enabledModules.contains(b.target))
+            .toList(),
+      ),
+      if (featured.isNotEmpty) ...[
+        RuiSectionTitle(s.x('خدمات مميزة', 'Featured services')),
+        Row(
+          children: [
+            for (var i = 0; i < featured.length; i++) ...[
+              if (i > 0) const SizedBox(width: 12),
+              Expanded(child: _FeaturedCard(module: featured[i])),
+            ],
+          ],
+        ),
+      ],
+      RuiSectionTitle(s.x('الأقسام الرئيسية', 'Main categories')),
+      _Categories(modules: modules),
+      RuiSectionTitle(s.x('آراء العملاء', 'Customer reviews')),
+      SizedBox(
+        height: 128,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            for (final r in session.repo.reviews) _ReviewCard(review: r),
+          ],
+        ),
+      ),
+      RuiSectionTitle(s.x('شركاؤنا', 'Our partners')),
+      Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          for (final p in session.repo.partners) _PartnerChip(partner: p),
+        ],
+      ),
+      RuiSectionTitle(s.x('تواصل معنا', 'Contact us')),
+      const _ContactCard(),
+      const SizedBox(height: 12),
+    ];
 
     return Column(
       children: [
@@ -87,57 +165,114 @@ class _HomeTab extends StatelessWidget {
           title: d.branding.appName(d.lang),
           subtitle: s.x('مرحباً بك', 'Welcome'),
           showLogo: true,
-        ),
-        Expanded(
-          child: ListView(
-            key: const ValueKey('home-list'),
-            padding: const EdgeInsets.all(16),
-            children: [
-              _BannerSlider(
-                banners: session.repo.banners
-                    .where((b) => session.enabledModules.contains(b.target))
-                    .toList(),
-              ),
-              if (featured.isNotEmpty) ...[
-                RuiSectionTitle(s.x('خدمات مميزة', 'Featured services')),
-                Row(
-                  children: [
-                    for (var i = 0; i < featured.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 12),
-                      Expanded(child: _FeaturedCard(module: featured[i])),
-                    ],
-                  ],
-                ),
-              ],
-              RuiSectionTitle(s.x('الأقسام الرئيسية', 'Main categories')),
-              _Categories(modules: modules),
-              RuiSectionTitle(s.x('آراء العملاء', 'Customer reviews')),
-              SizedBox(
-                height: 128,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    for (final r in session.repo.reviews)
-                      _ReviewCard(review: r),
-                  ],
+          large: true,
+          trailing: IconButton(
+            key: const ValueKey('home-bell'),
+            tooltip: s.x('الإشعارات', 'Notifications'),
+            icon: Icon(
+              Icons.notifications_none,
+              color: onColorFor(RuiTokens.of(context).chrome),
+            ),
+            onPressed: () => showRuiSheet<void>(
+              context,
+              (ctx) => SizedBox(
+                height: 320,
+                child: RuiEmptyState(
+                  icon: Icons.notifications_off_outlined,
+                  title: s.x('لا توجد إشعارات', 'No notifications'),
+                  subtitle: s.x(
+                    'ستظهر إشعاراتك هنا',
+                    'Your notifications will appear here',
+                  ),
                 ),
               ),
-              RuiSectionTitle(s.x('شركاؤنا', 'Our partners')),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final p in session.repo.partners)
-                    _PartnerChip(partner: p),
-                ],
-              ),
-              RuiSectionTitle(s.x('تواصل معنا', 'Contact us')),
-              const _ContactCard(),
-              const SizedBox(height: 12),
-            ],
+            ),
           ),
         ),
+        Expanded(
+          child: _loading
+              ? const _HomeSkeleton()
+              : ListView(
+                  key: const ValueKey('home-list'),
+                  padding: EdgeInsets.all(16 * gap),
+                  children: [
+                    for (var i = 0; i < sections.length; i++)
+                      RuiReveal(index: i, child: sections[i]),
+                  ],
+                ),
+        ),
       ],
+    );
+  }
+}
+
+class _HomeSkeleton extends StatelessWidget {
+  const _HomeSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      key: const ValueKey('home-skeleton'),
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      children: const [
+        RuiSkeleton(height: 170, radius: 22),
+        SizedBox(height: 20),
+        RuiSkeleton(height: 18, width: 140),
+        SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: RuiSkeleton(height: 110, radius: 22)),
+            SizedBox(width: 12),
+            Expanded(child: RuiSkeleton(height: 110, radius: 22)),
+          ],
+        ),
+        SizedBox(height: 20),
+        RuiSkeleton(height: 18, width: 110),
+        SizedBox(height: 12),
+        RuiSkeleton(height: 70, radius: 22),
+        SizedBox(height: 10),
+        RuiSkeleton(height: 70, radius: 22),
+      ],
+    );
+  }
+}
+
+/// Floating "order now" shortcut of the rich-motion template. It opens the
+/// first enabled service, exactly like tapping its card.
+class _QuickOrderButton extends StatelessWidget {
+  const _QuickOrderButton({required this.visible});
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = DemoScope.of(context);
+    if (d.template.motion != MotionLevel.rich) return const SizedBox.shrink();
+    final first = ServiceModule.values
+        .where(d.session.enabledModules.contains)
+        .firstOrNull;
+    final tokens = RuiTokens.of(context);
+    final show = visible && first != null;
+    return AnimatedSlide(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+      offset: show ? Offset.zero : const Offset(0, 2),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: show ? 1 : 0,
+        child: IgnorePointer(
+          ignoring: !show,
+          child: FloatingActionButton.extended(
+            key: const ValueKey('quick-order'),
+            onPressed: first == null ? null : () => d.session.openModule(first),
+            icon: const Icon(Icons.bolt),
+            label: Text(d.s.x('اطلب الآن', 'Order now')),
+            backgroundColor: tokens.heroGradient.first,
+            foregroundColor: onColorFor(tokens.heroGradient.first),
+            elevation: 8,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -151,87 +286,180 @@ class _BannerSlider extends StatefulWidget {
 }
 
 class _BannerSliderState extends State<_BannerSlider> {
-  final _controller = PageController();
+  PageController? _controller;
   int _page = 0;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Rich-motion templates show a peeking carousel.
+    _controller ??= PageController(
+      viewportFraction:
+          DemoScope.of(context).template.motion == MotionLevel.rich ? 0.88 : 1,
+    );
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
+  }
+
+  BoxDecoration _decoration(BuildContext context, Color color) {
+    final d = DemoScope.of(context);
+    final template = d.template;
+    final tokens = RuiTokens.of(context);
+    final radius = BorderRadius.circular(template.cornerRadius);
+    return switch (template.cardStyle) {
+      CardStyle.outlined => BoxDecoration(
+        borderRadius: radius,
+        color: Color.lerp(color, Colors.black, 0.12),
+      ),
+      CardStyle.luxe => BoxDecoration(
+        borderRadius: radius,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.lerp(color, tokens.chrome, 0.55)!,
+            Color.lerp(color, Colors.black, 0.6)!,
+          ],
+        ),
+        border: Border.all(color: tokens.accent, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      CardStyle.glass => BoxDecoration(
+        borderRadius: radius,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            Color.lerp(color, Theme.of(context).colorScheme.primary, 0.5)!,
+            Color.lerp(color, Colors.black, 0.45)!,
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.4),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     final d = DemoScope.of(context);
     final text = Theme.of(context).textTheme;
+    final tokens = RuiTokens.of(context);
+    final template = d.template;
+    final rich = template.motion == MotionLevel.rich;
+    final luxe = template.cardStyle == CardStyle.luxe;
+    final controller = _controller!;
     if (widget.banners.isEmpty) return const SizedBox.shrink();
+
+    Widget card(int i) {
+      final b = widget.banners[i];
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: rich ? 6 : 2,
+          vertical: rich ? 8 : 0,
+        ),
+        child: Semantics(
+          button: true,
+          label: b.title.of(d.lang),
+          excludeSemantics: true,
+          child: InkWell(
+            key: ValueKey('banner-$i'),
+            borderRadius: BorderRadius.circular(template.cornerRadius),
+            focusColor: tokens.focus,
+            onTap: () => d.session.openModule(b.target),
+            child: Ink(
+              decoration: _decoration(context, b.color),
+              padding: EdgeInsets.all(18 * template.spacing),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    b.title.of(d.lang),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    b.subtitle.of(d.lang),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.88),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: luxe ? Colors.transparent : Colors.white24,
+                      borderRadius: BorderRadius.circular(
+                        template.cardStyle == CardStyle.outlined ? 4 : 20,
+                      ),
+                      border: luxe ? Border.all(color: tokens.accent) : null,
+                    ),
+                    child: Text(
+                      d.s.x('اكتشف', 'Explore'),
+                      style: TextStyle(
+                        color: luxe ? tokens.accent : Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
       children: [
         SizedBox(
-          height: 204,
+          height: 224,
           child: PageView.builder(
             key: const ValueKey('banner-slider'),
-            controller: _controller,
+            controller: controller,
             itemCount: widget.banners.length,
             onPageChanged: (i) => setState(() => _page = i),
             itemBuilder: (context, i) {
-              final b = widget.banners[i];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: InkWell(
-                  key: ValueKey('banner-$i'),
-                  borderRadius: BorderRadius.circular(d.template.cornerRadius),
-                  onTap: () => d.session.openModule(b.target),
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        d.template.cornerRadius,
-                      ),
-                      gradient: LinearGradient(
-                        colors: [
-                          b.color,
-                          Color.lerp(b.color, Colors.black, 0.4)!,
-                        ],
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          b.title.of(d.lang),
-                          style: text.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          b.subtitle.of(d.lang),
-                          style: text.bodyMedium?.copyWith(
-                            color: Colors.white70,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            d.s.x('اكتشف', 'Explore'),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              if (!rich) return card(i);
+              return AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) {
+                  var delta = (_page - i).toDouble();
+                  if (controller.hasClients &&
+                      controller.position.haveDimensions) {
+                    delta = (controller.page ?? _page.toDouble()) - i;
+                  }
+                  final scale = (1 - delta.abs() * 0.07).clamp(0.9, 1.0);
+                  return Transform.scale(scale: scale, child: child);
+                },
+                child: card(i),
               );
             },
           ),
@@ -244,11 +472,15 @@ class _BannerSliderState extends State<_BannerSlider> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: i == _page ? 18 : 7,
+                width: i == _page && template.cardStyle != CardStyle.outlined
+                    ? 18
+                    : 7,
                 height: 7,
                 decoration: BoxDecoration(
                   color: i == _page
-                      ? Theme.of(context).colorScheme.primary
+                      ? (luxe
+                            ? tokens.accent
+                            : Theme.of(context).colorScheme.primary)
                       : Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -367,7 +599,7 @@ class _Categories extends StatelessWidget {
           children: [
             SizedBox(
               width: double.infinity,
-              height: 96,
+              height: 108,
               child: tile(modules.first, horizontal: false),
             ),
             if (modules.length > 1) ...[
@@ -378,7 +610,7 @@ class _Categories extends StatelessWidget {
                     if (i > 1) const SizedBox(width: 8),
                     Expanded(
                       child: SizedBox(
-                        height: 124,
+                        height: 140,
                         child: tile(modules[i], horizontal: false),
                       ),
                     ),
@@ -389,15 +621,14 @@ class _Categories extends StatelessWidget {
           ],
         );
       case ServiceGridVariant.grid2:
-      case ServiceGridVariant.grid3:
-        final cols = d.template.serviceGrid == ServiceGridVariant.grid2 ? 2 : 3;
+        const cols = 2;
         return GridView.count(
           crossAxisCount: cols,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
-          childAspectRatio: cols == 2 ? 1.3 : 0.75,
+          childAspectRatio: 1.3,
           children: [for (final m in modules) tile(m, horizontal: false)],
         );
     }
@@ -626,22 +857,10 @@ class _OrdersTab extends StatelessWidget {
         ),
         Expanded(
           child: orders.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.receipt_long,
-                        size: 56,
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        s.x('لا توجد طلبات بعد', 'No orders yet'),
-                        key: const ValueKey('orders-empty'),
-                      ),
-                    ],
-                  ),
+              ? RuiEmptyState(
+                  icon: Icons.receipt_long,
+                  title: s.x('لا توجد طلبات بعد', 'No orders yet'),
+                  titleKey: const ValueKey('orders-empty'),
                 )
               : ListView(
                   padding: const EdgeInsets.all(16),

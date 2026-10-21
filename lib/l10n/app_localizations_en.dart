@@ -100,7 +100,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldClientName => 'Client / office name';
 
   @override
-  String get fieldClientEmail => 'Contact email';
+  String get fieldClientEmail => 'Primary email';
 
   @override
   String get fieldClientPhone => 'Support phone';
@@ -236,15 +236,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseTemplate => 'Choose a template';
-
-  @override
-  String get templateClassic => 'Classic';
-
-  @override
-  String get templateModern => 'Modern';
-
-  @override
-  String get templateMinimal => 'Minimal';
 
   @override
   String get templatePremium => 'Premium';
@@ -548,16 +539,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get templateClassicDesc => 'Balanced layout with clear cards';
-
-  @override
-  String get templateModernDesc => 'Rounded, soft and airy';
-
-  @override
-  String get templateMinimalDesc => 'Clean lines and plain lists';
-
-  @override
-  String get templatePremiumDesc => 'Bold gradients and depth';
+  String get templatePremiumDesc =>
+      'Most advanced: glass, gradients and smooth motion';
 
   @override
   String get selectedPill => 'Selected';
@@ -683,4 +666,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noColorsInLogo => 'No distinct colors were found in the logo';
+
+  @override
+  String get fieldSupportEmails => 'Support emails';
+
+  @override
+  String get helperSupportEmails =>
+      'Add one or more emails. Press Enter or comma after each.';
+
+  @override
+  String get phSupportEmails => 'support@example.com';
+
+  @override
+  String get errSupportEmailInvalid => 'Invalid email format';
+
+  @override
+  String get hintSupportEmailDuplicate => 'This email is already added';
+
+  @override
+  String removeEmailLabel(String email) {
+    return 'Remove $email';
+  }
+
+  @override
+  String templatesSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count templates selected',
+      one: '1 template selected',
+      zero: 'No templates selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pickAtLeastOneTemplate => 'Pick at least one template';
+
+  @override
+  String get multipleTemplatesSelectedLabel => 'Several templates to compare';
+
+  @override
+  String compareTemplates(int count) {
+    return 'Compare templates ($count)';
+  }
+
+  @override
+  String get compareHeading => 'Compare and pick your template';
+
+  @override
+  String get compareSubtitle => 'Choose one template for your app';
+
+  @override
+  String get chooseThisTemplate => 'Choose this template';
+
+  @override
+  String get backToTemplates => 'Back to templates';
+
+  @override
+  String compareIndicator(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get comparePrevious => 'Previous template';
+
+  @override
+  String get compareNext => 'Next template';
+
+  @override
+  String get compareScreenLabel => 'Screen shown on every phone';
+
+  @override
+  String get templateSimple => 'Simple';
+
+  @override
+  String get templateLuxury => 'Luxury';
+
+  @override
+  String get templateSimpleDesc =>
+      'Clean, flat and lightweight with thin lines';
+
+  @override
+  String get templateLuxuryDesc => 'Dark tones, gold accents and elegant type';
+
+  @override
+  String get templateBadgeAdvanced => 'Advanced';
+
+  @override
+  String get templatePreviewAction => 'Preview';
 }

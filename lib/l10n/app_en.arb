@@ -36,7 +36,7 @@
   "fieldAppId": "App ID",
   "fieldAppIdHelper": "Generated from the English name; you can edit it manually.",
   "fieldClientName": "Client / office name",
-  "fieldClientEmail": "Contact email",
+  "fieldClientEmail": "Primary email",
   "fieldClientPhone": "Support phone",
   "appIdChecking": "Checking availability…",
   "appIdAvailable": "App ID is available",
@@ -92,9 +92,6 @@
   "langEnglish": "English",
   "defaultAlwaysIncluded": "The default language is always included",
   "chooseTemplate": "Choose a template",
-  "templateClassic": "Classic",
-  "templateModern": "Modern",
-  "templateMinimal": "Minimal",
   "templatePremium": "Premium",
   "previewLanguage": "Preview language",
   "previewDark": "Dark mode",
@@ -251,10 +248,7 @@
       }
     }
   },
-  "templateClassicDesc": "Balanced layout with clear cards",
-  "templateModernDesc": "Rounded, soft and airy",
-  "templateMinimalDesc": "Clean lines and plain lists",
-  "templatePremiumDesc": "Bold gradients and depth",
+  "templatePremiumDesc": "Most advanced: glass, gradients and smooth motion",
   "selectedPill": "Selected",
   "livePreview": "Live preview",
   "previewDemoShort": "Demo data, no real payments or bookings",
@@ -349,5 +343,60 @@
   "livePreviewSubtitle": "Colors update instantly as you choose",
   "iconSplashCard": "App icon & splash screen",
   "colorsExtracted": "Colors extracted from the logo",
-  "noColorsInLogo": "No distinct colors were found in the logo"
+  "noColorsInLogo": "No distinct colors were found in the logo",
+  "fieldSupportEmails": "Support emails",
+  "helperSupportEmails": "Add one or more emails. Press Enter or comma after each.",
+  "phSupportEmails": "support@example.com",
+  "errSupportEmailInvalid": "Invalid email format",
+  "hintSupportEmailDuplicate": "This email is already added",
+  "removeEmailLabel": "Remove {email}",
+  "templatesSelectedCount": "{count, plural, =0{No templates selected} =1{1 template selected} other{{count} templates selected}}",
+  "pickAtLeastOneTemplate": "Pick at least one template",
+  "multipleTemplatesSelectedLabel": "Several templates to compare",
+  "compareTemplates": "Compare templates ({count})",
+  "compareHeading": "Compare and pick your template",
+  "compareSubtitle": "Choose one template for your app",
+  "chooseThisTemplate": "Choose this template",
+  "backToTemplates": "Back to templates",
+  "compareIndicator": "{current} / {total}",
+  "comparePrevious": "Previous template",
+  "compareNext": "Next template",
+  "compareScreenLabel": "Screen shown on every phone",
+  "@removeEmailLabel": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@templatesSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@compareTemplates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@compareIndicator": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "templateSimple": "Simple",
+  "templateLuxury": "Luxury",
+  "templateSimpleDesc": "Clean, flat and lightweight with thin lines",
+  "templateLuxuryDesc": "Dark tones, gold accents and elegant type",
+  "templateBadgeAdvanced": "Advanced",
+  "templatePreviewAction": "Preview"
 }

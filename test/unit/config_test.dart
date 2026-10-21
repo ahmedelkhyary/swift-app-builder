@@ -41,7 +41,7 @@ void main() {
         'meta',
       ]);
       expect(json['schemaVersion'], 2);
-      expect(json['templateVersion'], 1);
+      expect(json['templateVersion'], 2);
       expect(json['modules'], ['individuals', 'hourly', 'mediation']);
       expect(json['configVersion'], 1);
       expect((json['branding'] as Map)['logo'], 'apps/swift_maids/v1/logo.png');
@@ -66,6 +66,68 @@ void main() {
       expect(jsonEncode(decoded.toJson()), jsonEncode(config.toJson()));
     });
 
+    test('support emails are saved, loaded and default to empty', () async {
+      final service = makeService(
+        InMemoryConfigRepository(),
+        now: () => fixedNow,
+      );
+      final draft = validDraft().copyWith(
+        supportEmails: ['a@example.com', 'b@example.com'],
+      );
+      final config = (await service.prepare(draft, updatedBy: 'x')).config;
+      expect((config.toJson()['client'] as Map)['supportEmails'], [
+        'a@example.com',
+        'b@example.com',
+      ]);
+      expect(AppConfig.fromJsonString(config.toPrettyJson()), config);
+      expect(AppConfigDraft.fromConfig(config).supportEmails, [
+        'a@example.com',
+        'b@example.com',
+      ]);
+
+      // Older documents without the field still load.
+      final json = config.toJson();
+      (json['client'] as Map).remove('supportEmails');
+      expect(AppConfig.fromJson(json).supportEmails, isEmpty);
+      expect(loadSchema().validate(json), isEmpty);
+    });
+
+    test('schema rejects bad or duplicate support emails', () async {
+      final service = makeService(
+        InMemoryConfigRepository(),
+        now: () => fixedNow,
+      );
+      final config = (await service.prepare(
+        validDraft(),
+        updatedBy: 'x',
+      )).config;
+      for (final bad in [
+        ['nope'],
+        ['a@example.com', 'a@example.com'],
+      ]) {
+        final json = config.toJson();
+        (json['client'] as Map)['supportEmails'] = bad;
+        expect(loadSchema().validate(json), isNotEmpty, reason: '$bad');
+      }
+    });
+
+    test('schema accepts only the current templates', () async {
+      final service = makeService(
+        InMemoryConfigRepository(),
+        now: () => fixedNow,
+      );
+      final config = (await service.prepare(
+        validDraft(),
+        updatedBy: 'x',
+      )).config;
+      for (final id in ['simple', 'luxury', 'premium']) {
+        final json = config.toJson()..['templateId'] = id;
+        expect(loadSchema().validate(json), isEmpty, reason: id);
+      }
+      final old = config.toJson()..['templateId'] = 'classic';
+      expect(loadSchema().validate(old), isNotEmpty);
+    });
+
     test('rejects malformed structure', () {
       expect(() => AppConfig.fromJsonString('[]'), throwsFormatException);
       expect(
@@ -79,12 +141,12 @@ void main() {
         InMemoryConfigRepository(),
         now: () => fixedNow,
       );
-      final draft = validDraft().copyWith(templateId: 'premium');
+      final draft = validDraft().copyWith(templateId: 'luxury');
       final config = (await service.prepare(draft, updatedBy: 'x')).config;
       final back = AppConfigDraft.fromConfig(config);
       expect(back.nameAr, draft.nameAr);
       expect(back.androidPackage, draft.androidPackage);
-      expect(back.templateId, 'premium');
+      expect(back.templateId, 'luxury');
       expect(back.existingApp, isTrue);
       expect(back.iosSameAsAndroid, isTrue);
     });
@@ -188,18 +250,15 @@ void main() {
         final v1 = await service.save(validDraft(), updatedBy: 'a');
         expect(v1.configVersion, 1);
 
-        final changed = validDraft().copyWith(templateId: 'modern');
+        final changed = validDraft().copyWith(templateId: 'luxury');
         final v2 = await service.save(changed, updatedBy: 'b');
         expect(v2.configVersion, 2);
         expect(await service.nextVersion('swift_maids'), 3);
 
         final list = await repo.listVersions('swift_maids');
         expect(list.map((c) => c.configVersion), [1, 2]);
-        expect(
-          (await repo.getVersion('swift_maids', 1))!.templateId,
-          'classic',
-        );
-        expect((await repo.getLatest('swift_maids'))!.templateId, 'modern');
+        expect((await repo.getVersion('swift_maids', 1))!.templateId, 'simple');
+        expect((await repo.getLatest('swift_maids'))!.templateId, 'luxury');
         expect(v2.createdAt, v1.createdAt);
         expect(await repo.getVersion('swift_maids', 3), isNull);
       },

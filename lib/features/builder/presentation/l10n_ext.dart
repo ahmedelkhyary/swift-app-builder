@@ -35,9 +35,8 @@ extension FieldErrorText on AppLocalizations {
   };
 
   String templateName(String id) => switch (id) {
-    'classic' => templateClassic,
-    'modern' => templateModern,
-    'minimal' => templateMinimal,
+    'simple' => templateSimple,
+    'luxury' => templateLuxury,
     'premium' => templatePremium,
     _ => id,
   };

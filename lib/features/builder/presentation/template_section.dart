@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:recruitment_ui/recruitment_ui.dart';
 
 import '../../../app/theme.dart';
@@ -9,6 +10,7 @@ import '../domain/validators.dart';
 import 'interactive_preview.dart';
 import 'l10n_ext.dart';
 import 'phone_preview.dart';
+import 'template_compare.dart';
 
 const _breakpointTwoColumns = 1100.0;
 const _breakpointMobile = 768.0;
@@ -21,21 +23,23 @@ class TemplateSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.sizeOf(context).width;
+    final pick = ref.watch(templatePickProvider);
+    if (pick.comparing) return const TemplateCompare();
     const selection = _SelectionColumn();
-    const preview = InteractivePreview();
+    final preview = InteractivePreview(templateId: pick.preview);
     if (width >= _breakpointTwoColumns) {
-      return const Row(
+      return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: selection),
-          SizedBox(width: 32),
+          const Expanded(child: selection),
+          const SizedBox(width: 32),
           SizedBox(width: 440, child: preview),
         ],
       );
     }
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [selection, SizedBox(height: 32), preview],
+      children: [selection, const SizedBox(height: 32), preview],
     );
   }
 }
@@ -48,6 +52,8 @@ class _SelectionColumn extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final d = ref.watch(draftProvider);
     final c = ref.read(draftProvider.notifier);
+    final pick = ref.watch(templatePickProvider);
+    final pickC = ref.read(templatePickProvider.notifier);
     final lang = ref.watch(previewLanguageProvider) ?? d.defaultLanguage;
     final modules = {
       for (final m in ServiceModule.values)
@@ -183,19 +189,34 @@ class _SelectionColumn extends ConsumerWidget {
         // ---- templates ----
         Row(
           children: [
-            Expanded(
-              child: Text(
-                l10n.templatesTitle,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
+            Text(
+              l10n.templatesTitle,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  l10n.templatesSelectedCount(pick.selected.length),
+                  key: const ValueKey('templates-selected-count'),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: pick.selected.isEmpty
+                        ? AppColors.error
+                        : AppColors.accent,
+                  ),
                 ),
               ),
             ),
-            Text(
-              l10n.templatesAvailable(AppTemplate.all.length),
-              style: const TextStyle(fontSize: 13, color: AppColors.muted),
-            ),
+            const Spacer(),
+            if (!mobile)
+              Text(
+                l10n.templatesAvailable(AppTemplate.all.length),
+                style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              ),
           ],
         ),
         const SizedBox(height: 12),
@@ -215,8 +236,12 @@ class _SelectionColumn extends ConsumerWidget {
                       branding: d.branding,
                       lang: lang,
                       modules: modules,
-                      selected: d.templateId == t.id,
-                      onTap: () => c.setTemplate(t.id),
+                      selected: pick.selected.contains(t.id),
+                      onTap: () => pickC.toggle(t.id),
+                      onPreview: () {
+                        ref.read(previewTemplateProvider.notifier).state = t.id;
+                        context.go('/preview');
+                      },
                     ),
                   ),
               ],
@@ -345,6 +370,7 @@ class TemplateCard extends StatelessWidget {
     required this.modules,
     required this.selected,
     required this.onTap,
+    this.onPreview,
   });
 
   final AppTemplate template;
@@ -354,14 +380,16 @@ class TemplateCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  /// Opens the full-size preview of this template (without selecting it).
+  final VoidCallback? onPreview;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final name = l10n.templateName(template.id);
     final desc = switch (template.id) {
-      'classic' => l10n.templateClassicDesc,
-      'modern' => l10n.templateModernDesc,
-      'minimal' => l10n.templateMinimalDesc,
+      'simple' => l10n.templateSimpleDesc,
+      'luxury' => l10n.templateLuxuryDesc,
       _ => l10n.templatePremiumDesc,
     };
     return Semantics(
@@ -412,40 +440,37 @@ class TemplateCard extends StatelessWidget {
                             modules: modules,
                           ),
                         ),
-                        if (selected)
-                          PositionedDirectional(
-                            top: 10,
-                            start: 10,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
+                        PositionedDirectional(
+                          top: 10,
+                          start: 10,
+                          child: Tooltip(
+                            message: l10n.selectedPill,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 120),
+                              width: 24,
+                              height: 24,
                               decoration: BoxDecoration(
-                                color: AppColors.accent,
-                                borderRadius: BorderRadius.circular(999),
+                                color: selected
+                                    ? AppColors.accent
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(7),
+                                border: Border.all(
+                                  color: selected
+                                      ? AppColors.accent
+                                      : const Color(0xFFB9BFCE),
+                                  width: 1.5,
+                                ),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.check,
-                                    size: 14,
-                                    color: Colors.white,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    l10n.selectedPill,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                              child: selected
+                                  ? const Icon(
+                                      Icons.check,
+                                      size: 16,
                                       color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                    )
+                                  : null,
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -454,12 +479,57 @@ class TemplateCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                name,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (template.id == 'premium') ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                key: const ValueKey('badge-premium'),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF2F4B8A),
+                                      Color(0xFF7A4FD0),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.auto_awesome,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      l10n.templateBadgeAdvanced,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -470,6 +540,16 @@ class TemplateCard extends StatelessWidget {
                             height: 1.4,
                           ),
                         ),
+                        if (onPreview != null)
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: TextButton.icon(
+                              key: ValueKey('preview-card-${template.id}'),
+                              onPressed: onPreview,
+                              icon: const Icon(Icons.open_in_full, size: 16),
+                              label: Text(l10n.templatePreviewAction),
+                            ),
+                          ),
                       ],
                     ),
                   ),

@@ -80,6 +80,8 @@ class DraftController extends Notifier<AppConfigDraft> {
   void setClientName(String v) => state = state.copyWith(clientName: v);
   void setClientEmail(String v) => state = state.copyWith(clientEmail: v);
   void setClientPhone(String v) => state = state.copyWith(clientPhone: v);
+  void setSupportEmails(List<String> v) =>
+      state = state.copyWith(supportEmails: List.unmodifiable(v));
 
   void setPrimary(String hex) => state = state.copyWith(primaryHex: hex);
   void setSecondary(String hex) => state = state.copyWith(secondaryHex: hex);
@@ -213,3 +215,72 @@ final demoSessionProvider = Provider<DemoSession>((ref) {
   ref.onDispose(session.dispose);
   return session;
 });
+
+/// Template shown by the full-size preview page. It is only applied to the
+/// draft when the user presses "Use this template"; null means the draft's.
+final previewTemplateProvider = StateProvider<String?>((ref) => null);
+
+/// UI-only state of step 4: the templates ticked in the grid, the one shown in
+/// the preview panel and whether the compare view is open. It is never saved
+/// and is dropped when the user leaves step 4 (so coming back shows just the
+/// final template selected).
+class TemplatePick {
+  const TemplatePick({
+    required this.selected,
+    required this.preview,
+    this.comparing = false,
+  });
+
+  /// Ordered by when each template was ticked.
+  final List<String> selected;
+
+  /// The template most recently clicked.
+  final String preview;
+  final bool comparing;
+
+  TemplatePick copyWith({
+    List<String>? selected,
+    String? preview,
+    bool? comparing,
+  }) => TemplatePick(
+    selected: selected ?? this.selected,
+    preview: preview ?? this.preview,
+    comparing: comparing ?? this.comparing,
+  );
+}
+
+final templatePickProvider =
+    NotifierProvider.autoDispose<TemplatePickController, TemplatePick>(
+      TemplatePickController.new,
+    );
+
+class TemplatePickController extends AutoDisposeNotifier<TemplatePick> {
+  @override
+  TemplatePick build() {
+    final id = ref.read(draftProvider).templateId;
+    return TemplatePick(selected: [id], preview: id);
+  }
+
+  /// Ticks / unticks [id]. With exactly one template left it becomes the
+  /// final choice, exactly like the old single-select behavior.
+  void toggle(String id) {
+    final selected = [...state.selected];
+    var preview = state.preview;
+    if (selected.remove(id)) {
+      if (preview == id && selected.isNotEmpty) preview = selected.last;
+    } else {
+      selected.add(id);
+      preview = id;
+    }
+    state = state.copyWith(selected: selected, preview: preview);
+    if (selected.length == 1) {
+      ref.read(draftProvider.notifier).setTemplate(selected.single);
+    }
+  }
+
+  void openCompare() {
+    if (state.selected.length >= 2) state = state.copyWith(comparing: true);
+  }
+
+  void closeCompare() => state = state.copyWith(comparing: false);
+}

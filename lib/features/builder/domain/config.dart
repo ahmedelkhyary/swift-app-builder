@@ -12,6 +12,7 @@ class AppConfig {
     required this.clientName,
     required this.clientEmail,
     required this.clientPhone,
+    this.supportEmails = const [],
     required this.appNameAr,
     required this.appNameEn,
     required this.androidPackage,
@@ -43,6 +44,9 @@ class AppConfig {
   final String clientName;
   final String clientEmail;
   final String clientPhone;
+
+  /// Optional extra addresses for support notifications.
+  final List<String> supportEmails;
   final String appNameAr;
   final String appNameEn;
   final String androidPackage;
@@ -71,7 +75,12 @@ class AppConfig {
     'schemaVersion': schemaVersion,
     'appId': appId,
     'configVersion': configVersion,
-    'client': {'name': clientName, 'email': clientEmail, 'phone': clientPhone},
+    'client': {
+      'name': clientName,
+      'email': clientEmail,
+      'phone': clientPhone,
+      'supportEmails': supportEmails,
+    },
     'appName': {'ar': appNameAr, 'en': appNameEn},
     'android': {'packageName': androidPackage},
     'ios': {'bundleId': iosBundleId},
@@ -118,6 +127,11 @@ class AppConfig {
         clientName: client['name'] as String,
         clientEmail: client['email'] as String,
         clientPhone: client['phone'] as String,
+        supportEmails: [
+          for (final e
+              in (client['supportEmails'] as List<dynamic>? ?? const []))
+            e as String,
+        ],
         appNameAr: name['ar'] as String,
         appNameEn: name['en'] as String,
         androidPackage:

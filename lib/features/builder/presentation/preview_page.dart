@@ -24,7 +24,8 @@ class PreviewPage extends ConsumerWidget {
     for (final s in WizardSection.values) {
       ref.watch(sectionEnabledProvider(s));
     }
-    final name = l10n.templateName(d.templateId);
+    final shownId = ref.watch(previewTemplateProvider) ?? d.templateId;
+    final name = l10n.templateName(shownId);
     final wide = MediaQuery.sizeOf(context).width >= 700;
 
     return Scaffold(
@@ -33,13 +34,18 @@ class PreviewPage extends ConsumerWidget {
           key: const ValueKey('preview-back'),
           tooltip: l10n.previewBackToGallery,
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/builder/template'),
+          onPressed: () {
+            ref.read(previewTemplateProvider.notifier).state = null;
+            context.go('/builder/template');
+          },
         ),
         title: Text('${l10n.previewPageTitle} · $name'),
         actions: [
           FilledButton.icon(
             key: const ValueKey('preview-use-template'),
             onPressed: () {
+              c.setTemplate(shownId);
+              ref.read(previewTemplateProvider.notifier).state = null;
               context.go('/builder/template');
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(l10n.previewTemplateSelected(name))),
@@ -64,8 +70,9 @@ class PreviewPage extends ConsumerWidget {
                   ChoiceChip(
                     key: ValueKey('preview-template-${t.id}'),
                     label: Text(l10n.templateName(t.id)),
-                    selected: d.templateId == t.id,
-                    onSelected: (_) => c.setTemplate(t.id),
+                    selected: shownId == t.id,
+                    onSelected: (_) =>
+                        ref.read(previewTemplateProvider.notifier).state = t.id,
                   ),
               ],
             ),
@@ -75,6 +82,7 @@ class PreviewPage extends ConsumerWidget {
               child: InteractivePreview(
                 phoneScale: wide ? 1.15 : 1,
                 showOpenFull: false,
+                templateId: shownId,
               ),
             ),
           ],

@@ -300,10 +300,14 @@ class _Footer extends ConsumerWidget {
   const _Footer({required this.section});
   final WizardSection section;
 
-  void _next(BuildContext context, WidgetRef ref) {
+  void _next(BuildContext context, WidgetRef ref, {VoidCallback? onValid}) {
     final index = _sections.indexOf(section);
     if (ref.read(sectionValidProvider(section))) {
-      context.go('/builder/${_sections[index + 1].name}');
+      if (onValid != null) {
+        onValid();
+      } else {
+        context.go('/builder/${_sections[index + 1].name}');
+      }
       return;
     }
     // Reveal every error, then take the user to the first invalid field.
@@ -328,6 +332,10 @@ class _Footer extends ConsumerWidget {
     final isLast = index == _sections.length - 1;
     final narrow = MediaQuery.sizeOf(context).width < _narrow;
     final nextName = isLast ? '' : l10n.sectionTitle(_sections[index + 1]);
+    final isTemplate = section == WizardSection.template;
+    final pick = isTemplate ? ref.watch(templatePickProvider) : null;
+    final picked = pick?.selected.length ?? 1;
+    final comparing = pick?.comparing ?? false;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: narrow ? 16 : 24, vertical: 12),
@@ -339,6 +347,14 @@ class _Footer extends ConsumerWidget {
         top: false,
         child: Row(
           children: [
+            if (comparing) ...[
+              OutlinedButton(
+                key: const ValueKey('compare-back'),
+                onPressed: ref.read(templatePickProvider.notifier).closeCompare,
+                child: Text(l10n.backToTemplates),
+              ),
+              const SizedBox(width: 16),
+            ],
             Expanded(
               child: Text.rich(
                 TextSpan(
@@ -347,18 +363,37 @@ class _Footer extends ConsumerWidget {
                     TextSpan(
                       text: l10n.wizardStep(index + 1, _sections.length),
                     ),
-                    if (section == WizardSection.template) ...[
+                    if (isTemplate && !comparing) ...[
                       const TextSpan(text: ' · '),
-                      TextSpan(text: '${l10n.selectedTemplateLabel} '),
-                      TextSpan(
-                        text: l10n.templateName(
-                          ref.watch(draftProvider.select((d) => d.templateId)),
+                      if (picked == 0)
+                        TextSpan(
+                          text: l10n.pickAtLeastOneTemplate,
+                          style: const TextStyle(
+                            color: AppColors.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      else if (picked == 1) ...[
+                        TextSpan(text: '${l10n.selectedTemplateLabel} '),
+                        TextSpan(
+                          text: l10n.templateName(
+                            ref.watch(
+                              draftProvider.select((d) => d.templateId),
+                            ),
+                          ),
+                          style: const TextStyle(
+                            color: AppColors.text,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        style: const TextStyle(
-                          color: AppColors.text,
-                          fontWeight: FontWeight.w600,
+                      ] else
+                        TextSpan(
+                          text: l10n.templatesSelectedCount(picked),
+                          style: const TextStyle(
+                            color: AppColors.text,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
                     ],
                   ],
                 ),
@@ -366,31 +401,49 @@ class _Footer extends ConsumerWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            OutlinedButton(
-              key: const ValueKey('wizard-back'),
-              onPressed: index == 0
-                  ? null
-                  : () => context.go('/builder/${_sections[index - 1].name}'),
-              child: Text(l10n.back),
-            ),
-            if (!isLast) ...[
+            if (!comparing)
+              OutlinedButton(
+                key: const ValueKey('wizard-back'),
+                onPressed: index == 0
+                    ? null
+                    : () => context.go('/builder/${_sections[index - 1].name}'),
+                child: Text(l10n.back),
+              ),
+            if (!isLast && !comparing) ...[
               const SizedBox(width: 12),
-              FilledButton(
-                key: const ValueKey('wizard-next'),
-                onPressed: () => _next(context, ref),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        narrow ? l10n.next : l10n.nextWithName(nextName),
-                        overflow: TextOverflow.ellipsis,
+              Flexible(
+                flex: 6,
+                child: FilledButton(
+                  key: const ValueKey('wizard-next'),
+                  onPressed: picked == 0
+                      ? null
+                      : (picked >= 2
+                            ? () => _next(
+                                context,
+                                ref,
+                                onValid: ref
+                                    .read(templatePickProvider.notifier)
+                                    .openCompare,
+                              )
+                            : () => _next(context, ref)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          picked >= 2
+                              ? l10n.compareTemplates(picked)
+                              : (narrow
+                                    ? l10n.next
+                                    : l10n.nextWithName(nextName)),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Mirrors automatically in RTL.
-                    const Icon(Icons.arrow_forward, size: 18),
-                  ],
+                      const SizedBox(width: 8),
+                      // Mirrors automatically in RTL.
+                      const Icon(Icons.arrow_forward, size: 18),
+                    ],
+                  ),
                 ),
               ),
             ],

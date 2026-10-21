@@ -6,25 +6,33 @@ import '../../../l10n/app_localizations.dart';
 import '../application/providers.dart';
 import '../domain/validators.dart';
 import 'field_registry.dart';
+import 'chips_input.dart';
 import 'form_widgets.dart';
 
 /// Two fields side by side, stacked below the tablet breakpoint.
 class FieldPair extends StatelessWidget {
-  const FieldPair({super.key, required this.first, required this.second});
+  const FieldPair({super.key, required this.first, this.second});
   final Widget first;
-  final Widget second;
+
+  /// Null leaves the second column empty (stacked layouts skip it).
+  final Widget? second;
 
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.sizeOf(context).width < 768) {
-      return Column(children: [first, const SizedBox(height: 20), second]);
+      return Column(
+        children: [
+          first,
+          if (second != null) ...[const SizedBox(height: 20), second!],
+        ],
+      );
     }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: first),
         const SizedBox(width: 20),
-        Expanded(child: second),
+        Expanded(child: second ?? const SizedBox.shrink()),
       ],
     );
   }
@@ -282,6 +290,19 @@ class _InfoSectionState extends ConsumerState<InfoSection> {
                   keyboardType: TextInputType.phone,
                   error: errors[DraftField.clientPhone],
                   onChanged: c.setClientPhone,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Same two-column grid as the row above: aligned under the
+              // primary email, second column left empty.
+              FieldPair(
+                first: EmailChipsInput(
+                  fieldKey: const ValueKey('support-emails'),
+                  label: l10n.fieldSupportEmails,
+                  helper: l10n.helperSupportEmails,
+                  hint: l10n.phSupportEmails,
+                  emails: d.supportEmails,
+                  onChanged: c.setSupportEmails,
                 ),
               ),
             ],

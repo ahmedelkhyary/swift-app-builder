@@ -9,7 +9,7 @@ builder-specific code, no state-management dependency.
 ```dart
 RecruitmentApp(
   session: session,          // all state; survives rebuilds and template switches
-  template: AppTemplate.modern,
+  template: AppTemplate.premium,
   branding: BrandingConfig(primaryColor: …, secondaryColor: …, logo: …),
   languageCode: 'ar',        // 'ar' (RTL) or 'en'
   brightness: Brightness.light,
@@ -24,10 +24,12 @@ RecruitmentApp(
   addresses, each flow's selections, contract forms, discount, payment method,
   created orders. Changing an upstream selection (e.g. nationality) invalidates
   dependent ones (the selected worker).
-- **`AppTemplate`** – design tokens, not separate apps: `classic`, `modern`,
-  `minimal`, `premium`. Tokens: corner radius, card style, elevation, typography
+- **`AppTemplate`** – design tokens, not separate apps: `simple`, `luxury`,
+  `premium`. Tokens: palette, corner radius, card style, elevation, typography
   scale, header style, button style, service-grid variant, nav-bar style, input
-  style, page transition. `AppTemplate.version` is the template implementation
+  style, page transition, motion level, spacing. Colors are resolved into a
+  `RuiTokens` theme extension from the brand colors; add a template by defining
+  one more constant in `AppTemplate.all`. `AppTemplate.version` is the template implementation
   version the project generator maps to.
 - **`BrandingConfig`** – colors, font, names, optional logo (PNG or SVG bytes).
 - **`DemoRepository` / `MockDemoRepository`** – the backend surface (mock data,

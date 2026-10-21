@@ -18,11 +18,12 @@ DemoSession newSession({Set<ServiceModule>? modules}) => DemoSession(
 Future<void> pumpApp(
   WidgetTester tester,
   DemoSession session, {
-  AppTemplate template = AppTemplate.classic,
+  AppTemplate template = AppTemplate.simple,
   String lang = 'en',
   Brightness brightness = Brightness.light,
 }) async {
   AppTemplate.useGoogleFonts = false;
+  AppTemplate.skeletonDuration = Duration.zero;
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -96,6 +97,7 @@ String routeName(DemoSession s) {
 
 void main() {
   _screenSweep();
+  _templateBehaviorTests();
   testWidgets(
     'login validates the phone, OTP rejects a wrong code, then Home',
     (tester) async {
@@ -654,4 +656,57 @@ void _screenSweep() {
       },
     );
   }
+}
+
+void _templateBehaviorTests() {
+  testWidgets('premium shows a quick-order button; the others do not', (
+    tester,
+  ) async {
+    for (final template in AppTemplate.all) {
+      final session = newSession()..signInDemo();
+      await pumpApp(tester, session, template: template, lang: 'en');
+      expect(
+        k('quick-order'),
+        template.id == 'premium' ? findsOneWidget : findsNothing,
+        reason: template.id,
+      );
+    }
+  });
+
+  testWidgets('premium shows skeleton placeholders before Home content', (
+    tester,
+  ) async {
+    final session = newSession()..signInDemo();
+    await pumpApp(tester, session, template: AppTemplate.premium);
+    // pumpApp disables the delay; re-pump with it enabled.
+    AppTemplate.skeletonDuration = const Duration(milliseconds: 300);
+    addTearDown(() => AppTemplate.skeletonDuration = Duration.zero);
+    await tester.pumpWidget(const SizedBox());
+    final fresh = newSession()..signInDemo();
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        supportedLocales: const [Locale('en'), Locale('ar')],
+        home: RecruitmentApp(
+          session: fresh,
+          template: AppTemplate.premium,
+          branding: _branding,
+          languageCode: 'en',
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(k('home-skeleton'), findsOneWidget);
+    expect(k('home-list'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(k('home-skeleton'), findsNothing);
+    expect(k('home-list'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  test('unknown template ids fall back to Simple', () {
+    expect(AppTemplate.byId('premium').id, 'premium');
+    expect(AppTemplate.byId('unknown').id, 'simple');
+  });
 }

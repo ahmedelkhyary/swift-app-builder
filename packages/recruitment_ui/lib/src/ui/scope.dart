@@ -32,6 +32,10 @@ class DemoScope extends InheritedNotifier<DemoSession> {
     return scope!;
   }
 
+  /// Like [of] but returns null outside a [RecruitmentApp].
+  static DemoScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<DemoScope>();
+
   @override
   bool updateShouldNotify(DemoScope oldWidget) =>
       super.updateShouldNotify(oldWidget) ||

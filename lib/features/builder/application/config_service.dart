@@ -73,6 +73,7 @@ class ConfigService {
       clientName: draft.clientName.trim(),
       clientEmail: draft.clientEmail.trim(),
       clientPhone: draft.clientPhone.trim(),
+      supportEmails: List.unmodifiable(draft.supportEmails),
       appNameAr: draft.nameAr.trim(),
       appNameEn: draft.nameEn.trim(),
       androidPackage: draft.androidPackage.trim(),

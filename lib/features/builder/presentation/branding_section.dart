@@ -407,7 +407,7 @@ class _RoleTab extends StatelessWidget {
   }
 }
 
-/// "Live preview" card for this step: the selected template's home screen
+/// "Live preview" card for this step: the Simple template's home screen
 /// with the current colors and logo, updating as the user picks.
 class BrandingPreviewPanel extends ConsumerStatefulWidget {
   const BrandingPreviewPanel({super.key});
@@ -463,7 +463,7 @@ class _BrandingPreviewPanelState extends ConsumerState<BrandingPreviewPanel> {
             alignment: Alignment.center,
             child: PhonePreview(
               session: _session,
-              template: AppTemplate.byId(d.templateId),
+              template: AppTemplate.simple,
               branding: d.branding,
               languageCode: lang,
               device: device,

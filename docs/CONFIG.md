@@ -14,12 +14,13 @@ fields (including anything that looks like a secret) are rejected.
 | `schemaVersion` | int | `2` (version `1` documents are still read and validate) |
 | `appId` | string | `^[a-z][a-z0-9_]{2,39}$`, unique across apps |
 | `configVersion` | int ≥ 1 | assigned by the service: latest + 1 |
-| `client.name / email / phone` | string | non-empty; email and phone format-checked |
+| `client.name / email / phone` | string | non-empty; email and phone format-checked (`email` is the primary email) |
+| `client.supportEmails` | string[] | optional; unique, each a valid email (older configs without it load as empty) |
 | `appName.ar / en` | string | non-empty |
 | `android.packageName` | string | `^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$` |
 | `ios.bundleId` | string | reverse-DNS, e.g. `com.excp.enaya` |
-| `templateId` | enum | `classic`, `modern`, `minimal`, `premium` |
-| `templateVersion` | int ≥ 1 | version of that template implementation (required in v2) |
+| `templateId` | enum | `simple`, `luxury`, `premium` |
+| `templateVersion` | int ≥ 1 | version of the template implementations (currently `2`; required in v2) |
 | `modules` | string[] | non-empty subset of `individuals`, `hourly`, `mediation` (required in v2) |
 | `branding.primaryColor / secondaryColor` | string | `#RRGGBB` |
 | `branding.fontFamily` | string | non-empty |
@@ -51,6 +52,7 @@ Uploaded files are stored per version under `apps/{appId}/v{configVersion}/`:
   the form; saving it creates a *new* version.
 
 ## Template ↔ generator contract
+
 
 `templateId` + `templateVersion` identify a concrete implementation in
 `packages/recruitment_ui`. Bump `AppTemplate.version` when a template's behavior

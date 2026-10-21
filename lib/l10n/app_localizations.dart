@@ -275,7 +275,7 @@ abstract class AppLocalizations {
   /// No description provided for @fieldClientEmail.
   ///
   /// In en, this message translates to:
-  /// **'Contact email'**
+  /// **'Primary email'**
   String get fieldClientEmail;
 
   /// No description provided for @fieldClientPhone.
@@ -523,24 +523,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose a template'**
   String get chooseTemplate;
-
-  /// No description provided for @templateClassic.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic'**
-  String get templateClassic;
-
-  /// No description provided for @templateModern.
-  ///
-  /// In en, this message translates to:
-  /// **'Modern'**
-  String get templateModern;
-
-  /// No description provided for @templateMinimal.
-  ///
-  /// In en, this message translates to:
-  /// **'Minimal'**
-  String get templateMinimal;
 
   /// No description provided for @templatePremium.
   ///
@@ -1082,28 +1064,10 @@ abstract class AppLocalizations {
   /// **'{count} templates available'**
   String templatesAvailable(int count);
 
-  /// No description provided for @templateClassicDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Balanced layout with clear cards'**
-  String get templateClassicDesc;
-
-  /// No description provided for @templateModernDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Rounded, soft and airy'**
-  String get templateModernDesc;
-
-  /// No description provided for @templateMinimalDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Clean lines and plain lists'**
-  String get templateMinimalDesc;
-
   /// No description provided for @templatePremiumDesc.
   ///
   /// In en, this message translates to:
-  /// **'Bold gradients and depth'**
+  /// **'Most advanced: glass, gradients and smooth motion'**
   String get templatePremiumDesc;
 
   /// No description provided for @selectedPill.
@@ -1321,6 +1285,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No distinct colors were found in the logo'**
   String get noColorsInLogo;
+
+  /// No description provided for @fieldSupportEmails.
+  ///
+  /// In en, this message translates to:
+  /// **'Support emails'**
+  String get fieldSupportEmails;
+
+  /// No description provided for @helperSupportEmails.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one or more emails. Press Enter or comma after each.'**
+  String get helperSupportEmails;
+
+  /// No description provided for @phSupportEmails.
+  ///
+  /// In en, this message translates to:
+  /// **'support@example.com'**
+  String get phSupportEmails;
+
+  /// No description provided for @errSupportEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email format'**
+  String get errSupportEmailInvalid;
+
+  /// No description provided for @hintSupportEmailDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already added'**
+  String get hintSupportEmailDuplicate;
+
+  /// No description provided for @removeEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {email}'**
+  String removeEmailLabel(String email);
+
+  /// No description provided for @templatesSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No templates selected} =1{1 template selected} other{{count} templates selected}}'**
+  String templatesSelectedCount(int count);
+
+  /// No description provided for @pickAtLeastOneTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one template'**
+  String get pickAtLeastOneTemplate;
+
+  /// No description provided for @multipleTemplatesSelectedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Several templates to compare'**
+  String get multipleTemplatesSelectedLabel;
+
+  /// No description provided for @compareTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare templates ({count})'**
+  String compareTemplates(int count);
+
+  /// No description provided for @compareHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare and pick your template'**
+  String get compareHeading;
+
+  /// No description provided for @compareSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one template for your app'**
+  String get compareSubtitle;
+
+  /// No description provided for @chooseThisTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this template'**
+  String get chooseThisTemplate;
+
+  /// No description provided for @backToTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to templates'**
+  String get backToTemplates;
+
+  /// No description provided for @compareIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {total}'**
+  String compareIndicator(int current, int total);
+
+  /// No description provided for @comparePrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous template'**
+  String get comparePrevious;
+
+  /// No description provided for @compareNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next template'**
+  String get compareNext;
+
+  /// No description provided for @compareScreenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen shown on every phone'**
+  String get compareScreenLabel;
+
+  /// No description provided for @templateSimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple'**
+  String get templateSimple;
+
+  /// No description provided for @templateLuxury.
+  ///
+  /// In en, this message translates to:
+  /// **'Luxury'**
+  String get templateLuxury;
+
+  /// No description provided for @templateSimpleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean, flat and lightweight with thin lines'**
+  String get templateSimpleDesc;
+
+  /// No description provided for @templateLuxuryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark tones, gold accents and elegant type'**
+  String get templateLuxuryDesc;
+
+  /// No description provided for @templateBadgeAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get templateBadgeAdvanced;
+
+  /// No description provided for @templatePreviewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get templatePreviewAction;
 }
 
 class _AppLocalizationsDelegate

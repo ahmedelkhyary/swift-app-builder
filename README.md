@@ -16,10 +16,10 @@ will consume to generate the app.
 
 | Step | Content |
 |------|---------|
-| 1. App info | App names (ar/en), auto-generated editable app ID, Android package, iOS bundle ID (or "same as Android"), client name / email / phone |
+| 1. App info | App names (ar/en), auto-generated editable app ID, Android package, iOS bundle ID (or "same as Android"), client name / primary email / phone, optional support emails (chips) |
 | 2. Visual identity | Inline color picker for primary / secondary / splash colors (HEX, RGB, eyedropper, contrast check, colors extracted from the logo), logo, app icon, splash logo, font |
 | 3. Languages | Default language and supported languages (Arabic, English) |
-| 4. Templates | Enabled service modules, four design templates, and a **fully interactive phone preview** |
+| 4. Templates | Enabled service modules, three design templates — Simple, Luxury and Premium (tick several and **compare** them side by side), and a **fully interactive phone preview** |
 | 5. Summary | Read-only review, formatted JSON, schema validation report, save as a new version, download JSON, version history with "restore as new draft" |
 
 Highlights:
@@ -30,9 +30,13 @@ Highlights:
   `recruitment_ui` app running on mock data: login + OTP, home, and the
   Individuals, Hourly and Mediation flows through payment and success. No SMS,
   payments or bookings are ever real.
-- **Templates are themes.** All four templates share the same business logic and
-  flows; they differ only in design tokens (cards, headers, buttons, inputs,
-  navigation bar, transitions, grid layout).
+- **Templates are themes.** All three templates share the same business logic and
+  flows; they differ only in design tokens (palette, cards, headers, buttons,
+  inputs, navigation bar, transitions, motion, grid layout). **Simple** is flat
+  and light, **Luxury** uses dark ink with champagne-gold accents and serif
+  headings, **Premium** adds glass surfaces, gradients, staggered animations,
+  skeleton loading and a floating quick-order button (light and dark mode).
+  Colors come from the Step 2 brand colors through theme tokens.
 - **Validated, append-only configs.** Every save creates a new immutable version
   that is checked against `assets/config.schema.json` first. Secrets cannot be
   stored (the schema forbids unknown properties).
@@ -97,8 +101,8 @@ A saved configuration looks like this (full reference in
   "appName": { "ar": "الخدمة للاستقدام", "en": "Al Khidma Recruitment" },
   "android": { "packageName": "com.excp.enaya" },
   "ios": { "bundleId": "com.excp.enaya" },
-  "templateId": "classic",
-  "templateVersion": 1,
+  "templateId": "simple",
+  "templateVersion": 2,
   "modules": ["individuals", "hourly", "mediation"],
   "branding": {
     "primaryColor": "#1565C0",

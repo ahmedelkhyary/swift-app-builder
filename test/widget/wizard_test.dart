@@ -24,6 +24,7 @@ Future<ProviderContainer> pumpApp(
   bool arabic = false,
 }) async {
   AppTemplate.useGoogleFonts = false;
+  AppTemplate.skeletonDuration = Duration.zero;
   tester.view.physicalSize = const Size(1500, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -272,7 +273,7 @@ void main() {
       return preview.branding.primaryColor;
     }
 
-    expect(previewPrimary(), const Color(0xFF1565C0));
+    expect(previewPrimary(), const Color(0xFF213F80));
     container.read(draftProvider.notifier).setPrimary('#00AA55');
     await tester.pumpAndSettle();
     expect(previewPrimary(), const Color(0xFF00AA55));
@@ -297,7 +298,11 @@ void main() {
     container.read(routerProvider).go('/builder/template');
     await tester.pumpAndSettle();
 
+    // Ticking a second template keeps the first and previews the new one.
     await tapIn(tester, find.byKey(const ValueKey('template-premium')));
+    expect(container.read(draftProvider).templateId, 'simple');
+    // Unticking the first leaves premium as the single, final choice.
+    await tapIn(tester, find.byKey(const ValueKey('template-simple')));
     expect(container.read(draftProvider).templateId, 'premium');
     final preview = tester.widget<RecruitmentApp>(
       find.descendant(
@@ -384,12 +389,14 @@ void main() {
     expect(currentPath(container), '/preview');
     expect(inPhone('login-continue'), findsOneWidget);
 
-    await tapIn(tester, find.byKey(const ValueKey('preview-template-modern')));
-    expect(container.read(draftProvider).templateId, 'modern');
+    await tapIn(tester, find.byKey(const ValueKey('preview-template-luxury')));
+    // Browsing does not change the saved choice...
+    expect(container.read(draftProvider).templateId, 'simple');
 
+    // ...until the user confirms it.
     await tapIn(tester, find.byKey(const ValueKey('preview-use-template')));
     expect(currentPath(container), '/builder/template');
-    expect(container.read(draftProvider).templateId, 'modern');
+    expect(container.read(draftProvider).templateId, 'luxury');
   });
 
   testWidgets(
@@ -414,10 +421,10 @@ void main() {
   testWidgets('templates step: heading, footer, stepper state', (tester) async {
     final container = await openTemplateStep(tester);
     expect(find.text('Choose the app template'), findsOneWidget);
-    expect(find.text('4 templates available'), findsOneWidget);
+    expect(find.text('3 templates available'), findsOneWidget);
     // Footer names the selected template; Next announces Summary.
     expect(find.textContaining('Step 4 of 5'), findsOneWidget);
-    expect(find.textContaining('Selected template: Classic'), findsOneWidget);
+    expect(find.textContaining('Selected template: Simple'), findsOneWidget);
     expect(find.text('Next: Summary'), findsOneWidget);
     // Steps 1-3 done, 4 current, 5 upcoming.
     for (final i in [0, 1, 2]) {
@@ -437,19 +444,175 @@ void main() {
       findsNothing,
     );
 
-    // Picking a template updates the footer immediately.
-    await tapIn(tester, find.byKey(const ValueKey('template-modern')));
-    expect(find.textContaining('Selected template: Modern'), findsOneWidget);
-    expect(container.read(draftProvider).templateId, 'modern');
-    // Selected card shows the pill; others do not.
-    expect(
+    // Ticking a second template switches the footer to compare mode.
+    await tapIn(tester, find.byKey(const ValueKey('template-luxury')));
+    expect(find.textContaining('2 templates selected'), findsNWidgets(2));
+    expect(find.text('Compare templates (2)'), findsOneWidget);
+    // Unticking the first leaves luxury as the single, final choice.
+    await tapIn(tester, find.byKey(const ValueKey('template-simple')));
+    expect(find.textContaining('Selected template: Luxury'), findsOneWidget);
+    expect(find.text('Next: Summary'), findsOneWidget);
+    expect(container.read(draftProvider).templateId, 'luxury');
+  });
+
+  testWidgets('gallery has Simple, Luxury and a Premium badge; preview first', (
+    tester,
+  ) async {
+    final container = await openTemplateStep(tester);
+    for (final id in ['simple', 'luxury', 'premium']) {
+      expect(find.byKey(ValueKey('template-$id')), findsOneWidget);
+    }
+    expect(find.byKey(const ValueKey('badge-premium')), findsOneWidget);
+    expect(find.text('Advanced'), findsOneWidget);
+
+    // "Preview" opens the full-size page on that template without selecting it.
+    await tapIn(tester, find.byKey(const ValueKey('preview-card-premium')));
+    expect(currentPath(container), '/preview');
+    expect(container.read(draftProvider).templateId, 'simple');
+    final app = tester.widget<RecruitmentApp>(
       find.descendant(
-        of: find.byKey(const ValueKey('template-modern')),
-        matching: find.text('Selected'),
+        of: find.byType(PhonePreview),
+        matching: find.byType(RecruitmentApp),
       ),
-      findsOneWidget,
     );
-    expect(find.text('Selected'), findsOneWidget);
+    expect(app.template.id, 'premium');
+  });
+
+  testWidgets('zero templates selected disables Next with a hint', (
+    tester,
+  ) async {
+    await openTemplateStep(tester);
+    await tapIn(tester, find.byKey(const ValueKey('template-simple')));
+    expect(find.text('No templates selected'), findsOneWidget);
+    expect(find.textContaining('Pick at least one template'), findsOneWidget);
+    expect(nextButton(tester).onPressed, isNull);
+    await tapIn(tester, find.byKey(const ValueKey('template-simple')));
+    expect(nextButton(tester).onPressed, isNotNull);
+  });
+
+  testWidgets('compare view: same screen on every phone, choose, back', (
+    tester,
+  ) async {
+    final container = await openTemplateStep(tester);
+    final next = find.byKey(const ValueKey('wizard-next'));
+    await tapIn(tester, find.byKey(const ValueKey('template-luxury')));
+    await tapIn(tester, find.byKey(const ValueKey('template-premium')));
+    expect(find.text('Compare templates (3)'), findsOneWidget);
+    await tapIn(tester, next);
+
+    // Sub-view of step 4: stepper and counter unchanged, no Next button.
+    expect(currentPath(container), '/builder/template');
+    expect(find.text('Compare and pick your template'), findsOneWidget);
+    expect(find.text('Choose one template for your app'), findsOneWidget);
+    expect(find.textContaining('Step 4 of 5'), findsOneWidget);
+    expect(next, findsNothing);
+    expect(find.byType(PhonePreview), findsNWidgets(3));
+
+    // One shared switcher drives all phones.
+    await tapIn(tester, find.byKey(const ValueKey('jump-login')));
+    final apps = tester.widgetList<RecruitmentApp>(find.byType(RecruitmentApp));
+    expect(apps, hasLength(3));
+    expect({for (final a in apps) a.session.currentEntry}, {DemoEntry.login});
+
+    // Back keeps the ticks; the saved template is unchanged.
+    await tapIn(tester, find.byKey(const ValueKey('compare-back')));
+    expect(find.textContaining('3 templates selected'), findsNWidgets(2));
+    expect(container.read(draftProvider).templateId, 'simple');
+
+    // Choosing from the compare view sets the template and goes to Summary.
+    await tapIn(tester, next);
+    await tapIn(tester, find.byKey(const ValueKey('compare-choose-premium')));
+    expect(container.read(draftProvider).templateId, 'premium');
+    expect(currentPath(container), '/builder/summary');
+
+    // Back in step 4 only the final template is selected.
+    container.read(routerProvider).go('/builder/template');
+    await tester.pumpAndSettle();
+    expect(find.text('1 template selected'), findsOneWidget);
+    expect(find.textContaining('Selected template: Premium'), findsOneWidget);
+  });
+
+  testWidgets('compare view: mobile shows one phone at a time', (tester) async {
+    await openTemplateStep(tester);
+    for (final id in ['luxury', 'premium']) {
+      await tapIn(tester, find.byKey(ValueKey('template-$id')));
+    }
+    // Three templates: one row on desktop.
+    await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
+    expect(find.byKey(const ValueKey('compare-indicator')), findsNothing);
+
+    await tapIn(tester, find.byKey(const ValueKey('compare-back')));
+    tester.view.physicalSize = const Size(420, 900);
+    await tester.pumpAndSettle();
+    await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
+    expect(find.text('1 / 3'), findsOneWidget);
+    await tapIn(tester, find.byKey(const ValueKey('compare-next')));
+    expect(find.text('2 / 3'), findsOneWidget);
+  });
+
+  testWidgets('support emails: chips, paste, duplicates, invalid, remove', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+    final field = find.byKey(const ValueKey('support-emails'));
+    List<String> emails() => container.read(draftProvider).supportEmails;
+    Future<void> submit() async {
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+    }
+
+    expect(find.textContaining('Primary email'), findsOneWidget);
+    await tester.ensureVisible(field);
+    await tester.pumpAndSettle();
+
+    // Enter turns text into a chip.
+    await tester.tap(field);
+    await tester.enterText(field, 'one@example.com');
+    await submit();
+    expect(emails(), ['one@example.com']);
+
+    // Pasting several addresses (commas or spaces) makes many chips.
+    await tester.enterText(
+      field,
+      'two@example.com, three@example.com four@example.com ',
+    );
+    await tester.pumpAndSettle();
+    expect(emails(), [
+      'one@example.com',
+      'two@example.com',
+      'three@example.com',
+      'four@example.com',
+    ]);
+
+    // Duplicates (case-insensitive) are ignored with a hint.
+    await tester.enterText(field, 'ONE@example.com,');
+    await tester.pump();
+    expect(emails(), hasLength(4));
+    expect(find.text('This email is already added'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
+
+    // Invalid text stays in the input with an error.
+    await tester.enterText(field, 'not-an-email');
+    await submit();
+    expect(emails(), hasLength(4));
+    expect(find.text('Invalid email format'), findsOneWidget);
+    expect(tester.widget<TextField>(field).controller!.text, 'not-an-email');
+
+    // Remove via the chip's button (labelled for assistive tech).
+    await tester.enterText(field, '');
+    await tester.tap(find.byTooltip('Remove two@example.com'));
+    await tester.pumpAndSettle();
+    expect(emails(), [
+      'one@example.com',
+      'three@example.com',
+      'four@example.com',
+    ]);
+
+    // Backspace in the empty input removes the last chip.
+    await tester.tap(field);
+    await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+    await tester.pumpAndSettle();
+    expect(emails(), ['one@example.com', 'three@example.com']);
   });
 
   testWidgets(
@@ -549,7 +712,7 @@ void main() {
       final selection = tester.getTopLeft(find.text('اختر قالب التطبيق'));
       final panel = tester.getTopLeft(find.text('معاينة حيّة'));
       expect(panel.dx, lessThan(selection.dx));
-      expect(find.textContaining('القالب المختار: كلاسيكي'), findsOneWidget);
+      expect(find.textContaining('القالب المختار: البسيط'), findsOneWidget);
     },
   );
 
@@ -600,7 +763,7 @@ void main() {
     (tester) async {
       final container = await openBranding(tester);
       String primary() => container.read(draftProvider).primaryHex;
-      expect(primary(), '#1565C0');
+      expect(primary(), '#213F80');
 
       await tester.ensureVisible(key('hex-field'));
       await tester.enterText(key('hex-field'), '#00aa55');
@@ -638,12 +801,12 @@ void main() {
     await tester.ensureVisible(key('rgb-g'));
     await tester.enterText(key('rgb-g'), '255');
     await tester.pumpAndSettle();
-    expect(container.read(draftProvider).primaryHex, '#15FFC0');
+    expect(container.read(draftProvider).primaryHex, '#21FF80');
     await tester.enterText(key('rgb-b'), '999');
     await tester.pumpAndSettle();
-    expect(container.read(draftProvider).primaryHex, '#15FFC0');
+    expect(container.read(draftProvider).primaryHex, '#21FF80');
     await tapIn(tester, key('hex-field'));
-    expect(tester.widget<TextField>(key('rgb-b')).controller!.text, '192');
+    expect(tester.widget<TextField>(key('rgb-b')).controller!.text, '128');
   });
 
   testWidgets('branding: contrast row warns but never blocks', (tester) async {
@@ -820,7 +983,7 @@ void main() {
         .primaryColor;
     expect(find.text('Live preview'), findsOneWidget);
     expect(find.text('Colors update instantly as you choose'), findsOneWidget);
-    expect(previewPrimary(), const Color(0xFF1565C0));
+    expect(previewPrimary(), const Color(0xFF213F80));
     await tester.ensureVisible(key('hex-field'));
     await tester.enterText(key('hex-field'), '#00AA55');
     await tester.pumpAndSettle();

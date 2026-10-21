@@ -83,6 +83,8 @@ class _Review extends StatelessWidget {
         l10n.labelClient,
         '${config.clientName} · ${config.clientEmail} · ${config.clientPhone}',
       ),
+      if (config.supportEmails.isNotEmpty)
+        (l10n.fieldSupportEmails, config.supportEmails.join(', ')),
       (l10n.labelAndroid, config.androidPackage),
       (l10n.labelIos, config.iosBundleId),
       (l10n.labelTemplate, l10n.templateName(config.templateId)),

@@ -29,7 +29,7 @@
   "fieldAppId": "معرّف التطبيق",
   "fieldAppIdHelper": "يُولَّد من الاسم الإنجليزي، ويمكنك تعديله يدويًا.",
   "fieldClientName": "اسم العميل / المكتب",
-  "fieldClientEmail": "البريد الإلكتروني",
+  "fieldClientEmail": "البريد الإلكتروني الأساسي",
   "fieldClientPhone": "هاتف الدعم",
   "appIdChecking": "جارٍ التحقق من التوفر…",
   "appIdAvailable": "المعرّف متاح",
@@ -71,10 +71,7 @@
   "langEnglish": "الإنجليزية",
   "defaultAlwaysIncluded": "اللغة الافتراضية مضمّنة دائماً",
   "chooseTemplate": "اختر قالباً",
-  "templateClassic": "كلاسيكي",
-  "templateModern": "عصري",
-  "templateMinimal": "بسيط",
-  "templatePremium": "فاخر",
+  "templatePremium": "بريميوم",
   "previewLanguage": "لغة المعاينة",
   "previewDark": "الوضع الداكن",
   "screenHome": "الرئيسية",
@@ -164,10 +161,7 @@
   "moduleMediationDesc": "نقل كفالة",
   "templatesTitle": "القوالب",
   "templatesAvailable": "{count} قوالب متاحة",
-  "templateClassicDesc": "تخطيط متوازن وبطاقات واضحة",
-  "templateModernDesc": "حواف مدوّرة وطابع هادئ",
-  "templateMinimalDesc": "خطوط نظيفة وقوائم بسيطة",
-  "templatePremiumDesc": "تدرجات جريئة وعمق بصري",
+  "templatePremiumDesc": "الأكثر تطورًا: أسطح زجاجية وتدرجات وحركة سلسة",
   "selectedPill": "مُختار",
   "livePreview": "معاينة حيّة",
   "previewDemoShort": "بيانات تجريبية، بدون مدفوعات أو حجوزات حقيقية",
@@ -203,5 +197,60 @@
   "livePreviewSubtitle": "الألوان تتحدّث فورًا وأنت تختار",
   "iconSplashCard": "أيقونة التطبيق وشاشة البداية",
   "colorsExtracted": "تم استخراج الألوان من الشعار",
-  "noColorsInLogo": "لم يتم العثور على ألوان مميزة في الشعار"
+  "noColorsInLogo": "لم يتم العثور على ألوان مميزة في الشعار",
+  "fieldSupportEmails": "بريد الدعم",
+  "helperSupportEmails": "أضف بريدًا أو أكثر. اضغط Enter أو فاصلة بعد كل بريد.",
+  "phSupportEmails": "support@example.com",
+  "errSupportEmailInvalid": "صيغة البريد غير صحيحة",
+  "hintSupportEmailDuplicate": "هذا البريد مضاف بالفعل",
+  "removeEmailLabel": "إزالة {email}",
+  "templatesSelectedCount": "{count, plural, =0{لم يتم اختيار أي قالب} =1{تم اختيار قالب واحد} =2{تم اختيار قالبين} few{تم اختيار {count} قوالب} other{تم اختيار {count} قالبًا}}",
+  "pickAtLeastOneTemplate": "اختر قالبًا واحدًا على الأقل",
+  "multipleTemplatesSelectedLabel": "عدة قوالب قيد المقارنة",
+  "compareTemplates": "قارن القوالب ({count})",
+  "compareHeading": "قارن واختر قالبك",
+  "compareSubtitle": "اختر قالبًا واحدًا لتطبيقك",
+  "chooseThisTemplate": "اختيار هذا القالب",
+  "backToTemplates": "رجوع للقوالب",
+  "compareIndicator": "{current} / {total}",
+  "comparePrevious": "القالب السابق",
+  "compareNext": "القالب التالي",
+  "compareScreenLabel": "الشاشة المعروضة في كل الهواتف",
+  "@removeEmailLabel": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@templatesSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@compareTemplates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@compareIndicator": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "templateSimple": "البسيط",
+  "templateLuxury": "فاخر",
+  "templateSimpleDesc": "تصميم نظيف وخفيف بمساحات بيضاء وخطوط رفيعة",
+  "templateLuxuryDesc": "فخامة هادئة بدرجات داكنة ولمسات ذهبية وخطوط أنيقة",
+  "templateBadgeAdvanced": "متقدم",
+  "templatePreviewAction": "معاينة"
 }

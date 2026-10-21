@@ -4,8 +4,8 @@ import 'package:recruitment_ui/recruitment_ui.dart';
 import 'asset.dart';
 import 'config.dart';
 
-const kDefaultPrimaryHex = '#1565C0';
-const kDefaultSecondaryHex = '#FFB300';
+const kDefaultPrimaryHex = '#213F80';
+const kDefaultSecondaryHex = '#29ABE2';
 
 /// Default reverse-DNS prefix of generated package names.
 const kPackagePrefix = 'com.excp.';
@@ -29,6 +29,7 @@ class AppConfigDraft {
     this.clientName = '',
     this.clientEmail = '',
     this.clientPhone = '',
+    this.supportEmails = const [],
     this.primaryHex = kDefaultPrimaryHex,
     this.secondaryHex = kDefaultSecondaryHex,
     this.fontFamily = 'Cairo',
@@ -38,7 +39,7 @@ class AppConfigDraft {
     this.splashLogo,
     this.defaultLanguage = 'ar',
     this.supportedLanguages = const ['ar', 'en'],
-    this.templateId = 'classic',
+    this.templateId = 'simple',
     this.enabledModules = kModuleIds,
   });
 
@@ -62,6 +63,9 @@ class AppConfigDraft {
   final String clientName;
   final String clientEmail;
   final String clientPhone;
+
+  /// Optional additional support addresses (each already validated).
+  final List<String> supportEmails;
   final String primaryHex;
   final String secondaryHex;
   final String fontFamily;
@@ -109,6 +113,7 @@ class AppConfigDraft {
     String? clientName,
     String? clientEmail,
     String? clientPhone,
+    List<String>? supportEmails,
     String? primaryHex,
     String? secondaryHex,
     String? fontFamily,
@@ -137,6 +142,7 @@ class AppConfigDraft {
       clientName: clientName ?? this.clientName,
       clientEmail: clientEmail ?? this.clientEmail,
       clientPhone: clientPhone ?? this.clientPhone,
+      supportEmails: supportEmails ?? this.supportEmails,
       primaryHex: primaryHex ?? this.primaryHex,
       secondaryHex: secondaryHex ?? this.secondaryHex,
       fontFamily: fontFamily ?? this.fontFamily,
@@ -172,6 +178,7 @@ class AppConfigDraft {
       clientName: c.clientName,
       clientEmail: c.clientEmail,
       clientPhone: c.clientPhone,
+      supportEmails: List.unmodifiable(c.supportEmails),
       primaryHex: c.primaryColor,
       secondaryHex: c.secondaryColor,
       fontFamily: c.fontFamily,
