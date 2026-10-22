@@ -87,6 +87,31 @@ class _InfoSectionState extends ConsumerState<InfoSection> {
           )
         : null;
 
+    // Arabic-only: "App ID" next to the Arabic label. Kept out of the ARB
+    // string (mixed Arabic/Latin text inside parentheses can render the
+    // brackets wrong in RTL) and forced LTR so the parentheses read correctly.
+    final appIdNote = Localizations.localeOf(context).languageCode == 'ar'
+        ? Text(
+            '(App ID)',
+            textDirection: TextDirection.ltr,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.muted.withValues(alpha: 0.75),
+            ),
+          )
+        : null;
+    final appIdLabelBadge = appIdNote == null && autoBadge == null
+        ? null
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ?appIdNote,
+              if (appIdNote != null && autoBadge != null)
+                const SizedBox(width: 8),
+              ?autoBadge,
+            ],
+          );
+
     Widget? appIdSuffix;
     if (!d.existingApp) {
       appIdSuffix = d.appIdEdited
@@ -150,7 +175,7 @@ class _InfoSectionState extends ConsumerState<InfoSection> {
                 fieldKey: const ValueKey('app-id'),
                 field: DraftField.appId,
                 label: l10n.fieldAppId,
-                badge: autoBadge,
+                badge: appIdLabelBadge,
                 value: d.appId,
                 ltr: true,
                 mono: true,

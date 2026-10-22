@@ -226,7 +226,9 @@ with `--base-href /<repo>/` → deploy to Pages. The app uses hash URLs
   backend" below); Firebase handles submitted requests, and an Azure DevOps
   pipeline is dispatched for each one (see "Build pipeline" above) — but that
   pipeline stops once the request data and assets are on disk. There is no app
-  generator or store-release build yet.
+  generator or store-release build yet. See
+  [`docs/PHASE2_PROGRESS.md`](docs/PHASE2_PROGRESS.md) for the pipeline's
+  current state, open conflicts and next steps.
 - The client is entered as name / email / phone; there is no client list or API.
 - Imported JSON files carry no image bytes, so logo and icon must be re-uploaded.
 - SVG logos are accepted, but colors can only be extracted from PNG logos.
