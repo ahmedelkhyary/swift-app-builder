@@ -9,6 +9,7 @@ import '../domain/draft.dart';
 import '../domain/request_document.dart';
 import '../domain/validators.dart';
 import 'app_id_checker.dart';
+import 'request_dispatcher.dart';
 import 'request_submitter.dart';
 
 /// Writes requests to Firestore (`app_requests/{appId}`) and uploads the
@@ -17,7 +18,12 @@ import 'request_submitter.dart';
 /// Image files get a unique name per submission, so a request is never
 /// overwritten silently, not even its images.
 class FirebaseRequestSubmitter implements RequestSubmitter {
+  FirebaseRequestSubmitter({RequestDispatcher? dispatcher})
+    : _dispatcher = dispatcher ?? HttpRequestDispatcher();
+
   static const collection = 'app_requests';
+
+  final RequestDispatcher _dispatcher;
 
   @override
   Future<SubmitResult> submit(AppConfigDraft draft) async {
@@ -57,7 +63,7 @@ class FirebaseRequestSubmitter implements RequestSubmitter {
       // The final check and the writes are one transaction, so two clients
       // choosing the same ID at the same time cannot both succeed. The rules
       // only allow creating (never updating) both documents.
-      return await db.runTransaction<SubmitResult>((tx) async {
+      final result = await db.runTransaction<SubmitResult>((tx) async {
         if ((await tx.get(idRef)).exists) return SubmitResult.taken;
         tx.set(idRef, {'createdAt': FieldValue.serverTimestamp()});
         tx.set(requestRef, {
@@ -68,6 +74,10 @@ class FirebaseRequestSubmitter implements RequestSubmitter {
         });
         return SubmitResult.created;
       });
+      // Nudges the backend to dispatch the build pipeline now rather than
+      // wait for its periodic sweep; never fails the submission.
+      if (result == SubmitResult.created) await _dispatcher.dispatch(appId);
+      return result;
     } on FirebaseException catch (e) {
       // Losing the race can also surface as a rules rejection of the create.
       // A request document that exists without its marker (created before

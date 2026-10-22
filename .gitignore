@@ -46,3 +46,14 @@ app.*.map.json
 
 # Local Firebase settings
 .env
+functions/.env
+functions/.env.*
+!functions/.env.example
+
+# Cloud Functions build output / deps
+functions/node_modules/
+functions/lib/
+
+# Pipeline script deps / scratch build input
+pipeline/scripts/node_modules/
+pipeline/scripts/build_input/

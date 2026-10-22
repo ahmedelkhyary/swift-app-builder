@@ -1,0 +1,81 @@
+# Runs one app-request build. Never triggered by a push or a PR: the Cloud
+# Function in `functions/` starts it via the REST API with `requestId` as a
+# template parameter, right after a wizard submission lands in Firestore.
+trigger: none
+pr: none
+
+parameters:
+  - name: requestId
+    type: string
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: swift-app-pipeline # holds FIREBASE_STORAGE_BUCKET
+  - name: REQUEST_ID
+    value: ${{ parameters.requestId }}
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "20.x"
+    displayName: Use Node 20
+
+  # Service-account key for firebase-admin (Firestore + Storage). Never a
+  # pipeline variable: downloaded straight to a secure, run-local path.
+  - task: DownloadSecureFile@1
+    name: firebaseKey
+    inputs:
+      secureFile: firebase-service-account.json
+    displayName: Download Firebase service account key
+
+  - bash: |
+      echo "##vso[task.setvariable variable=GOOGLE_APPLICATION_CREDENTIALS]$(firebaseKey.secureFilePath)"
+    displayName: Point firebase-admin at the downloaded key
+
+  - bash: npm ci
+    workingDirectory: pipeline/scripts
+    displayName: Install script dependencies
+
+  # requestId never appears in script text (that would let it reach the shell
+  # as untrusted, textually-substituted content); it is only ever an
+  # environment variable, read here as $REQUEST_ID by request.mjs.
+  - bash: node request.mjs fetch
+    workingDirectory: pipeline/scripts
+    displayName: Fetch request data and assets
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: $(GOOGLE_APPLICATION_CREDENTIALS)
+      FIREBASE_STORAGE_BUCKET: $(FIREBASE_STORAGE_BUCKET)
+      REQUEST_ID: $(REQUEST_ID)
+
+  - bash: cat build_input/request.json
+    workingDirectory: pipeline/scripts
+    displayName: Print the input
+
+  # --- Placeholder: not part of this task -----------------------------------
+  # - bash: echo "TODO: generate the Flutter app from build_input/ and run the
+  #     store build(s); read build_input/request.json + build_input/assets/"
+  #   workingDirectory: pipeline/scripts
+  #   displayName: Generate app and build (not implemented yet)
+  # ---------------------------------------------------------------------------
+
+  - bash: node request.mjs status built
+    workingDirectory: pipeline/scripts
+    condition: succeeded()
+    displayName: Mark the request as built
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: $(GOOGLE_APPLICATION_CREDENTIALS)
+      FIREBASE_STORAGE_BUCKET: $(FIREBASE_STORAGE_BUCKET)
+      REQUEST_ID: $(REQUEST_ID)
+
+  # failed(), not always(): a cancelled run (superseded by a re-submit) must
+  # leave the document alone instead of writing "failed" over it.
+  - bash: node request.mjs status failed
+    workingDirectory: pipeline/scripts
+    condition: failed()
+    displayName: Mark the request as failed
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: $(GOOGLE_APPLICATION_CREDENTIALS)
+      FIREBASE_STORAGE_BUCKET: $(FIREBASE_STORAGE_BUCKET)
+      REQUEST_ID: $(REQUEST_ID)

@@ -73,6 +73,75 @@ flutter test
 `firestore.rules` و`storage.rules`. على GitHub Pages أضف نفس المفاتيح كأسرار للمستودع.
 بدون المفاتيح يعمل التطبيق لكن الإرسال يعرض رسالة أن Firebase غير مضبوط.
 
+## خط البناء (Azure DevOps)
+
+بعد حفظ الطلب (`status: "pending"`) تُطلِق دالة سحابية (Cloud Function) تشغيلة من
+Azure DevOps Pipeline بمعرّف الطلب فقط؛ يقرأ الـ pipeline كل شيء آخر بنفسه. يتوقف
+هذا المستودع عند "صار لدى الـ pipeline بيانات الطلب وأصوله على القرص" — توليد
+التطبيق وبناؤه للمتاجر خطوة مؤجَّلة (تعليق في `pipeline/azure-pipelines.yml`)
+وليست جزءًا من هذا المستودع بعد.
+
+```
+تطبيق Flutter ─◁ Firestore app_requests/{id} (status: pending)
+       │                       ▲
+       │ POST {requestId}      │ فحص دوري كل 5 دقائق
+       ▼                       │ (sweepPendingAppRequests، شبكة أمان
+  functions/: dispatchAppRequest ─◁ Azure DevOps REST API   لطلب لم يصل)
+                                       (تشغيل run)
+                        │
+                        ▼
+      pipeline/azure-pipelines.yml ─◁ pipeline/scripts/request.mjs
+        (fetch: يقرأ المستند ويحمّل الأصول إلى build_input/،
+         ثم — متى وُجد مولّد — يبني، ثم يكتب الحالة في المستند)
+```
+
+ليست مُشغَّلة بـ trigger على Firestore: قاعدة بيانات Firestore لهذا المشروع قد
+تكون في منطقة لا تدعم Cloud Functions من الجيل الثاني تشغيل الحساب فيها (وأي
+trigger خلفي على Firestore يجب أن يعمل في نفس منطقة القاعدة)، لذا يستدعي
+التطبيق `dispatchAppRequest` مباشرة بعد كتابة المستند بحالة "pending"، وتعمل
+`sweepPendingAppRequests` (عبر Cloud Scheduler كل 5 دقائق) كشبكة أمان لأي نداء
+لم يصل (تبويب مُغلَق، اتصال منقطع). كلتاهما في `us-central1` بصرف النظر عن
+منطقة Firestore نفسها.
+
+راجع [`docs/CONFIG.md`](docs/CONFIG.md#request-status-and-the-pipeline-fields)
+لدورة حياة `status` وحقول `pipeline.*`.
+
+### الإعداد
+
+1. **خطة Blaze**: الدوال السحابية (`functions/`) تحتاج اتصالًا صادرًا (لاستدعاء
+   Azure DevOps)، وهذا يتطلب خطة Blaze مدفوعة حسب الاستخدام.
+2. **إعدادات الدالة السحابية** داخل `functions/`:
+   - انسخ `functions/.env.example` إلى `functions/.env` واملأ `AZDO_ORG` و
+     `AZDO_PROJECT` و`AZDO_PIPELINE_ID` (ليست أسرارًا لكنها خاصة بالمشروع).
+   - اضبط رمز الوصول الشخصي (PAT) من Azure DevOps كسر:
+     `firebase functions:secrets:set AZDO_PAT` (الصلاحية: **Build: Read & execute**).
+   - انشر: `cd functions && npm install && firebase deploy --only functions`.
+   - **إن فشل النشر بخطأ بناء أو صلاحيات**: بعض المشاريع لم تعد تمنح أدوار IAM
+     تلقائيًا لحساب الخدمة الافتراضي. امنح
+     `{project-number}-compute@developer.gserviceaccount.com` (Console ← IAM)
+     أدوار **Cloud Build Service Account** و**Artifact Registry Writer**
+     و**Cloud Datastore User**، ثم أعد النشر.
+3. **Pipeline في Azure DevOps**: أنشئه من `pipeline/azure-pipelines.yml` (راجع
+   أدناه إبقاء `pipeline/` هنا أو نقله لمستودع Azure Repos منفصل)، وهو بـ
+   `trigger: none` و`pr: none` فلا يعمل إلا عبر REST API.
+   - **ملف آمن (Secure file)**: ارفع مفتاح حساب خدمة Firebase بصيغة JSON باسم
+     `firebase-service-account.json` (Pipelines ← Library ← Secure files)،
+     وامنحه صلاحيتي **Cloud Datastore User** و**Storage Object Viewer** في IAM.
+   - **مجموعة متغيرات (Variable group)**: أنشئ `swift-app-pipeline` وفيها
+     `FIREBASE_STORAGE_BUCKET`.
+   - **أول تشغيل يدوي**: شغّل الـ pipeline يدويًا مرة (Run pipeline بأي
+     `requestId`) حتى يوافق Azure DevOps على استخدامه للملف الآمن ومجموعة
+     المتغيرات؛ التشغيلات اللاحقة عبر REST تمرّ دون موافقة.
+4. دوّن معرّف الـ pipeline (من رابطه أو `az pipelines list`) لاستخدامه في
+   `AZDO_PIPELINE_ID` بالخطوة 2.
+
+### مكان `pipeline/`
+
+يعيش `pipeline/` في هذا المستودع افتراضيًا. لنقله إلى مستودع Azure Repos منفصل:
+انسخ `pipeline/azure-pipelines.yml` و`pipeline/scripts/` إلى هناك، ووجّه مسار
+YAML في إعداد الـ pipeline إلى الموقع الجديد، وحدّث `AZDO_PIPELINE_ID` إن أُعيد
+إنشاء الـ pipeline.
+
 ## التخزين
 
 البيانات **في الذاكرة فقط** وتضيع عند إعادة تحميل الصفحة. الواجهة `ConfigRepository`
@@ -86,7 +155,10 @@ flutter test
 
 ## القيود الحالية
 
-- لا يوجد خادم بعد، ولا خط CI/CD أو Firebase أو نشر على المتاجر (ستستهلك الملف المحفوظ لاحقًا).
+- تخزين المسودات والإصدارات في الأداة نفسها في الذاكرة فقط (انظر "التخزين"
+  أدناه)؛ Firebase يتولى الطلبات المُرسَلة، ويُطلِق خط Azure DevOps لكل طلب
+  (انظر "خط البناء" أعلاه) — لكنه يتوقف عند توفّر بيانات الطلب وأصوله لديه، فلا
+  يوجد بعد مولّد تطبيق ولا بناء للمتاجر.
 - بيانات العميل: الاسم والبريد والهاتف فقط، دون قائمة عملاء.
 - ملف JSON المستورد لا يحمل الصور، فيجب رفع الشعار والأيقونة من جديد.
 - استخراج الألوان يعمل مع شعارات PNG فقط (لا يعمل مع SVG).

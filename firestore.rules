@@ -20,6 +20,8 @@ service cloud.firestore {
         && existsAfter(/databases/$(database)/documents/app_requests/$(appId));
     }
 
+    // `pipeline.*` (set by the Cloud Function / Azure pipeline via the Admin
+    // SDK, which bypasses these rules) is never writable from the browser.
     match /app_requests/{appId} {
       allow read, update, delete: if false;
       allow create: if appId.matches('^[a-z][a-z0-9_-]{2,29}$')
@@ -27,6 +29,7 @@ service cloud.firestore {
         && request.resource.data.status == 'pending'
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
+        && !('pipeline' in request.resource.data)
         // The marker is created in the same transaction, never before.
         && getAfter(/databases/$(database)/documents/app_ids/$(appId)).data.createdAt == request.time;
     }

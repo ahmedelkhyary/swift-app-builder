@@ -63,3 +63,41 @@ Images can also be added from a public http(s) link (PNG, JPG, JPEG, SVG, WEBP).
 `packages/recruitment_ui`. Bump `AppTemplate.version` when a template's behavior
 changes so already-saved configs keep pointing at what they were built with.
 `modules` tells the generated app which service flows to include.
+
+## Request status and the `pipeline.*` fields
+
+This section is about `app_requests/{appId}` (the submitted request, written by
+`FirebaseRequestSubmitter`), not the versioned config above. The browser can only
+ever create this document; everything described here after that is written by the
+Cloud Function (`functions/`) or the Azure Pipeline (`pipeline/`) through the
+Admin SDK, which bypasses `firestore.rules`.
+
+`status` lifecycle:
+
+| Status | Set by | Meaning |
+|--------|--------|---------|
+| `pending` | the wizard (create), or a re-submit of the same App ID | Waiting for the Cloud Function to dispatch a pipeline run. |
+| `queued` | the Cloud Function | A run was claimed; `pipeline.queuedAt` is set, `pipeline.runId` / `runUrl` / `error` are cleared. |
+| `building` | the pipeline (`request.mjs fetch`) | The pipeline fetched the request and assets and is running; `pipeline.startedAt` is set. |
+| `built` | the pipeline (`request.mjs status built`) | The run finished successfully; `pipeline.finishedAt` is set. |
+| `failed` | the pipeline (`request.mjs status failed`) | The run failed; `pipeline.finishedAt` is set. |
+| `trigger_failed` | the Cloud Function | The request id was invalid, or the Azure DevOps API call to queue a run failed; `pipeline.error` holds the detail. |
+
+Re-submitting an existing App ID puts its document back to `pending`, which
+re-enters this lifecycle; a run still `queued` or `building` for the previous
+submission is cancelled first.
+
+`pipeline` fields (all optional; none of them exist until the Cloud Function
+first claims the request):
+
+| Field | Type | Set by |
+|-------|------|--------|
+| `pipeline.queuedAt` | timestamp | Cloud Function, on claim |
+| `pipeline.runId` | string | Cloud Function, after a run is queued (the Azure DevOps build id) |
+| `pipeline.runUrl` | string | Cloud Function, after a run is queued (the run's web link) |
+| `pipeline.startedAt` | timestamp | pipeline, in `request.mjs fetch` |
+| `pipeline.finishedAt` | timestamp | pipeline, in `request.mjs status built\|failed` |
+| `pipeline.error` | string | Cloud Function, when dispatch fails (`trigger_failed`) |
+
+See the root README's "Build pipeline (Azure DevOps)" section for the
+dispatch/claim/cancel mechanics and setup steps.

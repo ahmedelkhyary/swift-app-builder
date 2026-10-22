@@ -129,6 +129,78 @@ must confirm updating it (`createdAt` is kept).
 
 Setup: the app uses `lib/firebase_options.dart` (created by `flutterfire configure`). To point a build at another project, copy `.env.example` to `.env` and run with `--dart-define-from-file=.env` (optional; the same keys can be GitHub secrets). Enable Firestore and Storage in the console and deploy `firestore.rules` and `storage.rules` — note this replaces the project's existing rules. The Firebase code lives in `lib/firebase.dart`.
 
+## Build pipeline (Azure DevOps)
+
+Once a request is saved (`status: "pending"`), a Cloud Function dispatches an
+Azure DevOps pipeline run with only the request id; the pipeline reads
+everything else itself. This repo stops at "the pipeline has the request data
+and assets on disk" — generating the app and building it for the stores is a
+placeholder step in `pipeline/azure-pipelines.yml`, not part of this repo yet.
+
+```
+Flutter app ─▶ Firestore app_requests/{id} (status: pending)
+       │                       ▲
+       │ POST {requestId}      │ also polled every 5 min
+       ▼                       │ (sweepPendingAppRequests, a safety net
+  functions/: dispatchAppRequest ──▶ Azure DevOps REST API   for a dropped POST)
+                                        (queue a run)
+                        │
+                        ▼
+      pipeline/azure-pipelines.yml ─▶ pipeline/scripts/request.mjs
+        (fetch: reads the doc + downloads assets to build_input/,
+         then — once a generator exists — builds, then reports status back)
+```
+
+Not a Firestore *trigger*: this project's Firestore database can live in a
+region Cloud Functions 2nd gen doesn't support running in (a background
+Firestore trigger must run in the same region as its database), so the app
+calls `dispatchAppRequest` directly right after writing the "pending" document,
+and `sweepPendingAppRequests` (Cloud Scheduler, every 5 minutes) is a safety
+net for a call that never arrives (closed tab, dropped connection). Both live
+in `us-central1`, independent of whatever region Firestore itself is in.
+
+See [`docs/CONFIG.md`](docs/CONFIG.md#request-status-and-the-pipeline-fields)
+for the `status` lifecycle and the `pipeline.*` fields this writes back onto
+the request document.
+
+### Setup
+
+1. **Blaze plan.** The Cloud Functions (`functions/`) need outbound network
+   access (to call Azure DevOps), which requires the Blaze (pay-as-you-go) plan.
+2. **Cloud Function config.** In `functions/`:
+   - Copy `functions/.env.example` to `functions/.env` and fill in `AZDO_ORG`,
+     `AZDO_PROJECT` and `AZDO_PIPELINE_ID` (not secret, but project-specific).
+   - Set the Azure DevOps PAT (scope: **Build: Read & execute**) as a secret:
+     `firebase functions:secrets:set AZDO_PAT`.
+   - Deploy: `cd functions && npm install && firebase deploy --only functions`.
+   - **If the deploy fails on a build or permission error:** some projects
+     don't auto-grant IAM roles to the default service account anymore. Grant
+     `{project-number}-compute@developer.gserviceaccount.com` (Console → IAM)
+     the roles **Cloud Build Service Account**, **Artifact Registry Writer**
+     and **Cloud Datastore User**, then redeploy.
+3. **Azure DevOps pipeline.** Create a pipeline from `pipeline/azure-pipelines.yml`
+   (see below for keeping `pipeline/` here vs. a separate Azure Repos repo),
+   with `trigger: none` / `pr: none` so it only ever runs via the REST API.
+   - **Secure file:** upload a Firebase service-account JSON key as
+     `firebase-service-account.json` (Pipelines → Library → Secure files). Grant
+     it the roles **Cloud Datastore User** and **Storage Object Viewer** in the
+     Firebase/GCP project's IAM.
+   - **Variable group:** create `swift-app-pipeline` (Pipelines → Library →
+     Variable groups) with `FIREBASE_STORAGE_BUCKET` set to the project's bucket.
+   - **First manual run:** queue the pipeline once by hand (Run pipeline, with
+     any `requestId`) — this is what prompts Azure DevOps to let the pipeline
+     use the secure file and the variable group; later REST-triggered runs then
+     go through without approval.
+4. Note the pipeline id (from its URL or `az pipelines list`) for
+   `AZDO_PIPELINE_ID` in step 2.
+
+### `pipeline/` location
+
+`pipeline/` lives in this repo by default. To move it to a separate Azure Repos
+repository instead: copy `pipeline/azure-pipelines.yml` and
+`pipeline/scripts/` there, point the Azure DevOps pipeline's YAML path at the
+new location, and update `AZDO_PIPELINE_ID` if the pipeline is recreated.
+
 ## Storage and backend
 
 Data lives **in memory only** and is lost on reload. `ConfigRepository`
@@ -150,8 +222,11 @@ with `--base-href /<repo>/` → deploy to Pages. The app uses hash URLs
 
 ## Limitations
 
-- No backend yet (in-memory repository) and no CI/CD, Firebase or store-release
-  pipeline; those will consume the saved JSON.
+- The wizard's own draft/version storage is in-memory only (see "Storage and
+  backend" below); Firebase handles submitted requests, and an Azure DevOps
+  pipeline is dispatched for each one (see "Build pipeline" above) — but that
+  pipeline stops once the request data and assets are on disk. There is no app
+  generator or store-release build yet.
 - The client is entered as name / email / phone; there is no client list or API.
 - Imported JSON files carry no image bytes, so logo and icon must be re-uploaded.
 - SVG logos are accepted, but colors can only be extracted from PNG logos.
