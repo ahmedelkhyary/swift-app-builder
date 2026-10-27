@@ -5,6 +5,10 @@ enum SubmitResult {
   /// The request was created.
   created,
 
+  /// The request was created but its payment secret keys could not be stored
+  /// (the backend was unreachable). The client has to be asked for them again.
+  createdSecretsPending,
+
   /// The App ID is already used (maybe just now, by someone else). Nothing was
   /// written and an existing request is never overwritten.
   taken,

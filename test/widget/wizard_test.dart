@@ -93,7 +93,7 @@ void main() {
 
       // Nothing is red on first load.
       expect(find.byIcon(Icons.error_outline), findsNothing);
-      expect(find.text('Step 1 of 5'), findsOneWidget);
+      expect(find.text('Step 1 of 6'), findsOneWidget);
       expect(nextButton(tester).onPressed, isNotNull);
 
       await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
@@ -152,7 +152,7 @@ void main() {
 
       await tapIn(tester, f('wizard-next'));
       expect(currentPath(container), '/builder/branding');
-      expect(find.text('Step 2 of 5'), findsOneWidget);
+      expect(find.text('Step 2 of 6'), findsOneWidget);
 
       // Branding needs a logo + icon: Next reveals the missing-file errors.
       expect(find.text('This file is required'), findsNothing);
@@ -195,7 +195,7 @@ void main() {
     await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
     await tapIn(tester, find.byKey(const ValueKey('wizard-next')));
     expect(currentPath(container), '/builder/localization');
-    expect(find.text('Step 3 of 5'), findsOneWidget);
+    expect(find.text('Step 3 of 6'), findsOneWidget);
     // Steps 1 and 2 are completed (check marks) and clickable.
     Finder checkIn(int i) => find.descendant(
       of: find.byKey(ValueKey('step-$i')),
@@ -239,7 +239,7 @@ void main() {
       tester.element(find.byKey(const ValueKey('name-ar'))),
     );
     expect(dir, TextDirection.rtl);
-    expect(find.text('الخطوة 1 من 5'), findsOneWidget);
+    expect(find.text('الخطوة 1 من 6'), findsOneWidget);
     expect(find.text('التالي: الهوية البصرية'), findsOneWidget);
     expect(find.text('تلقائي'), findsOneWidget);
     // First step sits at the start (right) of the last one.
@@ -435,11 +435,11 @@ void main() {
     final container = await openTemplateStep(tester);
     expect(find.text('Choose the app template'), findsOneWidget);
     expect(find.text('3 templates available'), findsOneWidget);
-    // Footer names the selected template; Next announces Summary.
-    expect(find.textContaining('Step 4 of 5'), findsOneWidget);
+    // Footer names the selected template; Next announces the payments step.
+    expect(find.textContaining('Step 4 of 6'), findsOneWidget);
     expect(find.textContaining('Selected template: Simple'), findsOneWidget);
-    expect(find.text('Next: Summary'), findsOneWidget);
-    // Steps 1-3 done, 4 current, 5 upcoming.
+    expect(find.text('Next: Payment methods'), findsOneWidget);
+    // Steps 1-3 done, 4 current, 5-6 upcoming.
     for (final i in [0, 1, 2]) {
       expect(
         find.descendant(
@@ -464,7 +464,7 @@ void main() {
     // Unticking the first leaves luxury as the single, final choice.
     await tapIn(tester, find.byKey(const ValueKey('template-simple')));
     expect(find.textContaining('Selected template: Luxury'), findsOneWidget);
-    expect(find.text('Next: Summary'), findsOneWidget);
+    expect(find.text('Next: Payment methods'), findsOneWidget);
     expect(container.read(draftProvider).templateId, 'luxury');
   });
 
@@ -517,7 +517,7 @@ void main() {
     expect(currentPath(container), '/builder/template');
     expect(find.text('Compare and pick your template'), findsOneWidget);
     expect(find.text('Choose one template for your app'), findsOneWidget);
-    expect(find.textContaining('Step 4 of 5'), findsOneWidget);
+    expect(find.textContaining('Step 4 of 6'), findsOneWidget);
     expect(next, findsNothing);
     expect(find.byType(PhonePreview), findsNWidgets(3));
 
@@ -532,11 +532,11 @@ void main() {
     expect(find.textContaining('3 templates selected'), findsNWidgets(2));
     expect(container.read(draftProvider).templateId, 'simple');
 
-    // Choosing from the compare view sets the template and goes to Summary.
+    // Choosing from the compare view sets the template and goes to Payments.
     await tapIn(tester, next);
     await tapIn(tester, find.byKey(const ValueKey('compare-choose-premium')));
     expect(container.read(draftProvider).templateId, 'premium');
-    expect(currentPath(container), '/builder/summary');
+    expect(currentPath(container), '/builder/payments');
 
     // Back in step 4 only the final template is selected.
     container.read(routerProvider).go('/builder/template');
@@ -774,7 +774,7 @@ void main() {
     await tapIn(tester, key('role-secondary'));
     expect(find.byType(AlertDialog), findsNothing);
     expect(key('sv-area'), findsOneWidget);
-    expect(find.text('Step 2 of 5'), findsOneWidget);
+    expect(find.text('Step 2 of 6'), findsOneWidget);
     expect(find.text('Next: Localization'), findsOneWidget);
   });
 
@@ -1681,7 +1681,7 @@ void main() {
     );
     expect(find.text('ألوان التطبيق'), findsOneWidget);
     expect(find.text('معاينة حيّة'), findsOneWidget);
-    expect(find.text('الخطوة 2 من 5'), findsOneWidget);
+    expect(find.text('الخطوة 2 من 6'), findsOneWidget);
     expect(find.text('التالي: اللغات'), findsOneWidget);
     // Page layout mirrors: the settings sit to the right of the preview.
     expect(

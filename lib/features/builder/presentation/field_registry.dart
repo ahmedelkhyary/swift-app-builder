@@ -29,6 +29,8 @@ const _visualOrder = [
   DraftField.splashColor,
   DraftField.supportedLanguages,
   DraftField.modules,
+  DraftField.paymentGateways,
+  DraftField.paymentFields,
 ];
 
 WizardSection sectionOfField(DraftField f) => switch (f) {
@@ -50,20 +52,42 @@ WizardSection sectionOfField(DraftField f) => switch (f) {
   DraftField.appIcon => WizardSection.branding,
   DraftField.supportedLanguages => WizardSection.localization,
   DraftField.modules => WizardSection.template,
+  DraftField.paymentGateways ||
+  DraftField.paymentFields => WizardSection.payments,
 };
 
 /// Lets the wizard scroll to and focus the first invalid field.
 class FieldRegistry {
-  final Map<DraftField, FocusNode> _nodes = {};
+  /// Keyed by a [DraftField], or by a string for fields that are generated
+  /// (the payment credential fields, see [paymentFieldKey]). Insertion order is
+  /// build order, i.e. top to bottom.
+  final Map<Object, FocusNode> _nodes = {};
 
-  void register(DraftField field, FocusNode node) => _nodes[field] = node;
+  void register(Object field, FocusNode node) => _nodes[field] = node;
 
-  void unregister(DraftField field, FocusNode node) {
+  void unregister(Object field, FocusNode node) {
     if (_nodes[field] == node) _nodes.remove(field);
   }
 
   /// Moves keyboard focus to [field] if it is currently mounted.
   void focus(DraftField field) => _nodes[field]?.requestFocus();
+
+  /// Focuses the first on-screen field of [keys] (generated fields), in the
+  /// order they were built.
+  bool focusFirstOf(Set<Object> keys) {
+    for (final e in _nodes.entries) {
+      final ctx = e.value.context;
+      if (!keys.contains(e.key) || ctx == null) continue;
+      Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.2,
+        duration: const Duration(milliseconds: 250),
+      );
+      e.value.requestFocus();
+      return true;
+    }
+    return false;
+  }
 
   /// Focuses the first field of [errors] (in visual order) that is on screen.
   /// Returns true if a field was focused.
@@ -87,3 +111,6 @@ class FieldRegistry {
 }
 
 final fieldRegistryProvider = Provider<FieldRegistry>((ref) => FieldRegistry());
+
+/// Registry key of the credential field [key] of gateway [gatewayId].
+String paymentFieldKey(String gatewayId, String key) => 'pay:$gatewayId:$key';

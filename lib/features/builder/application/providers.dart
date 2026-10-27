@@ -5,12 +5,15 @@ import '../data/config_repository.dart';
 import '../data/app_id_checker.dart';
 import '../data/firebase_request_submitter.dart';
 import '../data/in_memory_config_repository.dart';
+import '../data/payment_backend.dart';
 import '../data/request_submitter.dart';
 import '../domain/asset.dart';
 import '../../../firebase_options.dart';
 import 'image_probe.dart';
 import 'image_url_loader.dart';
 import '../domain/draft.dart';
+import '../domain/payment_gateways.dart';
+import '../domain/payments.dart';
 import '../domain/validators.dart';
 import 'config_service.dart';
 import 'schema_validator.dart';
@@ -159,6 +162,25 @@ class DraftController extends Notifier<AppConfigDraft> {
 
   void setTemplate(String id) => state = state.copyWith(templateId: id);
 
+  void setPaymentEnv(PaymentEnv env) =>
+      state = state.copyWith(payments: state.payments.copyWith(env: env));
+
+  void setGatewayEnabled(String id, bool enabled) =>
+      state = state.copyWith(payments: state.payments.withEnabled(id, enabled));
+
+  void setDefaultGateway(String id) =>
+      state = state.copyWith(payments: state.payments.withDefault(id));
+
+  void setGatewayValue(String id, String key, String value) {
+    final p = state.payments;
+    state = state.copyWith(payments: p.withValue(id, p.env, key, value));
+    ref.read(gatewayTestProvider.notifier).clear(id, p.env);
+  }
+
+  /// Continue without a gateway: unselects them all (their values are kept).
+  void configurePaymentsLater() =>
+      state = state.copyWith(payments: state.payments.withConfigureLater());
+
   void setModule(String id, bool enabled) {
     final set = {...state.enabledModules};
     enabled ? set.add(id) : set.remove(id);
@@ -246,7 +268,8 @@ final sectionValidProvider = Provider.autoDispose.family<bool, WizardSection>((
 /// Sections are reachable only when all earlier ones are valid.
 final sectionEnabledProvider = Provider.autoDispose.family<bool, WizardSection>(
   (ref, section) {
-    for (final s in WizardSection.values) {
+    final draft = ref.watch(draftProvider);
+    for (final s in activeSections(draft)) {
       if (s == section) return true;
       if (!ref.watch(sectionValidProvider(s))) return false;
     }
@@ -429,4 +452,71 @@ class SubmitController extends Notifier<SubmitState> {
   }
 
   void clearError() => state = const SubmitState();
+}
+
+/// The steps shown for the current draft (the payments step is skipped for a
+/// template without payments).
+final activeSectionsProvider = Provider<List<WizardSection>>((ref) {
+  final supportsPayments = ref.watch(
+    draftProvider.select((d) => templateSupportsPayments(d.templateId)),
+  );
+  return [
+    for (final s in WizardSection.values)
+      if (s != WizardSection.payments || supportsPayments) s,
+  ];
+});
+
+/// Backend of the "Test connection" button. Replaced in tests.
+final paymentGatewayTesterProvider = Provider<PaymentGatewayTester>(
+  (ref) => HttpPaymentGatewayTester(),
+);
+
+/// State of one connection test (a gateway in one environment).
+class GatewayTestState {
+  const GatewayTestState({this.running = false, this.result});
+  final bool running;
+  final GatewayTestResult? result;
+}
+
+final gatewayTestProvider =
+    NotifierProvider<GatewayTestController, Map<String, GatewayTestState>>(
+      GatewayTestController.new,
+    );
+
+class GatewayTestController extends Notifier<Map<String, GatewayTestState>> {
+  @override
+  Map<String, GatewayTestState> build() => const {};
+
+  static String _key(String id, PaymentEnv env) => '$id/${env.name}';
+
+  GatewayTestState of(String id, PaymentEnv env) =>
+      state[_key(id, env)] ?? const GatewayTestState();
+
+  /// Forgets a result once the credentials it was for changed.
+  void clear(String id, PaymentEnv env) {
+    if (!state.containsKey(_key(id, env))) return;
+    state = {...state}..remove(_key(id, env));
+  }
+
+  Future<void> run(String id, PaymentEnv env) async {
+    final key = _key(id, env);
+    if (state[key]?.running == true) return;
+    final draft = ref.read(draftProvider).payments;
+    final gateway = paymentGatewayById(id);
+    if (gateway == null) return;
+    state = {...state, key: const GatewayTestState(running: true)};
+    final credentials = {
+      for (final f in gateway.fields)
+        f.key: draft.gateway(id).valueOf(gateway, env, f.key).trim(),
+    };
+    GatewayTestResult result;
+    try {
+      result = await ref
+          .read(paymentGatewayTesterProvider)
+          .test(id, env, credentials);
+    } catch (_) {
+      result = const GatewayTestResult(GatewayTestResult.unreachable);
+    }
+    state = {...state, key: GatewayTestState(result: result)};
+  }
 }

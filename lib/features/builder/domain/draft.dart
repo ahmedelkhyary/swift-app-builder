@@ -3,6 +3,7 @@ import 'package:recruitment_ui/recruitment_ui.dart';
 
 import 'asset.dart';
 import 'config.dart';
+import 'payments.dart';
 
 const kDefaultPrimaryHex = '#213F80';
 const kDefaultSecondaryHex = '#29ABE2';
@@ -77,6 +78,7 @@ class AppConfigDraft {
     this.supportedLanguages = const ['ar', 'en'],
     this.templateId = 'simple',
     this.enabledModules = kModuleIds,
+    this.payments = const PaymentsDraft(),
   });
 
   /// Slug identifying the app across versions.
@@ -124,6 +126,10 @@ class AppConfigDraft {
 
   /// Service modules the generated app includes.
   final List<String> enabledModules;
+
+  /// The "Payment methods" step. Holds the secret keys too, so it is only
+  /// ever serialized through [PaymentsDraft.toJson] (no secrets).
+  final PaymentsDraft payments;
 
   Color get primaryColor =>
       parseHexColor(primaryHex) ?? parseHexColor(kDefaultPrimaryHex)!;
@@ -185,6 +191,7 @@ class AppConfigDraft {
     List<String>? supportedLanguages,
     String? templateId,
     List<String>? enabledModules,
+    PaymentsDraft? payments,
   }) {
     return AppConfigDraft(
       appId: appId ?? this.appId,
@@ -214,6 +221,7 @@ class AppConfigDraft {
       supportedLanguages: supportedLanguages ?? this.supportedLanguages,
       templateId: templateId ?? this.templateId,
       enabledModules: enabledModules ?? this.enabledModules,
+      payments: payments ?? this.payments,
     );
   }
 
@@ -262,6 +270,9 @@ class AppConfigDraft {
       supportedLanguages: List.unmodifiable(c.supportedLanguages),
       templateId: c.templateId,
       enabledModules: List.unmodifiable(c.modules),
+      payments: c.payments == null
+          ? const PaymentsDraft()
+          : PaymentsDraft.fromJson(c.payments!),
     );
   }
 }

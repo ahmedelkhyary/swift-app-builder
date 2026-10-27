@@ -15,4 +15,5 @@ void resetWizard(WidgetRef ref) {
   ref.invalidate(previewDarkProvider);
   ref.invalidate(previewDeviceProvider);
   ref.invalidate(demoSessionProvider);
+  ref.invalidate(gatewayTestProvider);
 }

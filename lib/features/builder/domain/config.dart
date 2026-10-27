@@ -21,6 +21,7 @@ class AppConfig {
     required this.templateId,
     this.templateVersion = 1,
     this.modules = defaultModules,
+    this.payments,
     required this.primaryColor,
     required this.secondaryColor,
     this.accentColor = '#2E9E5B',
@@ -68,6 +69,10 @@ class AppConfig {
 
   /// Enabled service modules (individuals, hourly, mediation).
   final List<String> modules;
+
+  /// Payment settings without any secret (see `PaymentsDraft.toJson`); null
+  /// when the template has no payments or the config predates the step.
+  final Map<String, dynamic>? payments;
   final String primaryColor;
   final String secondaryColor;
 
@@ -110,6 +115,7 @@ class AppConfig {
     'templateId': templateId,
     'templateVersion': templateVersion,
     'modules': modules,
+    if (payments != null) 'payments': payments,
     'branding': {
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
@@ -172,6 +178,7 @@ class AppConfig {
         modules: j['modules'] == null
             ? defaultModules
             : List<String>.from(j['modules'] as List),
+        payments: j['payments'] as Map<String, dynamic>?,
         primaryColor: branding['primaryColor'] as String,
         secondaryColor: branding['secondaryColor'] as String,
         accentColor: (branding['accentColor'] as String?) ?? '#2E9E5B',

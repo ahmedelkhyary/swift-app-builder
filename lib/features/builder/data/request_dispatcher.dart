@@ -15,6 +15,12 @@ const _dispatchRegion = 'us-central1';
 /// even if this never reaches the function.
 abstract class RequestDispatcher {
   Future<void> dispatch(String requestId);
+
+  /// Asks the backend to queue the "request received" confirmation email for
+  /// a just-created request. Best-effort, like [dispatch]: the Cloud Function
+  /// is idempotent (keyed on `notification.pipelineRunId`), so this is safe
+  /// to skip or retry.
+  Future<void> notifyCreated(String requestId);
 }
 
 class HttpRequestDispatcher implements RequestDispatcher {
@@ -22,12 +28,15 @@ class HttpRequestDispatcher implements RequestDispatcher {
   final http.Client _client;
 
   @override
-  Future<void> dispatch(String requestId) async {
+  Future<void> dispatch(String requestId) => _post('/dispatchAppRequest', requestId);
+
+  @override
+  Future<void> notifyCreated(String requestId) =>
+      _post('/triggerConfirmationEmail', requestId);
+
+  Future<void> _post(String path, String requestId) async {
     final projectId = DefaultFirebaseOptions.web.projectId;
-    final url = Uri.https(
-      '$_dispatchRegion-$projectId.cloudfunctions.net',
-      '/dispatchAppRequest',
-    );
+    final url = Uri.https('$_dispatchRegion-$projectId.cloudfunctions.net', path);
     try {
       await _client
           .post(
@@ -37,7 +46,8 @@ class HttpRequestDispatcher implements RequestDispatcher {
           )
           .timeout(const Duration(seconds: 5));
     } catch (_) {
-      // Swallowed: the scheduled sweep will retry.
+      // Swallowed: the scheduled sweep (dispatch) or a manual resend
+      // (notify) covers a dropped call.
     }
   }
 }

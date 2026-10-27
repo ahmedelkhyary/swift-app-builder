@@ -246,6 +246,48 @@
           "mediation"
         ]
       }
+    },
+    "payments": {
+      "description": "Payment methods step. Only gateway ids, enabled flags, the default gateway and NON-secret fields: secret keys (access tokens, API keys, SHA phrases) are rejected here and live on the secrets backend.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "environment",
+        "gateways"
+      ],
+      "properties": {
+        "configureLater": {
+          "type": "boolean"
+        },
+        "environment": {
+          "enum": [
+            "test",
+            "live"
+          ]
+        },
+        "defaultGateway": {
+          "enum": [
+            "hyperpay",
+            "paymob",
+            "payfort"
+          ]
+        },
+        "gateways": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hyperpay": {
+              "$ref": "#/definitions/gatewayHyperpay"
+            },
+            "paymob": {
+              "$ref": "#/definitions/gatewayPaymob"
+            },
+            "payfort": {
+              "$ref": "#/definitions/gatewayPayfort"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -256,6 +298,143 @@
     "storagePath": {
       "type": "string",
       "pattern": "^apps/[a-z][a-z0-9_]{2,39}/v[0-9]+/[A-Za-z0-9_.-]+$"
+    },
+    "credentialValue": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "gatewayHyperpay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "test": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "entityIdCards": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "entityIdMada": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "entityIdApplePay": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "entityIdStcPay": {
+              "$ref": "#/definitions/credentialValue"
+            }
+          }
+        },
+        "live": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "entityIdCards": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "entityIdMada": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "entityIdApplePay": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "entityIdStcPay": {
+              "$ref": "#/definitions/credentialValue"
+            }
+          }
+        }
+      }
+    },
+    "gatewayPaymob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "test": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "publicKey": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "cardIntegrationId": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "walletIntegrationId": {
+              "$ref": "#/definitions/credentialValue"
+            }
+          }
+        },
+        "live": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "publicKey": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "cardIntegrationId": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "walletIntegrationId": {
+              "$ref": "#/definitions/credentialValue"
+            }
+          }
+        }
+      }
+    },
+    "gatewayPayfort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "test": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "merchantIdentifier": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "shaType": {
+              "enum": [
+                "SHA-256",
+                "SHA-512"
+              ]
+            }
+          }
+        },
+        "live": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "merchantIdentifier": {
+              "$ref": "#/definitions/credentialValue"
+            },
+            "shaType": {
+              "enum": [
+                "SHA-256",
+                "SHA-512"
+              ]
+            }
+          }
+        }
+      }
     }
   },
   "if": {

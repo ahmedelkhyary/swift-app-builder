@@ -74,6 +74,7 @@ class AppTemplate {
     required this.motion,
     this.displayFont = false,
     this.spacing = 1,
+    this.supportsPayments = true,
   });
 
   final String id;
@@ -97,6 +98,10 @@ class AppTemplate {
 
   /// Multiplier for paddings / gaps (1 = default, >1 = airier).
   final double spacing;
+
+  /// Whether the template includes the checkout / payment screens. When false
+  /// the builder skips its "Payment methods" step.
+  final bool supportsPayments;
 
   /// Version of the template implementations. The project generator maps
   /// (id, version) to a concrete design; bump when a template's look or

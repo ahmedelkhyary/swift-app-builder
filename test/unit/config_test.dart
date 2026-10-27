@@ -37,6 +37,7 @@ void main() {
         'templateId',
         'templateVersion',
         'modules',
+        'payments',
         'branding',
         'localization',
         'meta',

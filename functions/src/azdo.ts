@@ -45,22 +45,33 @@ async function azdoFetch(
   return res;
 }
 
-/** Queues a run of the configured pipeline on `refs/heads/main`. */
-export async function queueRun(
+/** Queues a run of any pipeline (by definition id) with arbitrary template
+ * parameters, on `refs/heads/main`. The one shared primitive behind every
+ * pipeline this project queues. */
+export async function queuePipeline(
   config: AzdoConfig,
-  requestId: string,
+  definitionId: string,
+  templateParameters: Record<string, string>,
 ): Promise<QueuedRun> {
   const url =
     `https://dev.azure.com/${config.org}/${encodeURIComponent(config.project)}` +
-    `/_apis/pipelines/${config.pipelineId}/runs?api-version=7.1`;
+    `/_apis/pipelines/${definitionId}/runs?api-version=7.1`;
   const res = await azdoFetch(url, config, {
     method: "POST",
     body: JSON.stringify({
       resources: { repositories: { self: { refName: "refs/heads/main" } } },
-      templateParameters: { requestId },
+      templateParameters,
     }),
   });
   return (await res.json()) as QueuedRun;
+}
+
+/** Queues a run of the configured build pipeline on `refs/heads/main`. */
+export async function queueRun(
+  config: AzdoConfig,
+  requestId: string,
+): Promise<QueuedRun> {
+  return queuePipeline(config, config.pipelineId, { requestId });
 }
 
 /** Cancels a (previously queued/running) build. Never throws: logging the

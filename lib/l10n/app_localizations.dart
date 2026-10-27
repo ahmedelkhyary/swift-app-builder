@@ -1735,6 +1735,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The bundle ID is too long (155 characters at most)'**
   String get errBundleTooLong;
+
+  /// No description provided for @sectionPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get sectionPayments;
+
+  /// No description provided for @paymentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the payment gateways that appear in the app, then choose the default one.'**
+  String get paymentsSubtitle;
+
+  /// No description provided for @paymentsEnvTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test'**
+  String get paymentsEnvTest;
+
+  /// No description provided for @paymentsEnvLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get paymentsEnvLive;
+
+  /// No description provided for @gatewayEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable {name}'**
+  String gatewayEnable(String name);
+
+  /// No description provided for @gatewaySetDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as default'**
+  String get gatewaySetDefault;
+
+  /// No description provided for @gatewayTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get gatewayTestConnection;
+
+  /// No description provided for @gatewayTesting.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing...'**
+  String get gatewayTesting;
+
+  /// No description provided for @gatewayTestOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection successful'**
+  String get gatewayTestOk;
+
+  /// No description provided for @gatewayTestInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The gateway rejected these credentials'**
+  String get gatewayTestInvalid;
+
+  /// No description provided for @gatewayTestNotImplemented.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection test is not available for this gateway yet'**
+  String get gatewayTestNotImplemented;
+
+  /// No description provided for @gatewayTestUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the test service. Try again.'**
+  String get gatewayTestUnreachable;
+
+  /// No description provided for @gatewayTestError.
+  ///
+  /// In en, this message translates to:
+  /// **'The gateway returned an error'**
+  String get gatewayTestError;
+
+  /// No description provided for @gatewayShowSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get gatewayShowSecret;
+
+  /// No description provided for @gatewayHideSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get gatewayHideSecret;
+
+  /// No description provided for @paymentsConfigureLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure later'**
+  String get paymentsConfigureLater;
+
+  /// No description provided for @paymentsSecretsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Secret keys are stored on the server only and are never put inside the app file.'**
+  String get paymentsSecretsNote;
+
+  /// No description provided for @errNoGatewayEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable at least one gateway or choose Configure later'**
+  String get errNoGatewayEnabled;
+
+  /// No description provided for @errGatewayFieldsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the required credentials of the enabled gateways'**
+  String get errGatewayFieldsMissing;
+
+  /// No description provided for @labelPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get labelPayments;
+
+  /// No description provided for @paymentsConfiguredLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure later'**
+  String get paymentsConfiguredLater;
+
+  /// No description provided for @paymentsDefaultSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (default)'**
+  String paymentsDefaultSuffix(String name);
+
+  /// No description provided for @paymentsSecretsNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request was sent, but the payment keys could not be saved. Please contact support so we can collect them.'**
+  String get paymentsSecretsNotSaved;
+
+  /// No description provided for @paymentsChooseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose payment gateways'**
+  String get paymentsChooseTitle;
+
+  /// No description provided for @paymentsChooseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select every gateway your app should offer.'**
+  String get paymentsChooseDesc;
+
+  /// No description provided for @paymentsDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection details'**
+  String get paymentsDetailsTitle;
+
+  /// No description provided for @paymentsDetailsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the credentials of the selected gateways for the chosen environment.'**
+  String get paymentsDetailsDesc;
+
+  /// No description provided for @paymentsDetailsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a gateway above to enter its details.'**
+  String get paymentsDetailsEmpty;
+
+  /// No description provided for @gatewayStatusComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get gatewayStatusComplete;
+
+  /// No description provided for @gatewayStatusMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field missing} other{{count} fields missing}}'**
+  String gatewayStatusMissing(int count);
+
+  /// No description provided for @gatewayIsDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get gatewayIsDefault;
+
+  /// No description provided for @regionEg.
+  ///
+  /// In en, this message translates to:
+  /// **'Egypt'**
+  String get regionEg;
+
+  /// No description provided for @regionSa.
+  ///
+  /// In en, this message translates to:
+  /// **'Saudi Arabia'**
+  String get regionSa;
+
+  /// No description provided for @regionGulf.
+  ///
+  /// In en, this message translates to:
+  /// **'Gulf'**
+  String get regionGulf;
+
+  /// No description provided for @countryAe.
+  ///
+  /// In en, this message translates to:
+  /// **'UAE'**
+  String get countryAe;
+
+  /// No description provided for @countryKw.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuwait'**
+  String get countryKw;
+
+  /// No description provided for @countryQa.
+  ///
+  /// In en, this message translates to:
+  /// **'Qatar'**
+  String get countryQa;
+
+  /// No description provided for @countryBh.
+  ///
+  /// In en, this message translates to:
+  /// **'Bahrain'**
+  String get countryBh;
+
+  /// No description provided for @countryOm.
+  ///
+  /// In en, this message translates to:
+  /// **'Oman'**
+  String get countryOm;
 }
 
 class _AppLocalizationsDelegate

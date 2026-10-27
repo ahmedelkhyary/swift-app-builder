@@ -1,6 +1,7 @@
 import 'package:recruitment_ui/recruitment_ui.dart' show AppTemplate;
 
 import 'draft.dart';
+import 'validators.dart' show templateSupportsPayments;
 
 /// The wizard data of a request as stored in Firestore (`app_requests/{appId}`),
 /// without `status` and the timestamps, which the backend adds. Images are
@@ -10,6 +11,7 @@ Map<String, dynamic> requestFields(
   required String logoUrl,
   required String appIconUrl,
   String? splashLogoUrl,
+  String? secretsTokenHash,
 }) {
   String? clean(String s) => s.trim().isEmpty ? null : s.trim().toUpperCase();
   return {
@@ -47,5 +49,13 @@ Map<String, dynamic> requestFields(
     'templateId': d.templateId,
     'templateVersion': AppTemplate.version,
     'modules': List<String>.from(d.enabledModules),
+    // Never any secret: those go to the secrets backend (see
+    // `PaymentsDraft.secrets`); only the hash of the one-time token that
+    // authorizes that call is stored here.
+    if (templateSupportsPayments(d.templateId))
+      'payments': {
+        ...d.payments.toJson(),
+        'secretsTokenHash': ?secretsTokenHash,
+      },
   };
 }

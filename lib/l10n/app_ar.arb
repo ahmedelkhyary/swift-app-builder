@@ -356,6 +356,66 @@
   "bundlePreview": "معرف الحزمة: {value}",
   "iosUnderscoreNote": "تم تحويل «_» إلى «-» لأن iOS لا يدعم الشرطة السفلية.",
   "errBundleTooLong": "معرف الحزمة طويل جدًا (الحد الأقصى 155 حرفًا)",
+  "sectionPayments": "طرق الدفع",
+  "paymentsSubtitle": "فعّل بوابات الدفع اللي هتظهر في التطبيق، وحدّد البوابة الافتراضية.",
+  "paymentsEnvTest": "تجريبي",
+  "paymentsEnvLive": "فعلي",
+  "gatewayEnable": "تفعيل {name}",
+  "@gatewayEnable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gatewaySetDefault": "اجعلها الافتراضية",
+  "gatewayTestConnection": "اختبار الاتصال",
+  "gatewayTesting": "جارٍ الاختبار...",
+  "gatewayTestOk": "الاتصال شغّال",
+  "gatewayTestInvalid": "البوابة رفضت البيانات دي",
+  "gatewayTestNotImplemented": "اختبار الاتصال لسه مش متاح للبوابة دي",
+  "gatewayTestUnreachable": "مقدرناش نوصل لخدمة الاختبار. جرّب تاني.",
+  "gatewayTestError": "البوابة رجّعت خطأ",
+  "gatewayShowSecret": "إظهار",
+  "gatewayHideSecret": "إخفاء",
+  "paymentsConfigureLater": "أضبطها لاحقًا",
+  "paymentsSecretsNote": "المفاتيح السرية بتتخزّن على السيرفر فقط ومش بتتحط جوّه ملف التطبيق.",
+  "errNoGatewayEnabled": "فعّل بوابة واحدة على الأقل أو اختار أضبطها لاحقًا",
+  "errGatewayFieldsMissing": "املأ بيانات الاعتماد المطلوبة للبوابات المفعّلة",
+  "labelPayments": "طرق الدفع",
+  "paymentsConfiguredLater": "أضبطها لاحقًا",
+  "paymentsDefaultSuffix": "{name} (افتراضي)",
+  "@paymentsDefaultSuffix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentsSecretsNotSaved": "اتبعت طلبك، بس مقدرناش نحفظ مفاتيح الدفع. تواصل مع الدعم عشان نستلمها منك.",
+  "paymentsChooseTitle": "اختر بوابات الدفع",
+  "paymentsChooseDesc": "اختار كل بوابة عايز التطبيق يقدّمها.",
+  "paymentsDetailsTitle": "بيانات الربط",
+  "paymentsDetailsDesc": "أدخل بيانات البوابات المختارة للبيئة المحددة.",
+  "paymentsDetailsEmpty": "اختار بوابة من فوق عشان تدخل بياناتها.",
+  "gatewayStatusComplete": "مكتمل",
+  "gatewayStatusMissing": "{count, plural, =1{ناقص حقل واحد} =2{ناقص حقلين} other{ناقص {count} حقول}}",
+  "@gatewayStatusMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gatewayIsDefault": "افتراضية",
+  "regionEg": "مصر",
+  "regionSa": "السعودية",
+  "regionGulf": "الخليج",
+  "countryAe": "الإمارات",
+  "countryKw": "الكويت",
+  "countryQa": "قطر",
+  "countryBh": "البحرين",
+  "countryOm": "عُمان",
   "@bundlePreview": {
     "placeholders": {
       "value": {

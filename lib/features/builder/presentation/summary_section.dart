@@ -8,6 +8,8 @@ import '../application/providers.dart';
 import '../data/request_submitter.dart';
 import '../domain/config.dart';
 import '../domain/draft.dart';
+import '../domain/payment_gateways.dart';
+import '../domain/payments.dart';
 import '../domain/validators.dart';
 import 'form_widgets.dart';
 import 'l10n_ext.dart';
@@ -74,6 +76,8 @@ class _Review extends StatelessWidget {
       (l10n.labelAndroid, config.androidPackage),
       (l10n.labelIos, config.iosBundleId),
       (l10n.labelTemplate, l10n.templateName(config.templateId)),
+      if (config.payments != null)
+        (l10n.labelPayments, _paymentsSummary(l10n, draft.payments)),
       (
         l10n.labelColors,
         [
@@ -120,6 +124,18 @@ class _Review extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "HyperPay (default), Cash on delivery", or "Configure later".
+String _paymentsSummary(AppLocalizations l10n, PaymentsDraft p) {
+  if (p.enabledIds.isEmpty) return l10n.paymentsConfiguredLater;
+  final lang = l10n.localeName;
+  return [
+    for (final id in p.enabledIds)
+      id == p.defaultGateway
+          ? l10n.paymentsDefaultSuffix(paymentGatewayById(id)!.name(lang))
+          : paymentGatewayById(id)!.name(lang),
+  ].join(', ');
 }
 
 class _ValidationReport extends StatelessWidget {
@@ -198,6 +214,7 @@ class _SubmitPanel extends ConsumerWidget {
       context.go('/builder/${WizardSection.info.name}');
       return;
     }
+    final secretsPending = result == SubmitResult.createdSecretsPending;
     if (!context.mounted) return;
     final draft = ref.read(draftProvider);
     await showSubmitSuccess(
@@ -206,6 +223,15 @@ class _SubmitPanel extends ConsumerWidget {
       email: draft.clientEmail.trim(),
       primary: draft.primaryColor,
     );
+    if (secretsPending && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          key: const ValueKey('payment-secrets-not-saved'),
+          content: Text(l10n.paymentsSecretsNotSaved),
+          duration: const Duration(seconds: 12),
+        ),
+      );
+    }
     // Back to the beginning: every step and any draft data is cleared.
     if (!context.mounted) return;
     resetWizard(ref);

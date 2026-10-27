@@ -6,6 +6,7 @@ import '../data/config_repository.dart';
 import '../domain/asset.dart';
 import '../domain/config.dart';
 import '../domain/draft.dart';
+import '../domain/validators.dart' show templateSupportsPayments;
 import 'schema_validator.dart';
 
 /// A config ready to be saved, plus the asset bytes it references.
@@ -84,6 +85,9 @@ class ConfigService {
       modules: List.unmodifiable(
         kModuleIds.where(draft.enabledModules.contains),
       ),
+      payments: templateSupportsPayments(draft.templateId)
+          ? draft.payments.toJson()
+          : null,
       primaryColor: draft.primaryHex.toUpperCase(),
       secondaryColor: draft.secondaryHex.toUpperCase(),
       accentColor: draft.accentHex.toUpperCase(),

@@ -19,6 +19,8 @@ extension FieldErrorText on AppLocalizations {
     FieldError.defaultNotSupported => errDefaultNotSupported,
     FieldError.assetMissing => errAssetMissing,
     FieldError.noModules => errNoModules,
+    FieldError.noGatewayEnabled => errNoGatewayEnabled,
+    FieldError.gatewayFieldsMissing => errGatewayFieldsMissing,
   };
 
   String submitError(SubmitErrorKind k) => switch (k) {
@@ -43,6 +45,7 @@ extension FieldErrorText on AppLocalizations {
     WizardSection.branding => sectionBranding,
     WizardSection.localization => sectionLocalization,
     WizardSection.template => sectionTemplate,
+    WizardSection.payments => sectionPayments,
     WizardSection.summary => sectionSummary,
   };
 

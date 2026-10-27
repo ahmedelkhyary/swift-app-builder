@@ -11,7 +11,6 @@ import 'field_registry.dart';
 import 'l10n_ext.dart';
 import 'load_dialog.dart';
 
-const _sections = WizardSection.values;
 const double _narrow = 768;
 
 String _subtitle(AppLocalizations l10n, WizardSection s) => switch (s) {
@@ -19,10 +18,11 @@ String _subtitle(AppLocalizations l10n, WizardSection s) => switch (s) {
   WizardSection.branding => l10n.brandingSubtitle,
   WizardSection.localization => l10n.localizationSubtitle,
   WizardSection.template => l10n.templateSubtitle,
+  WizardSection.payments => l10n.paymentsSubtitle,
   WizardSection.summary => l10n.summarySubtitle,
 };
 
-/// Layout shared by all five wizard steps: header, horizontal stepper,
+/// Layout shared by all the wizard steps: header, horizontal stepper,
 /// scrollable content and a sticky footer.
 class WizardShell extends ConsumerWidget {
   const WizardShell({super.key, required this.section, required this.child});
@@ -33,7 +33,8 @@ class WizardShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final index = _sections.indexOf(section);
+    final sections = ref.watch(activeSectionsProvider);
+    final index = sections.indexOf(section);
     final wide =
         section == WizardSection.template || section == WizardSection.branding;
     final narrow = MediaQuery.sizeOf(context).width < _narrow;
@@ -43,7 +44,7 @@ class WizardShell extends ConsumerWidget {
       body: Column(
         children: [
           const _Header(),
-          _Stepper(current: index),
+          _Stepper(sections: sections, current: index),
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
@@ -154,7 +155,8 @@ class _Header extends ConsumerWidget {
 }
 
 class _Stepper extends ConsumerWidget {
-  const _Stepper({required this.current});
+  const _Stepper({required this.sections, required this.current});
+  final List<WizardSection> sections;
   final int current;
 
   @override
@@ -175,17 +177,16 @@ class _Stepper extends ConsumerWidget {
                 constraints: const BoxConstraints(maxWidth: 960),
                 child: Row(
                   children: [
-                    for (var i = 0; i < _sections.length; i++)
+                    for (var i = 0; i < sections.length; i++)
                       Expanded(
                         flex: narrow && i != current ? 1 : 2,
                         child: _StepItem(
                           index: i,
                           current: current,
-                          title: l10n.sectionTitle(_sections[i]),
+                          title: l10n.sectionTitle(sections[i]),
                           showTitle: !narrow || i == current,
                           onTap: i < current
-                              ? () =>
-                                    context.go('/builder/${_sections[i].name}')
+                              ? () => context.go('/builder/${sections[i].name}')
                               : null,
                         ),
                       ),
@@ -206,7 +207,7 @@ class _Stepper extends ConsumerWidget {
                   ),
                 ),
                 Expanded(
-                  flex: _sections.length - current - 1,
+                  flex: sections.length - current - 1,
                   child: Container(color: AppColors.progressTrack),
                 ),
               ],
@@ -301,12 +302,13 @@ class _Footer extends ConsumerWidget {
   final WizardSection section;
 
   void _next(BuildContext context, WidgetRef ref, {VoidCallback? onValid}) {
-    final index = _sections.indexOf(section);
+    final sections = ref.read(activeSectionsProvider);
+    final index = sections.indexOf(section);
     if (ref.read(sectionValidProvider(section))) {
       if (onValid != null) {
         onValid();
       } else {
-        context.go('/builder/${_sections[index + 1].name}');
+        context.go('/builder/${sections[index + 1].name}');
       }
       return;
     }
@@ -317,7 +319,15 @@ class _Footer extends ConsumerWidget {
       section,
     ).keys;
     final registry = ref.read(fieldRegistryProvider);
+    final missing = ref.read(draftProvider).payments.validate().missing;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (section == WizardSection.payments && missing.isNotEmpty) {
+        registry.focusFirstOf({
+          for (final e in missing.entries)
+            for (final k in e.value) paymentFieldKey(e.key, k),
+        });
+        return;
+      }
       // With no synchronous error the blocker is the async app-ID check.
       registry.focusFirstInvalid(
         errors.isEmpty ? const [DraftField.appId] : errors,
@@ -328,10 +338,11 @@ class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final index = _sections.indexOf(section);
-    final isLast = index == _sections.length - 1;
+    final sections = ref.watch(activeSectionsProvider);
+    final index = sections.indexOf(section);
+    final isLast = index == sections.length - 1;
     final narrow = MediaQuery.sizeOf(context).width < _narrow;
-    final nextName = isLast ? '' : l10n.sectionTitle(_sections[index + 1]);
+    final nextName = isLast ? '' : l10n.sectionTitle(sections[index + 1]);
     final isTemplate = section == WizardSection.template;
     final pick = isTemplate ? ref.watch(templatePickProvider) : null;
     final picked = pick?.selected.length ?? 1;
@@ -360,9 +371,7 @@ class _Footer extends ConsumerWidget {
                 TextSpan(
                   style: const TextStyle(color: AppColors.muted, fontSize: 14),
                   children: [
-                    TextSpan(
-                      text: l10n.wizardStep(index + 1, _sections.length),
-                    ),
+                    TextSpan(text: l10n.wizardStep(index + 1, sections.length)),
                     if (isTemplate && !comparing) ...[
                       const TextSpan(text: ' · '),
                       if (picked == 0)
@@ -406,9 +415,25 @@ class _Footer extends ConsumerWidget {
                 key: const ValueKey('wizard-back'),
                 onPressed: index == 0
                     ? null
-                    : () => context.go('/builder/${_sections[index - 1].name}'),
+                    : () => context.go('/builder/${sections[index - 1].name}'),
                 child: Text(l10n.back),
               ),
+            if (section == WizardSection.payments) ...[
+              const SizedBox(width: 12),
+              Flexible(
+                child: OutlinedButton(
+                  key: const ValueKey('payments-configure-later'),
+                  onPressed: () {
+                    ref.read(draftProvider.notifier).configurePaymentsLater();
+                    context.go('/builder/${sections[index + 1].name}');
+                  },
+                  child: Text(
+                    l10n.paymentsConfigureLater,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
             if (!isLast && !comparing) ...[
               const SizedBox(width: 12),
               Flexible(

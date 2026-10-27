@@ -135,6 +135,17 @@ trigger خلفي على Firestore يجب أن يعمل في نفس منطقة ا
 4. دوّن معرّف الـ pipeline (من رابطه أو `az pipelines list`) لاستخدامه في
    `AZDO_PIPELINE_ID` بالخطوة 2.
 
+### بريد تأكيد الطلب (Azure DevOps pipeline 55)
+
+بعد إنشاء طلب جديد (وليس عند إعادة إرساله)، يستدعي التطبيق أيضًا
+`triggerConfirmationEmail` التي تُشغّل pipeline رقم 55 (مُعدّ مسبقًا في Azure
+DevOps؛ ملف YAML الخاص به ليس جزءًا من هذا المستودع) بمعرّف الطلب فقط، ويقرأ
+الـ pipeline الباقي من المستند نفسه. غير مكرر (`email.queuedRunId` يمنع
+التشغيل مرتين؛ راجع [`docs/CONFIG.md`](docs/CONFIG.md#the-emailfields))، ولا
+يؤثر فشله على الإرسال أو على خط البناء. اضبط `EMAIL_PIPELINE_ID=55` في
+`functions/.env` ثم انشر بنفس أمر بقية `functions/`:
+`cd functions && firebase deploy --only functions`.
+
 ### مكان `pipeline/`
 
 يعيش `pipeline/` في هذا المستودع افتراضيًا. لنقله إلى مستودع Azure Repos منفصل:

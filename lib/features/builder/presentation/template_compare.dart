@@ -8,6 +8,7 @@ import 'package:recruitment_ui/recruitment_ui.dart';
 import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/providers.dart';
+import '../domain/validators.dart';
 import 'interactive_preview.dart';
 import 'l10n_ext.dart';
 import 'phone_preview.dart';
@@ -84,7 +85,11 @@ class _TemplateCompareState extends ConsumerState<TemplateCompare> {
 
   void _choose(String id) {
     ref.read(draftProvider.notifier).setTemplate(id);
-    context.go('/builder/summary');
+    // The step after the template: payments, or Summary when the template has
+    // no payments.
+    final sections = ref.read(activeSectionsProvider);
+    final next = sections[sections.indexOf(WizardSection.template) + 1];
+    context.go('/builder/${next.name}');
   }
 
   @override

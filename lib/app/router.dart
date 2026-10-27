@@ -29,9 +29,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       final section = _parse(state.pathParameters['section']);
       if (section == null) return '/builder/info';
+      if (!activeSections(ref.read(draftProvider)).contains(section)) {
+        return '/builder/${WizardSection.summary.name}';
+      }
       if (!ref.read(sectionEnabledProvider(section))) {
         // Send the user to the first section that blocks them.
-        for (final s in WizardSection.values) {
+        for (final s in activeSections(ref.read(draftProvider))) {
           if (s == section) break;
           if (!ref.read(sectionValidProvider(s))) return '/builder/${s.name}';
         }

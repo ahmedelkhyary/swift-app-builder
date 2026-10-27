@@ -9,6 +9,7 @@ import '../domain/draft.dart';
 import '../domain/request_document.dart';
 import '../domain/validators.dart';
 import 'app_id_checker.dart';
+import 'payment_backend.dart';
 import 'request_dispatcher.dart';
 import 'request_submitter.dart';
 
@@ -18,12 +19,16 @@ import 'request_submitter.dart';
 /// Image files get a unique name per submission, so a request is never
 /// overwritten silently, not even its images.
 class FirebaseRequestSubmitter implements RequestSubmitter {
-  FirebaseRequestSubmitter({RequestDispatcher? dispatcher})
-    : _dispatcher = dispatcher ?? HttpRequestDispatcher();
+  FirebaseRequestSubmitter({
+    RequestDispatcher? dispatcher,
+    PaymentSecretsSaver? secretsSaver,
+  }) : _dispatcher = dispatcher ?? HttpRequestDispatcher(),
+       _secretsSaver = secretsSaver ?? HttpPaymentSecretsSaver();
 
   static const collection = 'app_requests';
 
   final RequestDispatcher _dispatcher;
+  final PaymentSecretsSaver _secretsSaver;
 
   @override
   Future<SubmitResult> submit(AppConfigDraft draft) async {
@@ -53,11 +58,20 @@ class FirebaseRequestSubmitter implements RequestSubmitter {
       final splashUrl = splash == null
           ? null
           : await _upload(appId, 'splash_logo', stamp, splash);
+      // Secret keys never go into the request: they are stored by the secrets
+      // backend after the request exists, authorized by a one-time token whose
+      // hash is the only thing written here.
+      final secrets =
+          templateSupportsPayments(draft.templateId) &&
+              draft.payments.hasSecrets
+          ? SecretsToken.generate()
+          : null;
       final fields = requestFields(
         draft.copyWith(appId: appId),
         logoUrl: logoUrl,
         appIconUrl: iconUrl,
         splashLogoUrl: splashUrl,
+        secretsTokenHash: secrets?.hash,
       );
 
       // The final check and the writes are one transaction, so two clients
@@ -74,9 +88,19 @@ class FirebaseRequestSubmitter implements RequestSubmitter {
         });
         return SubmitResult.created;
       });
-      // Nudges the backend to dispatch the build pipeline now rather than
-      // wait for its periodic sweep; never fails the submission.
-      if (result == SubmitResult.created) await _dispatcher.dispatch(appId);
+      // Nudges the backend to queue the confirmation email and dispatch the
+      // build pipeline now, rather than wait for the sweep / a manual resend;
+      // neither failure can fail the submission. The email is queued first,
+      // on purpose: each call only returns once its own Azure DevOps run is
+      // queued, so this guarantees pipeline 55 (email) is queued before
+      // pipeline 54 (build).
+      if (result != SubmitResult.created) return result;
+      await _dispatcher.notifyCreated(appId);
+      await _dispatcher.dispatch(appId);
+      if (secrets != null &&
+          !await _secretsSaver.save(appId, secrets.value, draft.payments)) {
+        return SubmitResult.createdSecretsPending;
+      }
       return result;
     } on FirebaseException catch (e) {
       // Losing the race can also surface as a rules rejection of the create.

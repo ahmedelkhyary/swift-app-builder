@@ -178,6 +178,14 @@ the request document.
      `{project-number}-compute@developer.gserviceaccount.com` (Console → IAM)
      the roles **Cloud Build Service Account**, **Artifact Registry Writer**
      and **Cloud Datastore User**, then redeploy.
+   - **Payment keys (Secret Manager).** The wizard's "Payment methods" step
+     stores gateway secrets with `savePaymentSecrets` in Google Secret Manager
+     (see [`docs/CONFIG.md`](docs/CONFIG.md#payment-methods-payments-and-secrets)).
+     Enable the **Secret Manager API** in the GCP project and grant the
+     functions' service account
+     (`{project-number}-compute@developer.gserviceaccount.com`) the role
+     **Secret Manager Admin** (it creates secrets and adds versions). The
+     `paymentGateways` function (connection test) needs no extra role.
 3. **Azure DevOps pipeline.** Create a pipeline from `pipeline/azure-pipelines.yml`
    (see below for keeping `pipeline/` here vs. a separate Azure Repos repo),
    with `trigger: none` / `pr: none` so it only ever runs via the REST API.
@@ -193,6 +201,18 @@ the request document.
      go through without approval.
 4. Note the pipeline id (from its URL or `az pipelines list`) for
    `AZDO_PIPELINE_ID` in step 2.
+
+### Confirmation email (Azure DevOps pipeline 55)
+
+Right after a request is **created** (not on a re-submit), the app also calls
+`triggerConfirmationEmail`, which queues pipeline 55 (already set up in Azure
+DevOps — its YAML isn't part of this repo) with just the request id; the
+pipeline reads the rest from the document itself. Idempotent on
+`email.queuedRunId` (see
+[`docs/CONFIG.md`](docs/CONFIG.md#the-emailfields) for the `email.*` fields),
+and a failure here never affects the submission or the build pipeline. Set
+`EMAIL_PIPELINE_ID=55` in `functions/.env`, then deploy with the same command
+as the rest of `functions/`: `cd functions && firebase deploy --only functions`.
 
 ### `pipeline/` location
 

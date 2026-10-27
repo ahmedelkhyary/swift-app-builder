@@ -2,7 +2,24 @@ import 'package:recruitment_ui/recruitment_ui.dart';
 
 import 'draft.dart';
 
-enum WizardSection { info, branding, localization, template, summary }
+enum WizardSection { info, branding, localization, template, payments, summary }
+
+/// The steps the wizard shows for [d]: the payments step is skipped when the
+/// selected template has no payments.
+List<WizardSection> activeSections(
+  AppConfigDraft d, {
+  AppTemplate Function(String id) byId = AppTemplate.byId,
+}) => [
+  for (final s in WizardSection.values)
+    if (s != WizardSection.payments ||
+        templateSupportsPayments(d.templateId, byId: byId))
+      s,
+];
+
+bool templateSupportsPayments(
+  String templateId, {
+  AppTemplate Function(String id) byId = AppTemplate.byId,
+}) => byId(templateId).supportsPayments;
 
 enum FieldError {
   required,
@@ -19,6 +36,8 @@ enum FieldError {
   defaultNotSupported,
   assetMissing,
   noModules,
+  noGatewayEnabled,
+  gatewayFieldsMissing,
 }
 
 enum DraftField {
@@ -40,6 +59,8 @@ enum DraftField {
   appIcon,
   supportedLanguages,
   modules,
+  paymentGateways,
+  paymentFields,
 }
 
 /// Pure, synchronous field validators. Return null when valid.
@@ -231,8 +252,17 @@ class DraftValidator {
         if (d.enabledModules.isEmpty) {
           errors[DraftField.modules] = FieldError.noModules;
         }
+      case WizardSection.payments:
+        if (!templateSupportsPayments(d.templateId)) break;
+        final p = d.payments.validate();
+        if (p.noneEnabled) {
+          errors[DraftField.paymentGateways] = FieldError.noGatewayEnabled;
+        }
+        if (p.missing.isNotEmpty) {
+          errors[DraftField.paymentFields] = FieldError.gatewayFieldsMissing;
+        }
       case WizardSection.summary:
-        for (final s in WizardSection.values) {
+        for (final s in activeSections(d)) {
           if (s != WizardSection.summary) errors.addAll(validateSection(d, s));
         }
     }
@@ -244,7 +274,7 @@ class DraftValidator {
 
   /// First section (in order) that is invalid, or null if all are valid.
   static WizardSection? firstInvalid(AppConfigDraft d) {
-    for (final s in WizardSection.values) {
+    for (final s in activeSections(d)) {
       if (s == WizardSection.summary) continue;
       if (!isSectionValid(d, s)) return s;
     }

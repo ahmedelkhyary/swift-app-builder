@@ -23,6 +23,9 @@ class DraftTextField extends ConsumerStatefulWidget {
     required this.value,
     required this.onChanged,
     this.field,
+    this.registryKey,
+    this.section,
+    this.obscure = false,
     this.fieldKey,
     this.error,
     this.messages = const {},
@@ -49,6 +52,15 @@ class DraftTextField extends ConsumerStatefulWidget {
 
   /// Registers the field so Next can scroll to / focus it when invalid.
   final DraftField? field;
+
+  /// Registers a generated field (no [DraftField] of its own), for example a
+  /// payment credential; needs [section] so errors show once Next was pressed.
+  final Object? registryKey;
+  final WizardSection? section;
+
+  /// Hides the text (password input). The caller supplies the show / hide
+  /// toggle through [suffix].
+  final bool obscure;
 
   /// Key applied to the underlying [TextField] (used by tests).
   final Key? fieldKey;
@@ -105,7 +117,7 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
       if (!_focus.hasFocus) _blurred = true;
       setState(() {});
     });
-    final f = widget.field;
+    final f = widget.field ?? widget.registryKey;
     if (f != null) _registry.register(f, _focus);
   }
 
@@ -122,7 +134,7 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
 
   @override
   void dispose() {
-    final f = widget.field;
+    final f = widget.field ?? widget.registryKey;
     if (f != null) _registry.unregister(f, _focus);
     _controller.dispose();
     _focus.dispose();
@@ -133,8 +145,9 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final f = widget.field;
+    final section = widget.section ?? (f == null ? null : sectionOfField(f));
     final attempted =
-        f != null && ref.watch(submitAttemptProvider(sectionOfField(f)));
+        section != null && ref.watch(submitAttemptProvider(section));
     final err = widget.error;
     final showError =
         err != null && (widget.alwaysShowError || _blurred || attempted);
@@ -166,6 +179,9 @@ class _DraftTextFieldState extends ConsumerState<DraftTextField> {
       inputFormatters: widget.inputFormatters,
       textDirection: widget.ltr ? TextDirection.ltr : null,
       textAlign: widget.ltr ? TextAlign.left : TextAlign.start,
+      obscureText: widget.obscure,
+      enableSuggestions: !widget.obscure,
+      autocorrect: !widget.obscure,
       style: textStyle,
       onChanged: widget.onChanged,
       decoration: InputDecoration(

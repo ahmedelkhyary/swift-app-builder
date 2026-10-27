@@ -6,6 +6,7 @@ import '../domain/validators.dart';
 import 'branding_section.dart';
 import 'info_section.dart';
 import 'localization_section.dart';
+import 'payments_section.dart';
 import 'summary_section.dart';
 import 'template_section.dart';
 import 'wizard_shell.dart';
@@ -20,6 +21,7 @@ class WizardPage extends ConsumerWidget {
     WizardSection.branding => const BrandingSection(),
     WizardSection.localization => const LocalizationSection(),
     WizardSection.template => const TemplateSection(),
+    WizardSection.payments => const PaymentsSection(),
     WizardSection.summary => const SummarySection(),
   };
 
@@ -27,7 +29,7 @@ class WizardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Keep every section's validity (incl. the async app-ID check) alive so the
     // router guard and the Next button can rely on it.
-    for (final s in WizardSection.values) {
+    for (final s in ref.watch(activeSectionsProvider)) {
       ref.watch(sectionEnabledProvider(s));
     }
     return WizardShell(section: section, child: _content());

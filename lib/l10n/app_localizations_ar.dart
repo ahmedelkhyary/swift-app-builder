@@ -927,4 +927,142 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get errBundleTooLong =>
       'معرف الحزمة طويل جدًا (الحد الأقصى 155 حرفًا)';
+
+  @override
+  String get sectionPayments => 'طرق الدفع';
+
+  @override
+  String get paymentsSubtitle =>
+      'فعّل بوابات الدفع اللي هتظهر في التطبيق، وحدّد البوابة الافتراضية.';
+
+  @override
+  String get paymentsEnvTest => 'تجريبي';
+
+  @override
+  String get paymentsEnvLive => 'فعلي';
+
+  @override
+  String gatewayEnable(String name) {
+    return 'تفعيل $name';
+  }
+
+  @override
+  String get gatewaySetDefault => 'اجعلها الافتراضية';
+
+  @override
+  String get gatewayTestConnection => 'اختبار الاتصال';
+
+  @override
+  String get gatewayTesting => 'جارٍ الاختبار...';
+
+  @override
+  String get gatewayTestOk => 'الاتصال شغّال';
+
+  @override
+  String get gatewayTestInvalid => 'البوابة رفضت البيانات دي';
+
+  @override
+  String get gatewayTestNotImplemented =>
+      'اختبار الاتصال لسه مش متاح للبوابة دي';
+
+  @override
+  String get gatewayTestUnreachable =>
+      'مقدرناش نوصل لخدمة الاختبار. جرّب تاني.';
+
+  @override
+  String get gatewayTestError => 'البوابة رجّعت خطأ';
+
+  @override
+  String get gatewayShowSecret => 'إظهار';
+
+  @override
+  String get gatewayHideSecret => 'إخفاء';
+
+  @override
+  String get paymentsConfigureLater => 'أضبطها لاحقًا';
+
+  @override
+  String get paymentsSecretsNote =>
+      'المفاتيح السرية بتتخزّن على السيرفر فقط ومش بتتحط جوّه ملف التطبيق.';
+
+  @override
+  String get errNoGatewayEnabled =>
+      'فعّل بوابة واحدة على الأقل أو اختار أضبطها لاحقًا';
+
+  @override
+  String get errGatewayFieldsMissing =>
+      'املأ بيانات الاعتماد المطلوبة للبوابات المفعّلة';
+
+  @override
+  String get labelPayments => 'طرق الدفع';
+
+  @override
+  String get paymentsConfiguredLater => 'أضبطها لاحقًا';
+
+  @override
+  String paymentsDefaultSuffix(String name) {
+    return '$name (افتراضي)';
+  }
+
+  @override
+  String get paymentsSecretsNotSaved =>
+      'اتبعت طلبك، بس مقدرناش نحفظ مفاتيح الدفع. تواصل مع الدعم عشان نستلمها منك.';
+
+  @override
+  String get paymentsChooseTitle => 'اختر بوابات الدفع';
+
+  @override
+  String get paymentsChooseDesc => 'اختار كل بوابة عايز التطبيق يقدّمها.';
+
+  @override
+  String get paymentsDetailsTitle => 'بيانات الربط';
+
+  @override
+  String get paymentsDetailsDesc =>
+      'أدخل بيانات البوابات المختارة للبيئة المحددة.';
+
+  @override
+  String get paymentsDetailsEmpty => 'اختار بوابة من فوق عشان تدخل بياناتها.';
+
+  @override
+  String get gatewayStatusComplete => 'مكتمل';
+
+  @override
+  String gatewayStatusMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ناقص $count حقول',
+      two: 'ناقص حقلين',
+      one: 'ناقص حقل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gatewayIsDefault => 'افتراضية';
+
+  @override
+  String get regionEg => 'مصر';
+
+  @override
+  String get regionSa => 'السعودية';
+
+  @override
+  String get regionGulf => 'الخليج';
+
+  @override
+  String get countryAe => 'الإمارات';
+
+  @override
+  String get countryKw => 'الكويت';
+
+  @override
+  String get countryQa => 'قطر';
+
+  @override
+  String get countryBh => 'البحرين';
+
+  @override
+  String get countryOm => 'عُمان';
 }

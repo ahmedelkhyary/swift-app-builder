@@ -467,6 +467,66 @@
   "bundlePreview": "Bundle ID: {value}",
   "iosUnderscoreNote": "Underscores \"_\" were converted to hyphens \"-\" because iOS does not allow them.",
   "errBundleTooLong": "The bundle ID is too long (155 characters at most)",
+  "sectionPayments": "Payment methods",
+  "paymentsSubtitle": "Turn on the payment gateways that appear in the app, then choose the default one.",
+  "paymentsEnvTest": "Test",
+  "paymentsEnvLive": "Live",
+  "gatewayEnable": "Enable {name}",
+  "@gatewayEnable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gatewaySetDefault": "Set as default",
+  "gatewayTestConnection": "Test connection",
+  "gatewayTesting": "Testing...",
+  "gatewayTestOk": "Connection successful",
+  "gatewayTestInvalid": "The gateway rejected these credentials",
+  "gatewayTestNotImplemented": "Connection test is not available for this gateway yet",
+  "gatewayTestUnreachable": "Could not reach the test service. Try again.",
+  "gatewayTestError": "The gateway returned an error",
+  "gatewayShowSecret": "Show",
+  "gatewayHideSecret": "Hide",
+  "paymentsConfigureLater": "Configure later",
+  "paymentsSecretsNote": "Secret keys are stored on the server only and are never put inside the app file.",
+  "errNoGatewayEnabled": "Enable at least one gateway or choose Configure later",
+  "errGatewayFieldsMissing": "Fill in the required credentials of the enabled gateways",
+  "labelPayments": "Payment methods",
+  "paymentsConfiguredLater": "Configure later",
+  "paymentsDefaultSuffix": "{name} (default)",
+  "@paymentsDefaultSuffix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentsSecretsNotSaved": "Your request was sent, but the payment keys could not be saved. Please contact support so we can collect them.",
+  "paymentsChooseTitle": "Choose payment gateways",
+  "paymentsChooseDesc": "Select every gateway your app should offer.",
+  "paymentsDetailsTitle": "Connection details",
+  "paymentsDetailsDesc": "Enter the credentials of the selected gateways for the chosen environment.",
+  "paymentsDetailsEmpty": "Select a gateway above to enter its details.",
+  "gatewayStatusComplete": "Complete",
+  "gatewayStatusMissing": "{count, plural, =1{1 field missing} other{{count} fields missing}}",
+  "@gatewayStatusMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gatewayIsDefault": "Default",
+  "regionEg": "Egypt",
+  "regionSa": "Saudi Arabia",
+  "regionGulf": "Gulf",
+  "countryAe": "UAE",
+  "countryKw": "Kuwait",
+  "countryQa": "Qatar",
+  "countryBh": "Bahrain",
+  "countryOm": "Oman",
   "@bundlePreview": {
     "placeholders": {
       "value": {

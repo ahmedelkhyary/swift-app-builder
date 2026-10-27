@@ -5,6 +5,7 @@ import 'package:image/image.dart' as img;
 import 'package:swiftappbuilder/features/builder/application/schema_validator.dart';
 import 'package:swiftappbuilder/features/builder/domain/asset.dart';
 import 'package:swiftappbuilder/features/builder/domain/draft.dart';
+import 'package:swiftappbuilder/features/builder/domain/payments.dart';
 
 ConfigSchemaValidator loadSchema() =>
     ConfigSchemaValidator(File('assets/config.schema.json').readAsStringSync());
@@ -36,4 +37,6 @@ AppConfigDraft validDraft({String appId = 'swift_maids'}) => AppConfigDraft(
   clientPhone: '+966500000000',
   logo: fakeAsset('logo.png'),
   appIcon: fakeAsset('icon.png'),
+  // The payments step is optional: "configure later" keeps it valid.
+  payments: const PaymentsDraft(configureLater: true),
 );

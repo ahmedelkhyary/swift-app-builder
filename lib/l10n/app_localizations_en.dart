@@ -929,4 +929,143 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errBundleTooLong =>
       'The bundle ID is too long (155 characters at most)';
+
+  @override
+  String get sectionPayments => 'Payment methods';
+
+  @override
+  String get paymentsSubtitle =>
+      'Turn on the payment gateways that appear in the app, then choose the default one.';
+
+  @override
+  String get paymentsEnvTest => 'Test';
+
+  @override
+  String get paymentsEnvLive => 'Live';
+
+  @override
+  String gatewayEnable(String name) {
+    return 'Enable $name';
+  }
+
+  @override
+  String get gatewaySetDefault => 'Set as default';
+
+  @override
+  String get gatewayTestConnection => 'Test connection';
+
+  @override
+  String get gatewayTesting => 'Testing...';
+
+  @override
+  String get gatewayTestOk => 'Connection successful';
+
+  @override
+  String get gatewayTestInvalid => 'The gateway rejected these credentials';
+
+  @override
+  String get gatewayTestNotImplemented =>
+      'Connection test is not available for this gateway yet';
+
+  @override
+  String get gatewayTestUnreachable =>
+      'Could not reach the test service. Try again.';
+
+  @override
+  String get gatewayTestError => 'The gateway returned an error';
+
+  @override
+  String get gatewayShowSecret => 'Show';
+
+  @override
+  String get gatewayHideSecret => 'Hide';
+
+  @override
+  String get paymentsConfigureLater => 'Configure later';
+
+  @override
+  String get paymentsSecretsNote =>
+      'Secret keys are stored on the server only and are never put inside the app file.';
+
+  @override
+  String get errNoGatewayEnabled =>
+      'Enable at least one gateway or choose Configure later';
+
+  @override
+  String get errGatewayFieldsMissing =>
+      'Fill in the required credentials of the enabled gateways';
+
+  @override
+  String get labelPayments => 'Payment methods';
+
+  @override
+  String get paymentsConfiguredLater => 'Configure later';
+
+  @override
+  String paymentsDefaultSuffix(String name) {
+    return '$name (default)';
+  }
+
+  @override
+  String get paymentsSecretsNotSaved =>
+      'Your request was sent, but the payment keys could not be saved. Please contact support so we can collect them.';
+
+  @override
+  String get paymentsChooseTitle => 'Choose payment gateways';
+
+  @override
+  String get paymentsChooseDesc =>
+      'Select every gateway your app should offer.';
+
+  @override
+  String get paymentsDetailsTitle => 'Connection details';
+
+  @override
+  String get paymentsDetailsDesc =>
+      'Enter the credentials of the selected gateways for the chosen environment.';
+
+  @override
+  String get paymentsDetailsEmpty =>
+      'Select a gateway above to enter its details.';
+
+  @override
+  String get gatewayStatusComplete => 'Complete';
+
+  @override
+  String gatewayStatusMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fields missing',
+      one: '1 field missing',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gatewayIsDefault => 'Default';
+
+  @override
+  String get regionEg => 'Egypt';
+
+  @override
+  String get regionSa => 'Saudi Arabia';
+
+  @override
+  String get regionGulf => 'Gulf';
+
+  @override
+  String get countryAe => 'UAE';
+
+  @override
+  String get countryKw => 'Kuwait';
+
+  @override
+  String get countryQa => 'Qatar';
+
+  @override
+  String get countryBh => 'Bahrain';
+
+  @override
+  String get countryOm => 'Oman';
 }
