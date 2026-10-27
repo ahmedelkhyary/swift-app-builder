@@ -583,15 +583,22 @@ class _Logo extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border, width: 0.5),
       ),
-      child: asset == null
-          ? initials
-          : SvgPicture.asset(
-              asset,
-              fit: BoxFit.contain,
-              // The alt text of the logo.
-              semanticsLabel: gateway.name(lang),
-              errorBuilder: (_, _, _) => initials,
-            ),
+      child: switch (asset) {
+        null => initials,
+        final a when a.endsWith('.svg') => SvgPicture.asset(
+          a,
+          fit: BoxFit.contain,
+          // The alt text of the logo.
+          semanticsLabel: gateway.name(lang),
+          errorBuilder: (_, _, _) => initials,
+        ),
+        final a => Image.asset(
+          a,
+          fit: BoxFit.contain,
+          semanticLabel: gateway.name(lang),
+          errorBuilder: (_, _, _) => initials,
+        ),
+      },
     );
   }
 }

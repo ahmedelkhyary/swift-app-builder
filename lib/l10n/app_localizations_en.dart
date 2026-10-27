@@ -816,6 +816,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submitting => 'Submitting...';
 
   @override
+  String get downloadJson => 'Download JSON';
+
+  @override
+  String get downloadFailed => 'Download is only available in the browser';
+
+  @override
   String get retry => 'Try again';
 
   @override

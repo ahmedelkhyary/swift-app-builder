@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:recruitment_ui/recruitment_ui.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../application/file_io.dart';
 import '../application/providers.dart';
 import '../data/request_submitter.dart';
 import '../domain/config.dart';
@@ -47,7 +48,7 @@ class SummarySection extends ConsumerWidget {
           children: [
             _Review(draft: d, config: p.config),
             _ValidationReport(draft: d, errors: p.schemaErrors),
-            _SubmitPanel(appId: p.config.appId, valid: p.isValid),
+            _SubmitPanel(config: p.config, valid: p.isValid),
           ],
         );
       },
@@ -190,9 +191,22 @@ class _ValidationReport extends StatelessWidget {
 /// "Submit request": sends the wizard to the backend with loading, error +
 /// retry, an overwrite confirmation and a success dialog.
 class _SubmitPanel extends ConsumerWidget {
-  const _SubmitPanel({required this.appId, required this.valid});
-  final String appId;
+  const _SubmitPanel({required this.config, required this.valid});
+  final AppConfig config;
   final bool valid;
+
+  String get appId => config.appId;
+
+  void _download(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    try {
+      downloadTextFile('$appId.json', config.toPrettyJson());
+    } on UnsupportedError {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.downloadFailed)));
+    }
+  }
 
   Future<void> _submit(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
@@ -298,6 +312,12 @@ class _SubmitPanel extends ConsumerWidget {
                       ? l10n.submitting
                       : (error == null ? l10n.submitRequest : l10n.retry),
                 ),
+              ),
+              OutlinedButton.icon(
+                key: const ValueKey('download-json'),
+                onPressed: () => _download(context),
+                icon: const Icon(Icons.download),
+                label: Text(l10n.downloadJson),
               ),
             ],
           ),

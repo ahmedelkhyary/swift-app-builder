@@ -144,8 +144,7 @@ const kPaymentGateways = <PaymentGateway>[
     nameEn: 'HyperPay',
     initials: 'HP',
     regions: [GatewayRegion.sa, GatewayRegion.gulf],
-    logo: 'assets/payment-gateways/hyperpay.svg',
-    logoDark: 'assets/payment-gateways/hyperpay-dark.svg',
+    logo: 'assets/payment-gateways/hyperpay.png',
     supportedMethods: ['mada', 'visa', 'mastercard', 'applepay', 'stcpay'],
     fields: [
       GatewayField(
@@ -193,8 +192,7 @@ const kPaymentGateways = <PaymentGateway>[
     nameEn: 'Paymob',
     initials: 'PM',
     regions: [GatewayRegion.eg, GatewayRegion.sa, GatewayRegion.gulf],
-    logo: 'assets/payment-gateways/paymob.svg',
-    logoDark: 'assets/payment-gateways/paymob-dark.svg',
+    logo: 'assets/payment-gateways/paymob.png',
     supportedMethods: ['cards', 'wallets', 'fawry', 'valu'],
     fields: [
       GatewayField(
@@ -247,8 +245,7 @@ const kPaymentGateways = <PaymentGateway>[
     nameEn: 'Amazon Payment Services (PayFort)',
     initials: 'APS',
     regions: [GatewayRegion.eg, GatewayRegion.sa, GatewayRegion.gulf],
-    logo: 'assets/payment-gateways/aps.svg',
-    logoDark: 'assets/payment-gateways/aps-dark.svg',
+    logo: 'assets/payment-gateways/aps.png',
     supportedMethods: ['mada', 'visa', 'mastercard', 'applepay'],
     fields: [
       GatewayField(

@@ -815,6 +815,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get submitting => 'جاري الإرسال...';
 
   @override
+  String get downloadJson => 'تنزيل JSON';
+
+  @override
+  String get downloadFailed => 'التنزيل متاح في المتصفح فقط';
+
+  @override
   String get retry => 'إعادة المحاولة';
 
   @override

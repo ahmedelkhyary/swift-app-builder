@@ -1001,14 +1001,28 @@ void main() {
       return container;
     }
 
-    testWidgets('JSON, download and version history are gone', (tester) async {
+    testWidgets('raw JSON panel and version history are gone; download stays', (
+      tester,
+    ) async {
       await openSummary(tester, _FakeSubmitter());
       expect(find.text('Configuration JSON'), findsNothing);
-      expect(key('download-json'), findsNothing);
       expect(find.text('Version history'), findsNothing);
       expect(find.text('Review'), findsWidgets);
       expect(find.text('Submit request'), findsWidgets);
       expect(find.text('Save configuration'), findsNothing);
+      expect(key('download-json'), findsOneWidget);
+    });
+
+    testWidgets('download JSON shows the browser-only message outside a browser', (
+      tester,
+    ) async {
+      await openSummary(tester, _FakeSubmitter());
+      await tapIn(tester, key('download-json'));
+      await tester.pump();
+      expect(
+        find.text('Download is only available in the browser'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('submits, shows success with the App ID, then resets', (

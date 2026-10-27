@@ -1544,6 +1544,18 @@ abstract class AppLocalizations {
   /// **'Submitting...'**
   String get submitting;
 
+  /// No description provided for @downloadJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Download JSON'**
+  String get downloadJson;
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download is only available in the browser'**
+  String get downloadFailed;
+
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:

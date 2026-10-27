@@ -411,6 +411,8 @@
   "submitCardDesc": "Review the details above, then submit. The request is filed under the App ID.",
   "submitRequest": "Submit request",
   "submitting": "Submitting...",
+  "downloadJson": "Download JSON",
+  "downloadFailed": "Download is only available in the browser",
   "retry": "Try again",
   "requestSentTitle": "Your request was submitted",
   "requestSentBody": "We received your request and our team will review it. We will contact you shortly to confirm the details.",

@@ -235,28 +235,25 @@ void main() {
     await mouse.removePointer();
   });
 
-  testWidgets('a missing logo file falls back to the initials badge', (
+  testWidgets('each gateway shows its real logo file, not the initials', (
     tester,
   ) async {
     await openPayments(tester);
-    // No logo files are bundled in tests: every tile shows its initials.
-    for (final e in {
-      'hyperpay': 'HP',
-      'paymob': 'PM',
-      'payfort': 'APS',
-    }.entries) {
+    await tester.pumpAndSettle();
+    for (final id in ['hyperpay', 'paymob', 'payfort']) {
       expect(
         find.descendant(
-          of: key('gateway-logo-${e.key}'),
-          matching: find.text(e.value),
+          of: key('gateway-logo-$id'),
+          matching: find.byType(Image),
         ),
         findsOneWidget,
-        reason: e.key,
+        reason: id,
       );
       // One consistent 48x48 size.
-      expect(tester.getSize(key('gateway-logo-${e.key}')), const Size(48, 48));
+      expect(tester.getSize(key('gateway-logo-$id')), const Size(48, 48));
     }
   });
+
 
   testWidgets('selecting tiles is multiple; a check badge marks them', (
     tester,
