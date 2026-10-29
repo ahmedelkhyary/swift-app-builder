@@ -6,7 +6,7 @@ A Flutter Web tool for configuring **white-label mobile apps for domestic-worker
 recruitment offices**. Every generated app runs the same business; only the
 branding, enabled service modules and design template differ.
 
-The builder walks a team member through five steps and produces a validated,
+The builder walks a team member through six steps and produces a validated,
 versioned JSON configuration that a later pipeline (not part of this repo yet)
 will consume to generate the app.
 
@@ -20,7 +20,8 @@ will consume to generate the app.
 | 2. Visual identity | Inline color picker for primary / secondary / splash colors (HEX, RGB, eyedropper, contrast check, colors extracted from the logo), logo, app icon, splash logo, font |
 | 3. Languages | Default language and supported languages (Arabic, English) |
 | 4. Templates | Enabled service modules, three design templates — Simple, Luxury and Premium (tick several and **compare** them side by side), and a **fully interactive phone preview** |
-| 5. Summary | Read-only review, formatted JSON, schema validation report, save as a new version, download JSON, version history with "restore as new draft" |
+| 5. Payment methods | Only for templates that support payments. Turn on gateways (HyperPay, Paymob, Amazon Payment Services / PayFort), pick the default one, enter test/live credentials per gateway and test the connection live; secrets never touch the saved config — see [Payment gateways](#payment-gateways) |
+| 6. Summary | Read-only review, schema validation report, download the config as JSON, submit the request |
 
 Highlights:
 
@@ -40,6 +41,10 @@ Highlights:
 - **Validated, append-only configs.** Every save creates a new immutable version
   that is checked against `assets/config.schema.json` first. Secrets cannot be
   stored (the schema forbids unknown properties).
+- **Payment gateway credentials never touch the saved config.** The wizard
+  sends them straight to Google Secret Manager through a Cloud Function,
+  authorized by a one-time token; the config only ever records which gateways
+  are enabled and which is the default.
 
 ## Repository layout
 
@@ -48,19 +53,24 @@ lib/
   app/                     router, theme tokens, locale
   l10n/                    ARB files (ar, en) + generated localizations
   features/builder/
-    domain/                draft + config models, validators, asset/color tools
-    data/                  ConfigRepository, in-memory impl, remote stub
+    domain/                draft + config models, validators, payment gateway registry
+    data/                  ConfigRepository, in-memory impl, remote stub, Firebase submitter
     application/           Riverpod providers, config service, schema validator
-    presentation/          wizard shell, step screens, color picker, phone frame
+    presentation/          wizard shell, step screens, color picker, phone frame, payments step
 packages/recruitment_ui/   reusable interactive app + templates (see its README)
 assets/config.schema.json  JSON Schema of the saved configuration
-docs/CONFIG.md             configuration reference
+assets/payment-gateways/   gateway logo files (see its README)
+docs/CONFIG.md             configuration reference (fields, status lifecycle, payments)
+docs/PHASE2_PROGRESS.md    build-pipeline status, open items, next steps
+functions/                 Cloud Functions: pipeline dispatch, confirmation email, payment secrets
+pipeline/                  Azure DevOps build pipeline (YAML + its Node scripts)
 test/                      unit + widget tests
 ```
 
 Stack: Flutter (web), `flutter_riverpod`, `go_router` (hash URLs), `intl` /
 `flutter_localizations`, `google_fonts` (IBM Plex Sans Arabic / Mono, Cairo),
-`json_schema`, `image`, `file_picker`.
+`json_schema`, `image`, `file_picker`, `flutter_svg`, Firebase (Firestore,
+Storage, Cloud Functions), Azure DevOps (build + confirmation-email pipelines).
 
 ## Getting started
 
@@ -118,16 +128,34 @@ A saved configuration looks like this (full reference in
 ```
 
 Assets are stored under `apps/{appId}/v{configVersion}/…` and referenced by path.
+Templates that support payments also add a `payments` object (enabled
+gateways, default gateway, per-gateway non-secret settings) — see
+[docs/CONFIG.md](docs/CONFIG.md#payment-methods-payments-and-secrets).
 
 ## Submitting a request (Firebase)
 
-Step 5 ends with **Submit request**: the wizard is stored in Firestore as
+Step 6 (Summary) ends with **Submit request**: the wizard is stored in Firestore as
 `app_requests/{appId}` (`status: pending`, `createdAt` / `updatedAt` server timestamps)
 and the logo / app icon are uploaded to Storage under `app_requests/{appId}/`; the
 document holds their download URLs. If a request with that App ID already exists the user
 must confirm updating it (`createdAt` is kept).
 
 Setup: the app uses `lib/firebase_options.dart` (created by `flutterfire configure`). To point a build at another project, copy `.env.example` to `.env` and run with `--dart-define-from-file=.env` (optional; the same keys can be GitHub secrets). Enable Firestore and Storage in the console and deploy `firestore.rules` and `storage.rules` — note this replaces the project's existing rules. The Firebase code lives in `lib/firebase.dart`.
+
+## Payment gateways
+
+Step 5 (shown only for templates that support payments) lets the client turn
+on **HyperPay**, **Paymob** and **Amazon Payment Services (PayFort)**, pick a
+default gateway, enter separate test/live credentials for each enabled one,
+and test a gateway's credentials live via the `paymentGateways` Cloud
+Function. Credential fields are never written to the saved config or to
+Firestore in plain text: after submission, the wizard calls
+`savePaymentSecrets` once, authorized by a one-time token whose hash is the
+only trace left on the request document, and the function stores the actual
+values in Google Secret Manager. See
+[`docs/CONFIG.md`](docs/CONFIG.md#payment-methods-payments-and-secrets) for
+the full field reference, and the gateway-logo setup in
+[`assets/payment-gateways/README.md`](assets/payment-gateways/README.md).
 
 ## Build pipeline (Azure DevOps)
 
