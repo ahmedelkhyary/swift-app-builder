@@ -283,3 +283,57 @@
 .rui-stepper-dots span { flex: 1; height: 4px; border-radius: 2px; background: var(--rui-outline-variant); }
 .rui-stepper-dots span.is-on { background: var(--rui-primary); }
 [data-rui-card="luxe"] .rui-stepper-dots span.is-on { background: var(--rui-accent); }
+
+/* ---- Workers, tabs, search ------------------------------------------------------------------ */
+
+.rui-avatar { flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--rui-primary-a16); color: var(--rui-primary); }
+.rui-btn--small { min-height: 40px !important; padding: 0 12px; font-size: calc(13px * var(--rui-type)); }
+.rui-chips--scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.rui-chips--scroll::-webkit-scrollbar { display: none; }
+.rui-chips--scroll .rui-chip { flex: none; }
+.rui-tabs { display: flex; width: 100%; border-bottom: 1px solid var(--rui-outline-variant); }
+.rui-tab { flex: 1; padding: 12px 4px; border: 0; background: none; cursor: pointer; color: var(--rui-outline);
+  font: 600 calc(14px * var(--rui-type)) var(--rui-font); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.rui-tab[aria-selected="true"] { color: var(--rui-primary); border-bottom-color: var(--rui-primary); }
+[data-rui-card="luxe"] .rui-tab[aria-selected="true"] { color: var(--rui-text); border-bottom-color: var(--rui-accent); }
+.rui-tab:focus-visible { outline: 3px solid var(--rui-focus); outline-offset: -3px; }
+.rui-tabpanel { width: 100%; min-height: 240px; padding-top: 12px; }
+.rui-search { position: relative; }
+.rui-search__clear { position: absolute; inset-inline-end: 4px; bottom: 4px; color: var(--rui-outline); }
+
+/* ---- Featured services, address line, hourly controls ------------------------------------- */
+
+.rui-address-line { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 4px 0; border: 0; background: none;
+  color: var(--sub); font: inherit; font-size: calc(12px * var(--rui-type)); cursor: pointer; border-radius: 8px; }
+.rui-address-line span:not(.rui-icon) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rui-address-line:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.rui-link-btn .rui-text-btn { color: var(--rui-link); padding-inline: 8px; }
+
+.rui-featured-list { display: grid; grid-auto-flow: column; grid-auto-columns: 150px; gap: 12px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: none; }
+.rui-featured-list::-webkit-scrollbar { display: none; }
+.rui-featured {
+  position: relative; height: 184px; overflow: hidden; border: 0; padding: 0; cursor: pointer; color: #fff; text-align: start;
+  border-radius: var(--rui-radius); background: linear-gradient(135deg, var(--f1), var(--f2));
+  box-shadow: 0 6px 8px rgb(0 0 0 / 0.08); font: inherit;
+}
+[data-rui-card="luxe"] .rui-featured { border: 1.2px solid var(--rui-accent); box-shadow: 0 6px 20px rgb(0 0 0 / 0.18); }
+[data-rui-card="glass"] .rui-featured { box-shadow: 0 6px 20px var(--rui-primary-a28); }
+.rui-featured__art { position: absolute; inset-inline-end: -14px; top: -6px; font-size: 110px; opacity: 0.2; }
+.rui-featured__title { position: absolute; inset: auto 0 0 0; padding: 28px 12px 12px; font-weight: 700;
+  background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.6)); }
+.rui-featured:focus-visible { outline: 3px solid var(--rui-focus); outline-offset: 2px; }
+
+.rui-segmented { display: flex; border: 1px solid var(--rui-outline); border-radius: 999px; overflow: hidden; }
+.rui-segmented button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 12px;
+  border: 0; background: none; color: var(--rui-text); font: 500 calc(13px * var(--rui-type)) var(--rui-font); cursor: pointer; }
+.rui-segmented button + button { border-inline-start: 1px solid var(--rui-outline); }
+.rui-segmented button.is-on { background: color-mix(in srgb, var(--rui-primary) 16%, transparent); }
+.rui-segmented button:focus-visible { outline: 3px solid var(--rui-focus); outline-offset: -3px; }
+
+.rui-stepper { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
+.rui-stepper__btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--rui-outline); background: none; color: var(--rui-text); cursor: pointer; display: grid; place-items: center; }
+.rui-stepper__btn:disabled { opacity: 0.35; cursor: default; }
+.rui-stepper__btn:focus-visible { outline: 3px solid var(--rui-focus); outline-offset: 2px; }
+.rui-stepper__value { width: 70px; text-align: center; font-size: calc(16px * var(--rui-type)); }
+.rui-discount { display: flex; gap: 8px; align-items: flex-start; }
+.rui-discount .rui-btn { margin-top: 22px; min-height: 48px !important; }

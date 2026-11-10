@@ -44,6 +44,30 @@ reveal (`RuiTheme.reveal(container)`).
 Layout hooks: `--rui-safe-top` / `--rui-safe-bottom` reserve room for a
 status bar and home indicator (the wizard's phone frame sets them).
 
+## The interactive app (`recruitment-ui/app/`)
+
+The whole prototype of `RecruitmentApp`, with mock data only (no SMS,
+payment or booking is real): login + OTP, Home (banners, featured services,
+categories, reviews, partners, contact), Orders, Account, and the
+Individuals, Hourly and Mediation flows through contract, payment and success.
+
+| File | Port of |
+|------|---------|
+| `app/repository.js` | `demo/repository.dart`: mock data, pricing, discount codes |
+| `app/session.js` | `demo/session.dart`: all state and business rules |
+| `app/core.js` | `ui/app.dart` + `widgets.dart`: navigator with the template's page transition, widgets, dialogs/sheets/snack |
+| `app/app.css` | styles of those widgets, per template |
+| `app/screens/*.js` | `ui/*_screens.dart`, one file per flow |
+
+```js
+const app = RuiApp.mount(element, { templateId, branding, dark, lang });
+app.update({ templateId: "luxury" }); // re-theme, state is kept
+app.session.jumpTo("hourly");         // "login" | "home" | "individuals" | "hourly" | "mediation"
+```
+
+Load order: `rui-theme.js`, `app/repository.js`, `app/session.js`,
+`app/core.js`, then the screen files (see `wizard/index.html`).
+
 ## The wizard
 
 Open `wizard/index.html` in a browser. Deep links:

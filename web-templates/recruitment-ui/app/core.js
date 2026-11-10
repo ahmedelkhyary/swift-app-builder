@@ -326,6 +326,11 @@
         show(stack[stack.length - 1], false);
         return true;
       },
+      /** pushReplacementNamed */
+      replace(name, args) {
+        if (stack.length) dispose(stack.pop());
+        nav.push(name, args);
+      },
       /** pushNamedAndRemoveUntil(name, (_) => false) */
       replaceAll(name, args) {
         while (stack.length) dispose(stack.pop());
