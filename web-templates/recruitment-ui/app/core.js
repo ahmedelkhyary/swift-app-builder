@@ -24,7 +24,13 @@
       for (const [k, v] of Object.entries(props)) {
         if (v == null || v === false) continue;
         if (k === "class") el.className = v;
-        else if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+        else if (k === "style" && typeof v === "object") {
+          for (const [p, pv] of Object.entries(v)) {
+            if (pv == null) continue;
+            if (p.startsWith("--")) el.style.setProperty(p, pv); // custom properties need setProperty
+            else el.style[p] = pv;
+          }
+        }
         else if (k === "key") el.dataset.key = v;
         else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2).toLowerCase(), v);
         else if (k === "value" && "value" in el) el.value = v;
@@ -240,6 +246,7 @@
       const ctx = {
         app: controller, session, repo: session.repo, template, lang,
         isAr: lang === "ar",
+        dark: !!opts.dark,
         branding: opts.branding || {},
         appName() {
           const b = opts.branding || {};

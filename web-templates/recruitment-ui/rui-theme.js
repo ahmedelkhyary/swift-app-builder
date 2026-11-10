@@ -277,16 +277,14 @@
     const rich = !!themed && themed.dataset.ruiMotion === "rich";
     const reduced = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const items = container.querySelectorAll("[data-rui-reveal]");
+    if (!rich || reduced) return;
     items.forEach((el, i) => {
-      el.classList.remove("rui-revealed");
-      if (!rich || reduced) {
-        el.classList.add("rui-revealed");
-        return;
-      }
       el.style.setProperty("--rui-reveal-delay", `${Math.min(i, 8) * 70}ms`);
-      // Next frame, so the transition runs from the hidden state.
-      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("rui-revealed")));
+      el.classList.add("rui-reveal-pending");
     });
+    // Force the hidden state to apply, then release it so the transition runs.
+    void container.offsetWidth;
+    setTimeout(() => items.forEach((el) => el.classList.remove("rui-reveal-pending")), 20);
   }
 
   global.RuiTheme = {

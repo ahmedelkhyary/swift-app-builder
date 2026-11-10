@@ -426,13 +426,13 @@ body {
 
 /* ---- Motion: staggered reveal + skeleton (MotionLevel.rich) ------------------------ */
 
+/* Visible by default (re-renders never hide content); reveal() briefly adds
+   .rui-reveal-pending, then removes it so the transition plays. */
 [data-rui-motion="rich"] [data-rui-reveal] {
-  opacity: 0;
-  transform: translateY(16px);
   transition: opacity 420ms var(--rui-ease) var(--rui-reveal-delay, 0ms),
               transform 420ms var(--rui-ease) var(--rui-reveal-delay, 0ms);
 }
-[data-rui-motion="rich"] [data-rui-reveal].rui-revealed { opacity: 1; transform: none; }
+[data-rui-motion="rich"] [data-rui-reveal].rui-reveal-pending { opacity: 0; transform: translateY(16px); transition: none; }
 
 .rui-skeleton {
   border-radius: 12px;
