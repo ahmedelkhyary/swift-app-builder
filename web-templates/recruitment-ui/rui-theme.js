@@ -42,6 +42,22 @@
       nav: "floating", input: "soft", transition: "scale",
       palette: "vivid", motion: "rich", displayFont: false,
     },
+    // Web-only for now: not in app_template.dart / config.schema.json yet.
+    modern: {
+      id: "modern", nameAr: "عصري", nameEn: "Modern",
+      cornerRadius: 4, typographyScale: 1.0, spacing: 1.1,
+      card: "outlined", header: "solid", button: "flat", grid: "grid2",
+      nav: "line", input: "outlined", transition: "fade",
+      palette: "calm", motion: "soft", displayFont: false,
+    },
+    // Web-only, from the Enaya/Ajel design: white plain headers, soft cards, pill buttons.
+    jadara: {
+      id: "jadara", nameAr: "جدارة", nameEn: "Jadara",
+      cornerRadius: 16, typographyScale: 1.0, spacing: 1.1,
+      card: "soft", header: "plain", button: "pill", grid: "grid2",
+      nav: "line", input: "soft", transition: "fade",
+      palette: "neutral", motion: "soft", displayFont: false,
+    },
   };
   const TEMPLATE_VERSION = 2; // AppTemplate.version
 
@@ -133,6 +149,27 @@
         };
         break;
       }
+      case "calm": {
+        // Brand colors muted toward a cool slate; quiet gray surfaces.
+        const slate = hex("#5B6574");
+        const muted = lerp(primary, slate, 0.25);
+        const base = lerp(b.primary, slate, 0.35);
+        const chrome = dark ? lerp(base, BLACK, 0.45) : base;
+        k = {
+          page: dark ? hex("#15171A") : lerp(hex("#F5F6F7"), b.primary, 0.02),
+          text: dark ? hex("#E7E9EC") : hex("#22262D"),
+          cardFill: dark ? hex("#1C1F23") : WHITE,
+          cardBorder: dark ? hex("#2E3238") : hex("#E3E6EA"),
+          chrome,
+          onChrome: onColorFor(chrome),
+          accent: lerp(secondary, slate, 0.4),
+          focus: alpha(muted, 0.2),
+          heroGradient: [chrome, lerp(chrome, BLACK, 0.15)],
+          primary: muted,
+          secondary: lerp(secondary, slate, 0.3),
+        };
+        break;
+      }
       default: {
         const chrome = dark ? lerp(b.primary, BLACK, 0.45) : b.primary;
         k = {
@@ -149,8 +186,9 @@
       }
     }
     k.link = link;
-    k.primary = primary;
-    k.secondary = secondary;
+    // A palette may soften the action colors (e.g. "calm"); otherwise the brand's.
+    k.primary = k.primary || primary;
+    k.secondary = k.secondary || secondary;
     // The client's own page / text colors always win (RuiTokens.resolve).
     if (b.background) k.page = b.background;
     if (b.text) k.text = b.text;
@@ -257,6 +295,7 @@
     ds.ruiInput = t.input;
     ds.ruiTransition = t.transition;
     ds.ruiMotion = t.motion;
+    ds.ruiPalette = t.palette;
     ds.ruiTheme = dark ? "dark" : "light";
     // Any element can be the themed root (the whole page, or a phone-frame
     // preview inside a larger page): it gets its own language and direction.

@@ -73,6 +73,14 @@ Load order: `rui-theme.js`, `app/repository.js`, `app/session.js`,
 Open `wizard/index.html` in a browser. Deep links:
 `?template=luxury&dark=1&lang=en&device=android`.
 
+## Tests
+
+`tests/e2e.html` drives every flow (login, the three services, payment,
+featured services, tabs) through the UI in every template;
+`?templates=a,b` limits the run. It must end with `RESULT: PASS`. The
+command line is in `.claude/skills/add-web-template/SKILL.md`, the skill to
+follow when adding a template.
+
 ## Keeping it in sync with Flutter
 
 The numbers (radii, spacing, color mixes, shadows) are copied from the Dart

@@ -112,6 +112,23 @@ body {
   padding: 6px; border-radius: 50%; background: rgb(255 255 255 / 0.2);
 }
 
+/* plain (web-only, Jadara): page-colored bar, centered title, round tinted icon buttons. */
+[data-rui-header="plain"] .rui-header {
+  --pad-v: calc(10px * var(--rui-space));
+  --fg: var(--rui-text);
+  --sub: var(--rui-text-muted);
+  background: var(--rui-page);
+}
+[data-rui-header="plain"] .rui-header:not(.rui-header--large) .rui-title { font-size: calc(17px * var(--rui-type)); }
+[data-rui-header="plain"] .rui-header--large .rui-title { font-size: calc(19px * var(--rui-type)); }
+[data-rui-header="plain"] .rui-header__logo,
+[data-rui-header="plain"] .rui-header .rui-icon-btn {
+  width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  background: var(--rui-primary-a10); color: var(--rui-primary);
+}
+[data-rui-header="plain"] .rui-header__logo .rui-icon { font-size: 22px; }
+[data-rui-header="plain"] .rui-header .rui-icon-btn:hover { background: var(--rui-primary-a16); }
+
 [data-rui-header="luxe"] .rui-header {
   --fg: var(--rui-on-chrome);
   --sub: var(--rui-accent);
@@ -182,6 +199,24 @@ body {
 }
 [data-rui-card="outlined"] .rui-card--selected { border: 1.5px solid var(--rui-primary); }
 
+/* soft (web-only, Jadara): white, borderless, soft shadow; selected = light primary tint. */
+[data-rui-card="soft"] .rui-card {
+  background: var(--rui-card-fill);
+  border: 1px solid transparent;
+  box-shadow: 0 4px 18px rgb(16 24 40 / 0.06);
+}
+[data-rui-theme="dark"][data-rui-card="soft"] .rui-card { border-color: var(--rui-card-border); box-shadow: 0 4px 18px rgb(0 0 0 / 0.35); }
+[data-rui-card="soft"] .rui-card--selected {
+  background: color-mix(in srgb, var(--rui-primary) 6%, var(--rui-card-fill));
+  border-color: color-mix(in srgb, var(--rui-primary) 30%, transparent);
+}
+/* Icons sit in a light rounded square (services, list leading icons, avatars). */
+[data-rui-card="soft"] .rui-service .rui-icon,
+[data-rui-card="soft"] .rui-select-tile__leading:has(> .rui-icon) {
+  padding: 10px; border-radius: 12px; background: var(--rui-primary-a10); color: var(--rui-primary);
+}
+[data-rui-card="soft"] .rui-avatar { border-radius: 14px; }
+
 [data-rui-card="luxe"] .rui-card {
   background: linear-gradient(180deg, var(--rui-card-fill), var(--rui-card-luxe-end));
   border: 1px solid var(--rui-card-border);
@@ -234,6 +269,22 @@ body {
   min-height: 48px;
   background: var(--rui-secondary);
   color: var(--rui-on-secondary);
+}
+
+/* pill (web-only, Jadara): solid primary capsule; secondary = light outlined capsule. */
+[data-rui-button="pill"] .rui-btn {
+  min-height: 50px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: var(--rui-primary);
+  color: var(--rui-on-primary);
+}
+[data-rui-button="pill"] .rui-btn--secondary {
+  min-height: 48px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--rui-primary);
+  border: 1px solid var(--rui-card-border);
 }
 
 [data-rui-button="luxe"] .rui-btn {
@@ -292,7 +343,7 @@ body {
 
 [data-rui-input="outlined"] .rui-input {
   padding: 14px;
-  border-radius: 10px;
+  border-radius: min(var(--rui-radius), 10px); /* 10px in Simple; sharper templates follow their radius */
   background: var(--rui-input-fill-outlined);
   box-shadow: inset 0 0 0 1px var(--rui-card-border);
 }

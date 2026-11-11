@@ -63,7 +63,9 @@
   function header(ctx, { title, subtitle, subtitleNode, avatar, onBack, trailing, large } = {}) {
     const style = ctx.template.header;
     const hero = style === "hero";
-    return h("header", { class: "rui-header" + (large ? " rui-header--large" : "") + (style === "solid" && !avatar ? " rui-header--center" : "") },
+    // Solid and plain headers center the title when there is no avatar.
+    const centered = (style === "solid" || style === "plain") && !avatar;
+    return h("header", { class: "rui-header" + (large ? " rui-header--large" : "") + (centered ? " rui-header--center" : "") },
       onBack
         ? h("button", { class: "rui-icon-btn", type: "button", "aria-label": ctx.x("رجوع", "Back"), key: "header-back", onClick: onBack },
           icon(ctx.isAr ? "arrow_forward" : "arrow_back"))
@@ -73,7 +75,7 @@
         subtitle && large && hero ? h("div", { class: "rui-header__sub" }, subtitle) : null,
         h("h1", { class: "rui-title" }, title),
         subtitleNode || (subtitle && !(large && hero) ? h("div", { class: "rui-header__sub" }, subtitle) : null)),
-      trailing || (style === "solid" && !avatar && onBack ? h("span", { class: "rui-header__balance" }) : null));
+      trailing || (centered && onBack ? h("span", { class: "rui-header__balance" }) : null));
   }
 
   /**
